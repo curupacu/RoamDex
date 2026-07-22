@@ -177,72 +177,67 @@ Entra logo depois da base polida (pós Fase 5). É o payoff dos times salvos na 
 
 # PARTE 2 — PLANO DE DESENVOLVIMENTO EM SPRINTS
 
-**Calibragem de tamanho** (referência dada pelo criador):
-- **P (pequeno)** = ordem de "adicionar um Pokémon novo" — ajuste, conteúdo pontual, tela simples
-- **M (médio)** = ordem de "sistema de itens" — um sistema completo mas contido
-- **G (grande)** = ordem de "uma região inteira" ou "sistema de aparição de selvagens" — sistema estrutural com várias partes
-
 Cada sprint tem **entregável jogável/testável** e critério de pronto (✅). A ordem respeita dependências.
 
 ## FASE 0 — Fundação
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 0.1 | M | Setup do projeto | Vite + TS + React + Zustand, estrutura de pastas (engine/systems/content/ui/stores), deploy de dev | `npm run dev` roda um hello-world com hot reload e CI de lint |
-| 0.2 | G | Pipeline PokeAPI | Script que gera JSONs estáticos da Gen 1: espécies, tipos, stats base, cadeias de evolução, capture_rate, sprites (URLs + fallback) | Rodar o script gera `gen1.json` válido; jogo carrega os 151 sem chamada de rede em runtime |
-| 0.3 | M | Engine base | Game loop por timestamp (100ms lógico), sistema de save com versão + migrações, formatador de números grandes | Save sobrevive a refresh e a mudança de versão simulada; loop não deriva com aba em background |
-| 0.4 | G | Conta & cloud save | Firebase Auth (anônimo automático + Google opcional), Firestore com 1 doc por jogador, sync local-first, backup das 3 últimas versões, hospedagem Vercel ligada ao GitHub com deploy automático | Jogar no PC, logar no celular e continuar a mesma run; jogar offline não perde nada |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 1 | Setup do projeto | Vite + TS + React + Zustand, estrutura de pastas (engine/systems/content/ui/stores), deploy de dev | `npm run dev` roda um hello-world com hot reload e CI de lint |
+| Sprint 2 | Pipeline PokeAPI | Script que gera JSONs estáticos da Gen 1: espécies, tipos, stats base, cadeias de evolução, capture_rate, sprites (URLs + fallback) | Rodar o script gera `gen1.json` válido; jogo carrega os 151 sem chamada de rede em runtime |
+| Sprint 3 | Engine base | Game loop por timestamp (100ms lógico), sistema de save com versão + migrações, formatador de números grandes | Save sobrevive a refresh e a mudança de versão simulada; loop não deriva com aba em background |
+| Sprint 4 | Conta & cloud save | Firebase Auth (anônimo automático + Google opcional), Firestore com 1 doc por jogador, sync local-first, backup das 3 últimas versões, hospedagem Vercel ligada ao GitHub com deploy automático | Jogar no PC, logar no celular e continuar a mesma run; jogar offline não perde nada |
 
 ## FASE 1 — Clicker core
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 1.1 | M | Clique & doces | Área de clique com o inicial, doces, feedback visual (+N flutuante), contador | Clicar é gostoso; números certos |
-| 1.2 | M | Upgrades & geradores | Painel lateral de upgrades (clique e CPS), custo `base×1.15^n`, desbloqueio progressivo | 30 min de jogo com sempre algo pra comprar em <5min |
-| 1.3 | P | Progresso offline | Cálculo por timestamp ao abrir, tela "enquanto você estava fora" | Fechar 1h e voltar dá os doces esperados (com cap) |
-| 1.4 | M | Escolha do inicial | Tela de novo jogo: escolher 1 dos 3 da Gen 1, inicial em lvl 5 vira o Pokémon ativo | Fluxo novo-jogo → escolha → clicker completo |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 5 | Clique & doces | Área de clique com o inicial, doces, feedback visual (+N flutuante), contador | Clicar é gostoso; números certos |
+| Sprint 6 | Upgrades & geradores | Painel lateral de upgrades (clique e CPS), custo `base×1.15^n`, desbloqueio progressivo | 30 min de jogo com sempre algo pra comprar em <5min |
+| Sprint 7 | Progresso offline | Cálculo por timestamp ao abrir, tela "enquanto você estava fora" | Fechar 1h e voltar dá os doces esperados (com cap) |
+| Sprint 8 | Escolha do inicial | Tela de novo jogo: escolher 1 dos 3 da Gen 1, inicial em lvl 5 vira o Pokémon ativo | Fluxo novo-jogo → escolha → clicker completo |
 
 ## FASE 2 — Sistema de tipos e time
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 2.1 | M | Tipos: bônus econômicos | Os 18 bônus da tabela mestra implementados; tipo duplo = ½ do secundário; UI mostrando origem de cada bônus | Trocar o time muda a economia visivelmente e o jogador entende por quê |
-| 2.2 | M | Time & Pokédex | Time ativo de até 6, tela de coleção com filtros (tipo/capturado), stats na ficha | Montar time e navegar a dex é fluido |
-| 2.3 | M | Níveis, XP & evolução | Curva de XP, evolução automática por nível (dados da API), stats escalando, golpe muda de estágio | Bulbasaur→Ivysaur→Venusaur acontece e fortalece de verdade |
-| 2.4 | M | Loja de Doces | Primeiro "ralo" de doces: buffs temporários pro time (+ATK, +XP, +captura) e Rare Candies com preço escalando por nível; contador separado de doces acumulados na run (base dos gates de ginásio) | Gastar doce vira decisão de otimização; acumulado e saldo aparecem separados na UI |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 9 | Tipos: bônus econômicos | Os 18 bônus da tabela mestra implementados; tipo duplo = ½ do secundário; UI mostrando origem de cada bônus | Trocar o time muda a economia visivelmente e o jogador entende por quê |
+| Sprint 10 | Time & Pokédex | Time ativo de até 6, tela de coleção com filtros (tipo/capturado), stats na ficha | Montar time e navegar a dex é fluido |
+| Sprint 11 | Níveis, XP & evolução | Curva de XP, evolução automática por nível (dados da API), stats escalando, golpe muda de estágio | Bulbasaur→Ivysaur→Venusaur acontece e fortalece de verdade |
+| Sprint 12 | Loja de Doces | Primeiro "ralo" de doces: buffs temporários pro time (+ATK, +XP, +captura) e Rare Candies com preço escalando por nível; contador separado de doces acumulados na run (base dos gates de ginásio) | Gastar doce vira decisão de otimização; acumulado e saldo aparecem separados na UI |
 
 ## FASE 3 — Batalha (o coração ativo)
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 3.1 | G | Motor de batalha 1v1 | Tela de batalha tap-to-attack, HP/ATK/DEF derivados, barra de energia, ataque inimigo telegrafado, troca de Pokémon, vitória/derrota, cura automática pós-batalha | Batalha completa contra inimigo fixo de teste, divertida no tap puro |
-| 3.2 | M | Efetividade de tipos | Tabela 2×/1×/0.5× nos dois sentidos, indicador visual ("super efetivo!") | Escalar contra o tipo certo muda o resultado |
-| 3.3 | M | Super golpes + QTE (leva 1) | Framework de QTE + 6 primeiros tipos (Grama, Fogo, Água, Elétrico, Normal, Lutador) com 3 estágios de golpe | QTE bom = dano cheio; framework aceita QTE novo só com config |
-| 3.4 | M | QTE leva 2 | +6 tipos (Gelo, Venenoso, Terra, Voador, Psíquico, Pedra) | Idem |
-| 3.5 | M | QTE leva 3 | +6 tipos finais (Inseto, Fantasma, Dragão, Aço, Escuridão, Fada) | Os 18 tipos completos |
-| 3.6 | G | Encontros selvagens | Spawn periódico com timer, pool da geração, nível escalando com a run, tiers de raridade via capture_rate, botão batalhar/ignorar | Loop clicker→encontro→batalha→volta sem fricção |
-| 3.7 | M | Capturar OU loot | Tela pós-vitória com a escolha exclusiva; chance de captura por capture_rate+bônus; tabela de loot (doces/upgrade; slot de item reservado) | A escolha gera dilema real; falha de bola = fuga |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 13 | Motor de batalha 1v1 | Tela de batalha tap-to-attack, HP/ATK/DEF derivados, barra de energia, ataque inimigo telegrafado, troca de Pokémon, vitória/derrota, cura automática pós-batalha | Batalha completa contra inimigo fixo de teste, divertida no tap puro |
+| Sprint 14 | Efetividade de tipos | Tabela 2×/1×/0.5× nos dois sentidos, indicador visual ("super efetivo!") | Escalar contra o tipo certo muda o resultado |
+| Sprint 15 | Super golpes + QTE (leva 1) | Framework de QTE + 6 primeiros tipos (Grama, Fogo, Água, Elétrico, Normal, Lutador) com 3 estágios de golpe | QTE bom = dano cheio; framework aceita QTE novo só com config |
+| Sprint 16 | QTE leva 2 | +6 tipos (Gelo, Venenoso, Terra, Voador, Psíquico, Pedra) | Idem |
+| Sprint 17 | QTE leva 3 | +6 tipos finais (Inseto, Fantasma, Dragão, Aço, Escuridão, Fada) | Os 18 tipos completos |
+| Sprint 18 | Encontros selvagens | Spawn periódico com timer, pool da geração, nível escalando com a run, tiers de raridade via capture_rate, botão batalhar/ignorar | Loop clicker→encontro→batalha→volta sem fricção |
+| Sprint 19 | Capturar OU loot | Tela pós-vitória com a escolha exclusiva; chance de captura por capture_rate+bônus; tabela de loot (doces/upgrade; slot de item reservado) | A escolha gera dilema real; falha de bola = fuga |
 
 ## FASE 4 — Rebirth e progressão macro
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 4.1 | G | Ginásios de Kanto | Framework de ginásio + os 8 de Kanto como conteúdo (líder, time, nível, tema); gate de entrada por doces acumulados na run; insígnias com mini-bônus; "trilha" visual da região mostrando o próximo ginásio e quanto falta | Os 8 marcos de doces dão ritmo à run; vencer líder dá insígnia e bônus |
-| 4.2 | M | Elite 4 de Kanto | Sequência de 4+1 batalhas como conteúdo (dados, não código), cura de 50% entre lutas, desbloqueio: 8 insígnias + marco final de doces acumulados | Dá pra perder, farmar, voltar e vencer — arco completo |
-| 4.3 | G | Rebirth + Victory Road | Reset da run (regras exatas da Parte 1), devolução à forma base, snapshot do time na Victory Road + tela do hall, fluxo de nova geração | Rebirth roda sem perder dados que deviam persistir; Victory Road registra certinho |
-| 4.4 | M | Loja de Rebirth | Moeda Insígnias de campeão, ~10 upgrades permanentes da árvore proposta, UI própria | Segunda run é sensivelmente melhor que a primeira |
-| 4.5 | G | Gen 2 completa | Pipeline gera Johto, 3 iniciais novos, pool de selvagens, 8 ginásios e Elite 4 próprios, balanceamento da segunda run | Jogador faz o ciclo Kanto→rebirth→Johto inteiro |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 20 | Ginásios de Kanto | Framework de ginásio + os 8 de Kanto como conteúdo (líder, time, nível, tema); gate de entrada por doces acumulados na run; insígnias com mini-bônus; "trilha" visual da região mostrando o próximo ginásio e quanto falta | Os 8 marcos de doces dão ritmo à run; vencer líder dá insígnia e bônus |
+| Sprint 21 | Elite 4 de Kanto | Sequência de 4+1 batalhas como conteúdo (dados, não código), cura de 50% entre lutas, desbloqueio: 8 insígnias + marco final de doces acumulados | Dá pra perder, farmar, voltar e vencer — arco completo |
+| Sprint 22 | Rebirth + Victory Road | Reset da run (regras exatas da Parte 1), devolução à forma base, snapshot do time na Victory Road + tela do hall, fluxo de nova geração | Rebirth roda sem perder dados que deviam persistir; Victory Road registra certinho |
+| Sprint 23 | Loja de Rebirth | Moeda Insígnias de campeão, ~10 upgrades permanentes da árvore proposta, UI própria | Segunda run é sensivelmente melhor que a primeira |
+| Sprint 24 | Gen 2 completa | Pipeline gera Johto, 3 iniciais novos, pool de selvagens, 8 ginásios e Elite 4 próprios, balanceamento da segunda run | Jogador faz o ciclo Kanto→rebirth→Johto inteiro |
 
 ## FASE 5 — Polimento e lançamento
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 5.1 | M | Balanceamento | Planilha viva + testes Vitest simulando 1h/10h/50h de jogo | Sem muros nem inflação nas simulações |
-| 5.2 | M | Polimento de UI/UX | Animações, transições de batalha, tutorial de 60s, responsivo mobile, settings (janela de QTE, reduzir efeitos) | Testável por alguém que nunca viu o jogo sem explicação |
-| 5.3 | P | Export/import de save | Backup em Base64, botão copiar/colar | Save migra entre navegadores |
-| 5.4 | P | Deploy público | Build de produção + hospedagem + disclaimer fan-made sem fins lucrativos | URL pública jogável |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 25 | Balanceamento | Planilha viva + testes Vitest simulando 1h/10h/50h de jogo | Sem muros nem inflação nas simulações |
+| Sprint 26 | Polimento de UI/UX | Animações, transições de batalha, tutorial de 60s, responsivo mobile, settings (janela de QTE, reduzir efeitos) | Testável por alguém que nunca viu o jogo sem explicação |
+| Sprint 27 | Export/import de save | Backup em Base64, botão copiar/colar | Save migra entre navegadores |
+| Sprint 28 | Deploy público | Build de produção + hospedagem + disclaimer fan-made sem fins lucrativos | URL pública jogável |
 
 ## FASE 6 — Raids da Victory Road (plano futuro PRÓXIMO — só após a Fase 5 polida)
-| # | Tam. | Sprint | Entrega | ✅ Pronto quando |
-|---|---|---|---|---|
-| 6.1 | G | Framework de raids | Modo raid desbloqueado após o 1º rebirth; seleção e uso dos times salvos da Victory Road em batalha (snapshots congelados); estrutura de tiers e recompensas que entram no modo padrão | Lutar com o time campeão de Kanto funciona; recompensa aparece na coleção do modo história |
-| 6.2 | M | Raids Tier 1 | Primeiras raids: bebês pseudo-lendários (Riolu, Dratini, Larvitar, Bagon, Beldum) como recompensa | Ciclo raid→recompensa→usar na história completo |
-| 6.3 | M | Raids Tier 2 | Lendários menores (Victini, trio de pássaros, Heatran) com dificuldade que exige composição de times | Precisa pensar na escalação pra vencer |
-| 6.4 | G | Raids Tier 3 | Supremos (Primal Kyogre, Mega Rayquaza...) com **mecânica única por boss** (fases, QTEs especiais, gimmicks) | Cada boss supremo é memorável e distinto |
+| Sprint | O que fazer | Entrega | ✅ Pronto quando |
+|---|---|---|---|
+| Sprint 29 | Framework de raids | Modo raid desbloqueado após o 1º rebirth; seleção e uso dos times salvos da Victory Road em batalha (snapshots congelados); estrutura de tiers e recompensas que entram no modo padrão | Lutar com o time campeão de Kanto funciona; recompensa aparece na coleção do modo história |
+| Sprint 30 | Raids Tier 1 | Primeiras raids: bebês pseudo-lendários (Riolu, Dratini, Larvitar, Bagon, Beldum) como recompensa | Ciclo raid→recompensa→usar na história completo |
+| Sprint 31 | Raids Tier 2 | Lendários menores (Victini, trio de pássaros, Heatran) com dificuldade que exige composição de times | Precisa pensar na escalação pra vencer |
+| Sprint 32 | Raids Tier 3 | Supremos (Primal Kyogre, Mega Rayquaza...) com **mecânica única por boss** (fases, QTEs especiais, gimmicks) | Cada boss supremo é memorável e distinto |
 
 ## BACKLOG (pós-lançamento, já encaixado no design)
 | Tam. | Item |
