@@ -15,6 +15,29 @@ main {
   margin: 0 auto;
 }
 
+.starter-choices {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.starter-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.starter-choice img {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+}
+
 .offline-banner {
   margin: 0 auto 1rem;
   max-width: 320px;

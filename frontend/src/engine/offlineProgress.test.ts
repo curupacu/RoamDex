@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { SaveData } from './save'
+import { makeSave as makeSaveWithOverrides } from './save.testUtils'
 import { calculateOfflineProgress, formatDuration, MAX_OFFLINE_MS, shouldShowOfflineBanner } from './offlineProgress'
 
-function makeSave(lastSavedAt: number): SaveData {
-  return { version: 2, candies: 0, lifetimeCandies: 0, lastSavedAt, upgrades: {} }
+function makeSave(lastSavedAt: number) {
+  return makeSaveWithOverrides({ lastSavedAt })
 }
 
 describe('calculateOfflineProgress', () => {

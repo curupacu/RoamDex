@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { SaveData } from '../../engine/save'
+import { makeSave } from '../../engine/save.testUtils'
 import { buyUpgrade, isUnlocked, ownedCount, totalClickBonus, totalCps, upgradeCost } from './upgrades'
 import { UPGRADES } from '../../content/gen1/upgrades'
-
-function makeSave(overrides: Partial<SaveData> = {}): SaveData {
-  return { version: 2, candies: 0, lifetimeCandies: 0, lastSavedAt: 0, upgrades: {}, ...overrides }
-}
 
 describe('upgradeCost', () => {
   it('scales the base cost by 1.15^owned, rounded up', () => {

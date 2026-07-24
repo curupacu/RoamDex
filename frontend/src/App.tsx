@@ -10,18 +10,13 @@ import {
 import { loadSave, writeSave, type SaveData } from './engine/save'
 import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
+import { STARTER_LEVEL } from './content/gen1/starters'
+import type { Gen1Entry } from './content/gen1/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { buyUpgrade, totalCps } from './systems/economy/upgrades'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
+import { NewGameScreen } from './ui/screens/NewGameScreen'
 
-interface Gen1Entry {
-  id: number
-  name: string
-  sprite: { url: string; local: string }
-}
-
-// Sprint 8 adds the new-game starter picker; until then it's fixed.
-const PLACEHOLDER_STARTER_ID = 1
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
@@ -116,7 +111,11 @@ function App() {
     }
   }, [])
 
-  const starter = gen1?.find((entry) => entry.id === PLACEHOLDER_STARTER_ID) ?? null
+  const starter = gen1?.find((entry) => entry.id === save.activePokemon?.speciesId) ?? null
+
+  function handleChooseStarter(speciesId: number) {
+    setSave((current) => ({ ...current, activePokemon: { speciesId, level: STARTER_LEVEL } }))
+  }
 
   function handleClick() {
     const gain = clickValue(saveRef.current)
@@ -134,6 +133,24 @@ function App() {
     setSave((current) => buyUpgrade(current, id))
   }
 
+  if (!gen1) {
+    return (
+      <main>
+        <h1>PokéIdle</h1>
+        <p>Carregando...</p>
+      </main>
+    )
+  }
+
+  if (!save.activePokemon) {
+    return (
+      <main>
+        <h1>PokéIdle</h1>
+        <NewGameScreen gen1={gen1} onChoose={handleChooseStarter} />
+      </main>
+    )
+  }
+
   return (
     <main>
       <h1>PokéIdle</h1>
@@ -147,6 +164,11 @@ function App() {
         </div>
       )}
       <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
+      {starter && save.activePokemon && (
+        <p>
+          {starter.name} Nv.{save.activePokemon.level}
+        </p>
+      )}
       <div className="game-area">
         <button className="click-area" onClick={handleClick} disabled={!starter}>
           {starter && <img src={starter.sprite.local} alt={starter.name} />}

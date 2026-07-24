@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 2
+export const CURRENT_SAVE_VERSION = 3
 
 export interface SaveDataV1 {
   version: 1
@@ -18,7 +18,22 @@ export interface SaveDataV2 {
   upgrades: Record<string, number>
 }
 
-export type SaveData = SaveDataV2
+export interface ActivePokemon {
+  speciesId: number
+  level: number
+}
+
+export interface SaveDataV3 {
+  version: 3
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  // null = hasn't finished the new-game starter picker yet (Sprint 8).
+  activePokemon: ActivePokemon | null
+}
+
+export type SaveData = SaveDataV3
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -49,6 +64,17 @@ const migrations: Record<number, Migration> = {
       upgrades: {},
     }
   },
+  2: (old): SaveDataV3 => {
+    const v2 = old as SaveDataV2
+    return {
+      ...v2,
+      version: 3,
+      // Best-effort backfill: v2 always showed Bulbasaur lvl 5 as a
+      // hardcoded placeholder, so keep that instead of bouncing existing
+      // players into the new-game picker.
+      activePokemon: { speciesId: 1, level: 5 },
+    }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -60,7 +86,14 @@ function detectVersion(raw: unknown): number {
 }
 
 export function createDefaultSave(): SaveData {
-  return { version: CURRENT_SAVE_VERSION, candies: 0, lifetimeCandies: 0, lastSavedAt: Date.now(), upgrades: {} }
+  return {
+    version: CURRENT_SAVE_VERSION,
+    candies: 0,
+    lifetimeCandies: 0,
+    lastSavedAt: Date.now(),
+    upgrades: {},
+    activePokemon: null,
+  }
 }
 
 export function migrateSave(raw: unknown): SaveData {

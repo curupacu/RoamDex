@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { CURRENT_SAVE_VERSION, SAVE_KEY, loadSave, migrateSave, writeSave } from './save'
+import { makeSave } from './save.testUtils'
 
 describe('save', () => {
   beforeEach(() => {
@@ -10,10 +11,11 @@ describe('save', () => {
     const save = loadSave()
     expect(save.version).toBe(CURRENT_SAVE_VERSION)
     expect(save.candies).toBe(0)
+    expect(save.activePokemon).toBeNull()
   })
 
   it('survives a refresh: write then load returns the same data', () => {
-    writeSave({ version: 2, candies: 4200, lifetimeCandies: 4200, lastSavedAt: Date.now(), upgrades: {} })
+    writeSave(makeSave({ candies: 4200, lifetimeCandies: 4200 }))
 
     const reloaded = loadSave()
 
@@ -30,12 +32,34 @@ describe('save', () => {
     expect(migrated.candies).toBe(999)
     expect(migrated.lifetimeCandies).toBe(999)
     expect(migrated.upgrades).toEqual({})
+    // Backfilled as if already playing with the pre-Sprint-8 placeholder.
+    expect(migrated.activePokemon).toEqual({ speciesId: 1, level: 5 })
   })
 
   it('migrates a v1 save (pre-upgrades) up to v2, backfilling lifetimeCandies', () => {
     const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
 
-    expect(migrated).toEqual({ version: 2, candies: 250, lifetimeCandies: 250, lastSavedAt: 123, upgrades: {} })
+    expect(migrated).toEqual({
+      version: 3,
+      candies: 250,
+      lifetimeCandies: 250,
+      lastSavedAt: 123,
+      upgrades: {},
+      activePokemon: { speciesId: 1, level: 5 },
+    })
+  })
+
+  it('migrates a v2 save (pre-starter-picker) up to v3, backfilling the placeholder starter', () => {
+    const migrated = migrateSave({ version: 2, candies: 10, lifetimeCandies: 10, lastSavedAt: 5, upgrades: { a: 1 } })
+
+    expect(migrated).toEqual({
+      version: 3,
+      candies: 10,
+      lifetimeCandies: 10,
+      lastSavedAt: 5,
+      upgrades: { a: 1 },
+      activePokemon: { speciesId: 1, level: 5 },
+    })
   })
 
   it('falls back to a default save when the stored JSON is corrupt', () => {

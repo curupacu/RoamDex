@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { resolveSync } from './cloudSave'
-import type { SaveData } from '../engine/save'
+import { makeSave as makeSaveWithOverrides } from '../engine/save.testUtils'
 
-function makeSave(candies: number, lastSavedAt: number): SaveData {
-  return { version: 2, candies, lifetimeCandies: candies, lastSavedAt, upgrades: {} }
+function makeSave(candies: number, lastSavedAt: number) {
+  return makeSaveWithOverrides({ candies, lifetimeCandies: candies, lastSavedAt })
 }
 
 describe('resolveSync', () => {

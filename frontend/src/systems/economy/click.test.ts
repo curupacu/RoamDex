@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { SaveData } from '../../engine/save'
+import { makeSave } from '../../engine/save.testUtils'
 import { UPGRADES } from '../../content/gen1/upgrades'
 import { applyClick, CANDY_PER_CLICK, clickValue } from './click'
-
-function makeSave(overrides: Partial<SaveData> = {}): SaveData {
-  return { version: 2, candies: 0, lifetimeCandies: 0, lastSavedAt: 0, upgrades: {}, ...overrides }
-}
 
 describe('applyClick', () => {
   it('adds exactly CANDY_PER_CLICK candies with no upgrades owned', () => {
