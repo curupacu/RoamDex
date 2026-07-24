@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { GameLoop } from './engine/gameLoop'
 import { formatBigNumber } from './engine/numberFormat'
+import {
+  calculateOfflineProgress,
+  formatDuration,
+  shouldShowOfflineBanner,
+  type OfflineProgress,
+} from './engine/offlineProgress'
 import { loadSave, writeSave, type SaveData } from './engine/save'
 import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
@@ -27,6 +33,21 @@ function App() {
   const uidRef = useRef<string | null>(null)
   const [candyPops, setCandyPops] = useState<{ id: number; x: number; gain: number }[]>([])
   const nextPopId = useRef(0)
+  const [offlineSummary, setOfflineSummary] = useState<OfflineProgress | null>(null)
+
+  // Computed once against the save as it was loaded from disk, before any
+  // other effect (cloud sync, CPS ticking) touches it.
+  useEffect(() => {
+    const progress = calculateOfflineProgress(saveRef.current, Date.now(), totalCps(saveRef.current))
+    if (progress.candiesEarned > 0) {
+      setSave((current) => ({
+        ...current,
+        candies: current.candies + progress.candiesEarned,
+        lifetimeCandies: current.lifetimeCandies + progress.candiesEarned,
+      }))
+    }
+    if (shouldShowOfflineBanner(progress)) setOfflineSummary(progress)
+  }, [])
 
   useEffect(() => {
     fetch('/data/gen1.json')
@@ -116,6 +137,15 @@ function App() {
   return (
     <main>
       <h1>PokéIdle</h1>
+      {offlineSummary && (
+        <div className="offline-banner">
+          <p>
+            Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
+            {formatBigNumber(offlineSummary.candiesEarned)} doces.
+          </p>
+          <button onClick={() => setOfflineSummary(null)}>Continuar</button>
+        </div>
+      )}
       <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
       <div className="game-area">
         <button className="click-area" onClick={handleClick} disabled={!starter}>
