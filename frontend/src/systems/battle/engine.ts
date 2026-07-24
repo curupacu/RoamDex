@@ -7,7 +7,10 @@ import { deriveStats } from '../team/stats'
 import { QTE_RESULT_MULTIPLIER, type QteResult } from './qte/grading'
 
 export const ENERGY_MAX = 100
-export const ENERGY_PER_TAP = 20
+// 4 taps to fill — found by testing: a typical early fight takes ~5 basic
+// hits to win, so energy needs to fill in *fewer* taps than that or the
+// QTE and the kill land on the same tap and the QTE never shows.
+export const ENERGY_PER_TAP = 25
 // Flat fallback for the 12 types without a QTE yet (Sprints 16-17 add the
 // rest) — same tier as a "full" QTE result, so those types aren't worse
 // off in the meantime.
