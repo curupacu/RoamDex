@@ -39,27 +39,32 @@ export function resolveEvolution(entry: Gen1Entry, level: number): number {
   return speciesId
 }
 
+// Grants XP to a single roster member (by current speciesId), evolving it
+// if the new level crosses a threshold. Shared by the idle "Treinamento"
+// upgrade, Rare Candy, and battle XP rewards (Sprint 13).
+export function gainMemberXp(save: SaveData, gen1: Gen1Entry[], speciesId: number, amount: number): SaveData {
+  if (amount <= 0) return save
+  const member = save.roster.find((candidate) => candidate.speciesId === speciesId)
+  if (!member) return save
+
+  const leveled = applyXpGain(member, amount)
+  const entry = gen1.find((candidate) => candidate.id === leveled.speciesId)
+  const newSpeciesId = entry ? resolveEvolution(entry, leveled.level) : leveled.speciesId
+
+  const roster = save.roster.map((candidate) =>
+    candidate.speciesId === speciesId ? { ...leveled, speciesId: newSpeciesId } : candidate,
+  )
+  const activeTeamIds = save.activeTeamIds.map((id) => (id === speciesId ? newSpeciesId : id))
+
+  return { ...save, roster, activeTeamIds }
+}
+
 // Applies idle XP (roadmap section 7, "Treinamento" upgrade) to every
-// active team member, evolving anyone who crosses a level-up threshold.
-// Duplicates aren't possible pre-capture (Sprint 19), so id collisions
-// between two evolving members aren't a concern yet.
+// active team member equally. Duplicates aren't possible pre-capture
+// (Sprint 19), so id collisions between two evolving members in the same
+// call aren't a concern yet.
 export function gainTeamXp(save: SaveData, gen1: Gen1Entry[], amount: number): SaveData {
   if (amount <= 0 || save.activeTeamIds.length === 0) return save
 
-  let activeTeamIds = save.activeTeamIds
-  const roster = save.roster.map((member) => {
-    if (!save.activeTeamIds.includes(member.speciesId)) return member
-
-    const leveled = applyXpGain(member, amount)
-    const entry = gen1.find((candidate) => candidate.id === leveled.speciesId)
-    const speciesId = entry ? resolveEvolution(entry, leveled.level) : leveled.speciesId
-
-    if (speciesId !== member.speciesId) {
-      activeTeamIds = activeTeamIds.map((id) => (id === member.speciesId ? speciesId : id))
-    }
-
-    return { ...leveled, speciesId }
-  })
-
-  return { ...save, roster, activeTeamIds }
+  return save.activeTeamIds.reduce((current, speciesId) => gainMemberXp(current, gen1, speciesId, amount), save)
 }

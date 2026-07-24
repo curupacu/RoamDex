@@ -1,0 +1,118 @@
+import { useEffect, useRef, useState } from 'react'
+import { ENEMY_ATTACK_INTERVAL_MS, TELEGRAPH_WINDOW_MS, TEST_OPPONENT_LEVEL, TEST_OPPONENT_SPECIES_ID } from '../../content/battle'
+import type { Gen1Entry } from '../../content/gen1/types'
+import { GameLoop } from '../../engine/gameLoop'
+import type { SaveData } from '../../engine/save'
+import {
+  applyEnemyAttack,
+  applyPlayerTap,
+  createBattle,
+  ENERGY_MAX,
+  switchActive,
+  type BattleState,
+} from '../../systems/battle/engine'
+import { HpBar } from '../components/HpBar'
+
+interface BattleScreenProps {
+  gen1: Gen1Entry[]
+  save: SaveData
+  onVictory: (activeSpeciesId: number) => void
+  onExit: () => void
+}
+
+export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProps) {
+  const enemyEntry = gen1.find((entry) => entry.id === TEST_OPPONENT_SPECIES_ID)
+  const [battle, setBattle] = useState<BattleState>(() =>
+    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], TEST_OPPONENT_LEVEL),
+  )
+  const battleRef = useRef(battle)
+  battleRef.current = battle
+  const [telegraph, setTelegraph] = useState(false)
+
+  useEffect(() => {
+    const loop = new GameLoop()
+    let msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
+
+    const unsubscribe = loop.subscribe((deltaMs) => {
+      if (battleRef.current.outcome !== 'ongoing') return
+
+      msUntilAttack -= deltaMs
+      setTelegraph(msUntilAttack <= TELEGRAPH_WINDOW_MS)
+
+      if (msUntilAttack <= 0) {
+        setBattle((current) => applyEnemyAttack(current))
+        msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
+      }
+    })
+    loop.start()
+
+    return () => {
+      unsubscribe()
+      loop.stop()
+    }
+  }, [])
+
+  if (!enemyEntry) return null
+
+  const active = battle.playerTeam[battle.activeIndex]
+  const activeEntry = active ? gen1.find((entry) => entry.id === active.speciesId) : null
+
+  return (
+    <div className="battle-screen">
+      <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
+        <img src={enemyEntry.sprite.local} alt={enemyEntry.name} />
+        <p>
+          {enemyEntry.name} Nv.{TEST_OPPONENT_LEVEL}
+        </p>
+        <HpBar current={battle.enemy.currentHp} max={battle.enemy.maxHp} />
+      </div>
+
+      {battle.outcome === 'ongoing' && active && activeEntry && (
+        <>
+          <button className="battle-tap-area" onClick={() => setBattle((current) => applyPlayerTap(current))}>
+            <img src={activeEntry.sprite.local} alt={active.name} />
+          </button>
+          <p>
+            {active.name} Nv.{active.level}
+          </p>
+          <HpBar current={active.currentHp} max={active.maxHp} />
+          <div className="energy-bar">
+            <div className="energy-bar-fill" style={{ width: `${(battle.energy / ENERGY_MAX) * 100}%` }} />
+          </div>
+
+          <div className="battle-team-row">
+            {battle.playerTeam.map((unit, index) => {
+              const entry = gen1.find((candidate) => candidate.id === unit.speciesId)
+              return (
+                <button
+                  key={unit.speciesId}
+                  onClick={() => setBattle((current) => switchActive(current, index))}
+                  disabled={unit.currentHp <= 0 || index === battle.activeIndex}
+                >
+                  {entry && <img src={entry.sprite.local} alt={unit.name} />}
+                  <span>
+                    {unit.currentHp}/{unit.maxHp}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      {battle.outcome === 'victory' && (
+        <div className="pokemon-detail">
+          <p>Vitória!</p>
+          <button onClick={() => onVictory(active?.speciesId ?? battle.playerTeam[0].speciesId)}>Continuar</button>
+        </div>
+      )}
+
+      {battle.outcome === 'defeat' && (
+        <div className="pokemon-detail">
+          <p>Seu time caiu... mas você não perdeu nada além da oportunidade.</p>
+          <button onClick={onExit}>Continuar</button>
+        </div>
+      )}
+    </div>
+  )
+}

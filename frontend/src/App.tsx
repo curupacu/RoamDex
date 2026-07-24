@@ -17,8 +17,10 @@ import { applyClick, clickValue } from './systems/economy/click'
 import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/economy/candyShop'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
-import { gainTeamXp, xpForNextLevel } from './systems/team/leveling'
+import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
+import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { BattleScreen } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
@@ -29,7 +31,7 @@ import { TeamScreen } from './ui/screens/TeamScreen'
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex' | 'shop'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -186,6 +188,18 @@ function App() {
     setSave((current) => buyXpBoost(current, Date.now()))
   }
 
+  function handleVictory(activeSpeciesId: number) {
+    setSave((current) => {
+      const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM)
+      return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS)
+    })
+    setView('clicker')
+  }
+
+  function handleExitBattle() {
+    setView('clicker')
+  }
+
   if (!gen1) {
     return (
       <main>
@@ -220,6 +234,9 @@ function App() {
         <button onClick={() => setView('shop')} disabled={view === 'shop'}>
           Loja
         </button>
+        <button onClick={() => setView('battle')} disabled={view === 'battle'}>
+          Batalha
+        </button>
       </nav>
 
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
@@ -233,6 +250,7 @@ function App() {
           onBuyXpBoost={handleBuyXpBoost}
         />
       )}
+      {view === 'battle' && <BattleScreen gen1={gen1} save={save} onVictory={handleVictory} onExit={handleExitBattle} />}
 
       {view === 'clicker' && (
         <>

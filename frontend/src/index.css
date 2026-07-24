@@ -340,3 +340,114 @@ button:disabled {
     transform: translate(calc(-50% + var(--pop-x, 0px)), -60px);
   }
 }
+
+.hp-bar {
+  position: relative;
+  width: 220px;
+  height: 16px;
+  margin: 0.5rem auto;
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  background: var(--hp-green);
+  transition: width 0.2s ease-out;
+}
+
+.hp-bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.energy-bar {
+  width: 220px;
+  height: 10px;
+  margin: 0.5rem auto 1rem;
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.energy-bar-fill {
+  height: 100%;
+  background: var(--accent-yellow);
+  transition: width 0.15s ease-out;
+}
+
+.battle-enemy {
+  margin-bottom: 1.5rem;
+  transition: transform 0.15s ease-in-out;
+}
+
+.battle-enemy img {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+}
+
+.battle-enemy--telegraph img {
+  animation: battle-telegraph-shake 0.3s infinite;
+}
+
+@keyframes battle-telegraph-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.battle-tap-area {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.battle-tap-area img {
+  width: 140px;
+  height: 140px;
+  image-rendering: pixelated;
+}
+
+.battle-tap-area:not(:disabled):active img {
+  scale: 0.94;
+}
+
+.battle-team-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.battle-team-row button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  font-size: 0.55rem;
+}
+
+.battle-team-row img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+}
