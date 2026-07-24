@@ -8,6 +8,7 @@ function makeEntry(id: number, evolutionChain: Gen1Entry['evolutionChain']): Gen
     name: 'test',
     types: ['normal'],
     stats: { hp: 1, attack: 1, defense: 1, 'special-attack': 1, 'special-defense': 1, speed: 1 },
+    captureRate: 45,
     evolutionChain,
     sprite: { url: '', local: '' },
   }

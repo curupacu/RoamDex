@@ -20,18 +20,22 @@ import { QteModal } from '../components/qte/QteModal'
 interface BattleScreenProps {
   gen1: Gen1Entry[]
   save: SaveData
+  // A real wild encounter (Sprint 18); omitted for the fixed test dummy
+  // reachable from the "Batalha" nav tab directly.
+  opponent?: { speciesId: number; level: number }
   onVictory: (activeSpeciesId: number) => void
   onExit: () => void
 }
 
-export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProps) {
-  const enemyEntry = gen1.find((entry) => entry.id === TEST_OPPONENT_SPECIES_ID)
-  // Real wild encounters scale by run progress (Sprint 18); until then,
-  // matching the test dummy to the player's own level keeps this fixed
-  // placeholder fight actually testable instead of an instant one-shot.
+export function BattleScreen({ gen1, save, opponent, onVictory, onExit }: BattleScreenProps) {
+  const enemyEntry = gen1.find((entry) => entry.id === (opponent?.speciesId ?? TEST_OPPONENT_SPECIES_ID))
+  // The fixed test dummy matches the player's own level (see git history)
+  // so it's actually testable instead of an instant one-shot; a real wild
+  // encounter already comes with its own run-scaled level.
   const activeLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
+  const enemyLevel = opponent?.level ?? activeLevel
   const [battle, setBattle] = useState<BattleState>(() =>
-    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], activeLevel),
+    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], enemyLevel),
   )
   const battleRef = useRef(battle)
   battleRef.current = battle

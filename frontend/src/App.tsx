@@ -20,6 +20,8 @@ import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrad
 import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { RARITY_LABELS } from './systems/capture/rarityTier'
+import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { BattleScreen } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
@@ -46,10 +48,14 @@ function App() {
   const [offlineSummary, setOfflineSummary] = useState<OfflineProgress | null>(null)
   const offlineAppliedRef = useRef(false)
   const [view, setView] = useState<View>('clicker')
+  const [wildEncounter, setWildEncounter] = useState<WildEncounter | null>(null)
+  const wildEncounterRef = useRef(wildEncounter)
+  wildEncounterRef.current = wildEncounter
 
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
   const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
   const clickerMember = clickerEntry ? rosterMember(save, clickerEntry.id) : null
+  const wildEntry = wildEncounter ? (gen1?.find((entry) => entry.id === wildEncounter.speciesId) ?? null) : null
   const team: TeamMember[] = save.activeTeamIds
     .map((id) => gen1?.find((entry) => entry.id === id))
     .filter((entry): entry is Gen1Entry => entry !== undefined)
@@ -155,6 +161,40 @@ function App() {
     }
   }, [])
 
+  // "Durante o clicker, a cada X tempo... aparece um selvagem" (roadmap
+  // section 5). Voador's wildSpawnRate bonus shortens the interval; Inseto's
+  // rareWildChance biases which species spawns. Only one encounter at a
+  // time; a second timer auto-dismisses it if ignored too long.
+  useEffect(() => {
+    const loop = new GameLoop()
+    let msUntilSpawn = BASE_SPAWN_INTERVAL_MS
+
+    const unsubscribe = loop.subscribe((deltaMs) => {
+      const currentGen1 = gen1Ref.current
+      if (wildEncounterRef.current || saveRef.current.roster.length === 0 || !currentGen1?.length) return
+
+      const spawnRateMultiplier = economyMultiplier(teamRef.current, 'wildSpawnRate')
+      msUntilSpawn -= deltaMs * spawnRateMultiplier
+      if (msUntilSpawn <= 0) {
+        msUntilSpawn = BASE_SPAWN_INTERVAL_MS
+        const rareBonus = economyMultiplier(teamRef.current, 'rareWildChance')
+        setWildEncounter(spawnWildEncounter(currentGen1, saveRef.current.lifetimeCandies, rareBonus))
+      }
+    })
+    loop.start()
+
+    return () => {
+      unsubscribe()
+      loop.stop()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!wildEncounter) return
+    const id = setTimeout(() => setWildEncounter(null), IGNORE_TIMEOUT_MS)
+    return () => clearTimeout(id)
+  }, [wildEncounter])
+
   function handleChooseStarter(speciesId: number) {
     setSave((current) => addToRoster(current, speciesId, STARTER_LEVEL))
   }
@@ -193,11 +233,21 @@ function App() {
       const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM)
       return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS)
     })
+    setWildEncounter(null)
     setView('clicker')
   }
 
   function handleExitBattle() {
+    setWildEncounter(null)
     setView('clicker')
+  }
+
+  function handleBattleWild() {
+    setView('battle')
+  }
+
+  function handleIgnoreWild() {
+    setWildEncounter(null)
   }
 
   if (!gen1) {
@@ -250,10 +300,30 @@ function App() {
           onBuyXpBoost={handleBuyXpBoost}
         />
       )}
-      {view === 'battle' && <BattleScreen gen1={gen1} save={save} onVictory={handleVictory} onExit={handleExitBattle} />}
+      {view === 'battle' && (
+        <BattleScreen
+          gen1={gen1}
+          save={save}
+          opponent={wildEncounter ? { speciesId: wildEncounter.speciesId, level: wildEncounter.level } : undefined}
+          onVictory={handleVictory}
+          onExit={handleExitBattle}
+        />
+      )}
 
       {view === 'clicker' && (
         <>
+          {wildEncounter && wildEntry && (
+            <div className="wild-encounter-banner">
+              <img src={wildEntry.sprite.local} alt={wildEntry.name} />
+              <p>
+                Um {wildEntry.name} selvagem apareceu! Nv.{wildEncounter.level} ({RARITY_LABELS[wildEncounter.tier]})
+              </p>
+              <div className="wild-encounter-actions">
+                <button onClick={handleBattleWild}>Batalhar</button>
+                <button onClick={handleIgnoreWild}>Ignorar</button>
+              </div>
+            </div>
+          )}
           {offlineSummary && (
             <div className="offline-banner">
               <p>

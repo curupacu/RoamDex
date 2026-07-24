@@ -21,6 +21,7 @@ export interface Gen1Entry {
   name: string
   types: TypeName[]
   stats: Gen1Stats
+  captureRate: number
   evolutionChain: EvolutionStep[]
   sprite: { url: string; local: string }
 }

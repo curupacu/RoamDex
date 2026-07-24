@@ -7,6 +7,7 @@ const bulbasaur: Gen1Entry = {
   name: 'bulbasaur',
   types: ['grass', 'poison'],
   stats: { hp: 45, attack: 49, defense: 49, 'special-attack': 65, 'special-defense': 65, speed: 45 },
+  captureRate: 45,
   evolutionChain: [{ id: 1, species: 'bulbasaur', trigger: 'initial', minLevel: null }],
   sprite: { url: '', local: '/sprites/1.png' },
 }
