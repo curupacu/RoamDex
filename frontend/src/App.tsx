@@ -16,11 +16,16 @@ import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps } from './systems/economy/upgrades'
+import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
+import { PokedexScreen } from './ui/screens/PokedexScreen'
+import { TeamScreen } from './ui/screens/TeamScreen'
 
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
+
+type View = 'clicker' | 'team' | 'pokedex'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -32,9 +37,14 @@ function App() {
   const nextPopId = useRef(0)
   const [offlineSummary, setOfflineSummary] = useState<OfflineProgress | null>(null)
   const offlineAppliedRef = useRef(false)
+  const [view, setView] = useState<View>('clicker')
 
-  const starter = gen1?.find((entry) => entry.id === save.activePokemon?.speciesId) ?? null
-  const team: TeamMember[] = starter ? [{ types: starter.types }] : []
+  // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
+  const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
+  const team: TeamMember[] = save.activeTeamIds
+    .map((id) => gen1?.find((entry) => entry.id === id))
+    .filter((entry): entry is Gen1Entry => entry !== undefined)
+    .map((entry) => ({ types: entry.types }))
   const teamRef = useRef(team)
   teamRef.current = team
 
@@ -124,7 +134,11 @@ function App() {
   }, [])
 
   function handleChooseStarter(speciesId: number) {
-    setSave((current) => ({ ...current, activePokemon: { speciesId, level: STARTER_LEVEL } }))
+    setSave((current) => addToRoster(current, speciesId, STARTER_LEVEL))
+  }
+
+  function handleToggleTeamMember(speciesId: number) {
+    setSave((current) => toggleActiveTeamMember(current, speciesId))
   }
 
   function handleClick() {
@@ -153,7 +167,7 @@ function App() {
     )
   }
 
-  if (!save.activePokemon) {
+  if (save.roster.length === 0) {
     return (
       <main>
         <h1>PokéIdle</h1>
@@ -165,42 +179,61 @@ function App() {
   return (
     <main>
       <h1>PokéIdle</h1>
-      {offlineSummary && (
-        <div className="offline-banner">
-          <p>
-            Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
-            {formatBigNumber(offlineSummary.candiesEarned)} doces.
-          </p>
-          <button onClick={() => setOfflineSummary(null)}>Continuar</button>
-        </div>
-      )}
-      <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
-      {starter && save.activePokemon && (
-        <p>
-          {starter.name} Nv.{save.activePokemon.level}
-        </p>
-      )}
-      <div className="game-area">
-        <button className="click-area" onClick={handleClick} disabled={!starter}>
-          {starter && <img src={starter.sprite.local} alt={starter.name} />}
-          {candyPops.map((pop) => (
-            <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
-              +{formatBigNumber(pop.gain)}
-            </span>
-          ))}
+      <nav className="main-nav">
+        <button onClick={() => setView('clicker')} disabled={view === 'clicker'}>
+          Clicker
         </button>
-        <UpgradesPanel save={save} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
-      </div>
-      {bonusBreakdown(team).length > 0 && (
-        <ul className="type-bonuses">
-          {bonusBreakdown(team).map((entry) => (
-            <li key={entry.typeId}>
-              {entry.typeName}: +{(entry.percent * 100).toFixed(0)}%{' '}
-              {entry.isLive ? '' : '(em breve) '}
-              {BONUS_KIND_LABELS[entry.bonusKind]}
-            </li>
-          ))}
-        </ul>
+        <button onClick={() => setView('team')} disabled={view === 'team'}>
+          Time
+        </button>
+        <button onClick={() => setView('pokedex')} disabled={view === 'pokedex'}>
+          Pokédex
+        </button>
+      </nav>
+
+      {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
+      {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
+
+      {view === 'clicker' && (
+        <>
+          {offlineSummary && (
+            <div className="offline-banner">
+              <p>
+                Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
+                {formatBigNumber(offlineSummary.candiesEarned)} doces.
+              </p>
+              <button onClick={() => setOfflineSummary(null)}>Continuar</button>
+            </div>
+          )}
+          <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
+          {clickerEntry && (
+            <p>
+              {clickerEntry.name} Nv.{rosterMember(save, clickerEntry.id)?.level}
+            </p>
+          )}
+          <div className="game-area">
+            <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
+              {clickerEntry && <img src={clickerEntry.sprite.local} alt={clickerEntry.name} />}
+              {candyPops.map((pop) => (
+                <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
+                  +{formatBigNumber(pop.gain)}
+                </span>
+              ))}
+            </button>
+            <UpgradesPanel save={save} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+          </div>
+          {bonusBreakdown(team).length > 0 && (
+            <ul className="type-bonuses">
+              {bonusBreakdown(team).map((entry) => (
+                <li key={entry.typeId}>
+                  {entry.typeName}: +{(entry.percent * 100).toFixed(0)}%{' '}
+                  {entry.isLive ? '' : '(em breve) '}
+                  {BONUS_KIND_LABELS[entry.bonusKind]}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </main>
   )

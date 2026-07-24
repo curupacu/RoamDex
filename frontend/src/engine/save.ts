@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 3
+export const CURRENT_SAVE_VERSION = 4
 
 export interface SaveDataV1 {
   version: 1
@@ -33,7 +33,27 @@ export interface SaveDataV3 {
   activePokemon: ActivePokemon | null
 }
 
-export type SaveData = SaveDataV3
+export interface RosterMember {
+  speciesId: number
+  level: number
+}
+
+export interface SaveDataV4 {
+  version: 4
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  // Every species ever obtained (today: only ever the chosen starter,
+  // until Sprint 19 adds capturing). Empty = hasn't finished the
+  // new-game starter picker yet (Sprint 8).
+  roster: RosterMember[]
+  // Up to 6 speciesIds from roster; index 0 is the one you click/battle
+  // with (roadmap section 4, "1v1 com troca").
+  activeTeamIds: number[]
+}
+
+export type SaveData = SaveDataV4
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -75,6 +95,19 @@ const migrations: Record<number, Migration> = {
       activePokemon: { speciesId: 1, level: 5 },
     }
   },
+  3: (old): SaveDataV4 => {
+    const v3 = old as SaveDataV3
+    const roster = v3.activePokemon ? [v3.activePokemon] : []
+    return {
+      version: 4,
+      candies: v3.candies,
+      lifetimeCandies: v3.lifetimeCandies,
+      lastSavedAt: v3.lastSavedAt,
+      upgrades: v3.upgrades,
+      roster,
+      activeTeamIds: roster.map((member) => member.speciesId),
+    }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -92,7 +125,8 @@ export function createDefaultSave(): SaveData {
     lifetimeCandies: 0,
     lastSavedAt: Date.now(),
     upgrades: {},
-    activePokemon: null,
+    roster: [],
+    activeTeamIds: [],
   }
 }
 

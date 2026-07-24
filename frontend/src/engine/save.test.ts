@@ -11,7 +11,8 @@ describe('save', () => {
     const save = loadSave()
     expect(save.version).toBe(CURRENT_SAVE_VERSION)
     expect(save.candies).toBe(0)
-    expect(save.activePokemon).toBeNull()
+    expect(save.roster).toEqual([])
+    expect(save.activeTeamIds).toEqual([])
   })
 
   it('survives a refresh: write then load returns the same data', () => {
@@ -33,32 +34,70 @@ describe('save', () => {
     expect(migrated.lifetimeCandies).toBe(999)
     expect(migrated.upgrades).toEqual({})
     // Backfilled as if already playing with the pre-Sprint-8 placeholder.
-    expect(migrated.activePokemon).toEqual({ speciesId: 1, level: 5 })
+    expect(migrated.roster).toEqual([{ speciesId: 1, level: 5 }])
+    expect(migrated.activeTeamIds).toEqual([1])
   })
 
-  it('migrates a v1 save (pre-upgrades) up to v2, backfilling lifetimeCandies', () => {
+  it('migrates a v1 save (pre-upgrades) up to v4, backfilling lifetimeCandies and the starter', () => {
     const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
 
     expect(migrated).toEqual({
-      version: 3,
+      version: 4,
       candies: 250,
       lifetimeCandies: 250,
       lastSavedAt: 123,
       upgrades: {},
-      activePokemon: { speciesId: 1, level: 5 },
+      roster: [{ speciesId: 1, level: 5 }],
+      activeTeamIds: [1],
     })
   })
 
-  it('migrates a v2 save (pre-starter-picker) up to v3, backfilling the placeholder starter', () => {
+  it('migrates a v2 save (pre-starter-picker) up to v4, backfilling the placeholder starter', () => {
     const migrated = migrateSave({ version: 2, candies: 10, lifetimeCandies: 10, lastSavedAt: 5, upgrades: { a: 1 } })
 
     expect(migrated).toEqual({
-      version: 3,
+      version: 4,
       candies: 10,
       lifetimeCandies: 10,
       lastSavedAt: 5,
       upgrades: { a: 1 },
-      activePokemon: { speciesId: 1, level: 5 },
+      roster: [{ speciesId: 1, level: 5 }],
+      activeTeamIds: [1],
+    })
+  })
+
+  it('migrates a v3 save with no starter chosen up to v4 with an empty roster', () => {
+    const migrated = migrateSave({
+      version: 3,
+      candies: 0,
+      lifetimeCandies: 0,
+      lastSavedAt: 5,
+      upgrades: {},
+      activePokemon: null,
+    })
+
+    expect(migrated.roster).toEqual([])
+    expect(migrated.activeTeamIds).toEqual([])
+  })
+
+  it('migrates a v3 save with a chosen starter up to v4, moving it into the roster', () => {
+    const migrated = migrateSave({
+      version: 3,
+      candies: 42,
+      lifetimeCandies: 42,
+      lastSavedAt: 5,
+      upgrades: {},
+      activePokemon: { speciesId: 4, level: 5 },
+    })
+
+    expect(migrated).toEqual({
+      version: 4,
+      candies: 42,
+      lifetimeCandies: 42,
+      lastSavedAt: 5,
+      upgrades: {},
+      roster: [{ speciesId: 4, level: 5 }],
+      activeTeamIds: [4],
     })
   })
 
