@@ -26,8 +26,12 @@ interface BattleScreenProps {
 
 export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProps) {
   const enemyEntry = gen1.find((entry) => entry.id === TEST_OPPONENT_SPECIES_ID)
+  // Real wild encounters scale by run progress (Sprint 18); until then,
+  // matching the test dummy to the player's own level keeps this fixed
+  // placeholder fight actually testable instead of an instant one-shot.
+  const activeLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
   const [battle, setBattle] = useState<BattleState>(() =>
-    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], TEST_OPPONENT_LEVEL),
+    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], activeLevel),
   )
   const battleRef = useRef(battle)
   battleRef.current = battle
@@ -81,7 +85,7 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
       <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
         <img src={enemyEntry.sprite.local} alt={enemyEntry.name} />
         <p>
-          {enemyEntry.name} Nv.{TEST_OPPONENT_LEVEL}
+          {enemyEntry.name} Nv.{battle.enemy.level}
         </p>
         <HpBar current={battle.enemy.currentHp} max={battle.enemy.maxHp} />
       </div>
