@@ -12,7 +12,9 @@ import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
 import { STARTER_LEVEL } from './content/gen1/starters'
 import type { Gen1Entry } from './content/gen1/types'
+import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
+import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps } from './systems/economy/upgrades'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
@@ -29,11 +31,21 @@ function App() {
   const [candyPops, setCandyPops] = useState<{ id: number; x: number; gain: number }[]>([])
   const nextPopId = useRef(0)
   const [offlineSummary, setOfflineSummary] = useState<OfflineProgress | null>(null)
+  const offlineAppliedRef = useRef(false)
 
-  // Computed once against the save as it was loaded from disk, before any
-  // other effect (cloud sync, CPS ticking) touches it.
+  const starter = gen1?.find((entry) => entry.id === save.activePokemon?.speciesId) ?? null
+  const team: TeamMember[] = starter ? [{ types: starter.types }] : []
+  const teamRef = useRef(team)
+  teamRef.current = team
+
+  // Runs once gen1 has loaded (so the team's type bonuses are known),
+  // against the save as read from disk before any other effect touches it.
   useEffect(() => {
-    const progress = calculateOfflineProgress(saveRef.current, Date.now(), totalCps(saveRef.current))
+    if (!gen1 || offlineAppliedRef.current) return
+    offlineAppliedRef.current = true
+
+    const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps'))
+    const progress = calculateOfflineProgress(saveRef.current, Date.now(), cps)
     if (progress.candiesEarned > 0) {
       setSave((current) => ({
         ...current,
@@ -42,7 +54,7 @@ function App() {
       }))
     }
     if (shouldShowOfflineBanner(progress)) setOfflineSummary(progress)
-  }, [])
+  }, [gen1])
 
   useEffect(() => {
     fetch('/data/gen1.json')
@@ -83,7 +95,7 @@ function App() {
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      const cps = totalCps(saveRef.current)
+      const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps'))
       if (cps > 0) {
         const gain = (cps * deltaMs) / 1000
         setSave((current) => ({
@@ -111,15 +123,14 @@ function App() {
     }
   }, [])
 
-  const starter = gen1?.find((entry) => entry.id === save.activePokemon?.speciesId) ?? null
-
   function handleChooseStarter(speciesId: number) {
     setSave((current) => ({ ...current, activePokemon: { speciesId, level: STARTER_LEVEL } }))
   }
 
   function handleClick() {
-    const gain = clickValue(saveRef.current)
-    setSave((current) => applyClick(current))
+    const multiplier = economyMultiplier(team, 'clickCandies')
+    const gain = clickValue(saveRef.current, multiplier)
+    setSave((current) => applyClick(current, multiplier))
 
     const id = nextPopId.current++
     const x = Math.random() * 40 - 20
@@ -130,7 +141,7 @@ function App() {
   }
 
   function handleBuyUpgrade(id: string) {
-    setSave((current) => buyUpgrade(current, id))
+    setSave((current) => buyUpgrade(current, id, upgradeCostMultiplier(team)))
   }
 
   if (!gen1) {
@@ -178,8 +189,19 @@ function App() {
             </span>
           ))}
         </button>
-        <UpgradesPanel save={save} onBuy={handleBuyUpgrade} />
+        <UpgradesPanel save={save} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
       </div>
+      {bonusBreakdown(team).length > 0 && (
+        <ul className="type-bonuses">
+          {bonusBreakdown(team).map((entry) => (
+            <li key={entry.typeId}>
+              {entry.typeName}: +{(entry.percent * 100).toFixed(0)}%{' '}
+              {entry.isLive ? '' : '(em breve) '}
+              {BONUS_KIND_LABELS[entry.bonusKind]}
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   )
 }

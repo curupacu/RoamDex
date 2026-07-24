@@ -6,9 +6,10 @@ import { isUnlocked, ownedCount, upgradeCost } from '../../systems/economy/upgra
 interface UpgradesPanelProps {
   save: SaveData
   onBuy: (id: string) => void
+  costMultiplier?: number
 }
 
-export function UpgradesPanel({ save, onBuy }: UpgradesPanelProps) {
+export function UpgradesPanel({ save, onBuy, costMultiplier = 1 }: UpgradesPanelProps) {
   const visible = UPGRADES.filter((def) => isUnlocked(def, save))
   if (visible.length === 0) return null
 
@@ -18,7 +19,7 @@ export function UpgradesPanel({ save, onBuy }: UpgradesPanelProps) {
       <ul>
         {visible.map((def) => {
           const owned = ownedCount(save, def.id)
-          const cost = upgradeCost(def, owned)
+          const cost = upgradeCost(def, owned, costMultiplier)
           const effectLabel = def.kind === 'click' ? `+${def.effect} por clique` : `+${def.effect}/s`
 
           return (
