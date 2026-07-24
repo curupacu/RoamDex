@@ -3,7 +3,7 @@ import { resolveSync } from './cloudSave'
 import type { SaveData } from '../engine/save'
 
 function makeSave(candies: number, lastSavedAt: number): SaveData {
-  return { version: 1, candies, lastSavedAt }
+  return { version: 2, candies, lifetimeCandies: candies, lastSavedAt, upgrades: {} }
 }
 
 describe('resolveSync', () => {

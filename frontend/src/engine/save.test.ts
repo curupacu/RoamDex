@@ -13,7 +13,7 @@ describe('save', () => {
   })
 
   it('survives a refresh: write then load returns the same data', () => {
-    writeSave({ version: 1, candies: 4200, lastSavedAt: Date.now() })
+    writeSave({ version: 2, candies: 4200, lifetimeCandies: 4200, lastSavedAt: Date.now(), upgrades: {} })
 
     const reloaded = loadSave()
 
@@ -28,6 +28,14 @@ describe('save', () => {
 
     expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
     expect(migrated.candies).toBe(999)
+    expect(migrated.lifetimeCandies).toBe(999)
+    expect(migrated.upgrades).toEqual({})
+  })
+
+  it('migrates a v1 save (pre-upgrades) up to v2, backfilling lifetimeCandies', () => {
+    const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
+
+    expect(migrated).toEqual({ version: 2, candies: 250, lifetimeCandies: 250, lastSavedAt: 123, upgrades: {} })
   })
 
   it('falls back to a default save when the stored JSON is corrupt', () => {

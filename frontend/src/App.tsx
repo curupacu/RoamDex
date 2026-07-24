@@ -4,7 +4,9 @@ import { formatBigNumber } from './engine/numberFormat'
 import { loadSave, writeSave, type SaveData } from './engine/save'
 import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
-import { applyClick, CANDY_PER_CLICK } from './systems/economy/click'
+import { applyClick, clickValue } from './systems/economy/click'
+import { buyUpgrade, totalCps } from './systems/economy/upgrades'
+import { UpgradesPanel } from './ui/components/UpgradesPanel'
 
 interface Gen1Entry {
   id: number
@@ -23,7 +25,7 @@ function App() {
   const saveRef = useRef(save)
   saveRef.current = save
   const uidRef = useRef<string | null>(null)
-  const [candyPops, setCandyPops] = useState<{ id: number; x: number }[]>([])
+  const [candyPops, setCandyPops] = useState<{ id: number; x: number; gain: number }[]>([])
   const nextPopId = useRef(0)
 
   useEffect(() => {
@@ -65,6 +67,16 @@ function App() {
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
+      const cps = totalCps(saveRef.current)
+      if (cps > 0) {
+        const gain = (cps * deltaMs) / 1000
+        setSave((current) => ({
+          ...current,
+          candies: current.candies + gain,
+          lifetimeCandies: current.lifetimeCandies + gain,
+        }))
+      }
+
       msSinceSave += deltaMs
       if (msSinceSave >= AUTOSAVE_INTERVAL_MS) {
         msSinceSave = 0
@@ -86,28 +98,36 @@ function App() {
   const starter = gen1?.find((entry) => entry.id === PLACEHOLDER_STARTER_ID) ?? null
 
   function handleClick() {
+    const gain = clickValue(saveRef.current)
     setSave((current) => applyClick(current))
 
     const id = nextPopId.current++
     const x = Math.random() * 40 - 20
-    setCandyPops((current) => [...current, { id, x }])
+    setCandyPops((current) => [...current, { id, x, gain }])
     setTimeout(() => {
       setCandyPops((current) => current.filter((pop) => pop.id !== id))
     }, CANDY_POP_LIFETIME_MS)
+  }
+
+  function handleBuyUpgrade(id: string) {
+    setSave((current) => buyUpgrade(current, id))
   }
 
   return (
     <main>
       <h1>PokéIdle</h1>
       <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
-      <button className="click-area" onClick={handleClick} disabled={!starter}>
-        {starter && <img src={starter.sprite.local} alt={starter.name} />}
-        {candyPops.map((pop) => (
-          <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
-            +{CANDY_PER_CLICK}
-          </span>
-        ))}
-      </button>
+      <div className="game-area">
+        <button className="click-area" onClick={handleClick} disabled={!starter}>
+          {starter && <img src={starter.sprite.local} alt={starter.name} />}
+          {candyPops.map((pop) => (
+            <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
+              +{formatBigNumber(pop.gain)}
+            </span>
+          ))}
+        </button>
+        <UpgradesPanel save={save} onBuy={handleBuyUpgrade} />
+      </div>
     </main>
   )
 }
