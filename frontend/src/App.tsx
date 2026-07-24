@@ -20,6 +20,8 @@ import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrad
 import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { rollCapture } from './systems/capture/capture'
+import { applyLoot, rollLoot } from './systems/capture/loot'
 import { RARITY_LABELS } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { BattleScreen } from './ui/screens/BattleScreen'
@@ -189,11 +191,15 @@ function App() {
     }
   }, [])
 
+  // The 20s "decide or it leaves" window only applies while it's showing
+  // in the clicker view — once the player commits to battling, the
+  // encounter must survive for the whole fight regardless of how long the
+  // QTEs take.
   useEffect(() => {
-    if (!wildEncounter) return
+    if (!wildEncounter || view !== 'clicker') return
     const id = setTimeout(() => setWildEncounter(null), IGNORE_TIMEOUT_MS)
     return () => clearTimeout(id)
-  }, [wildEncounter])
+  }, [wildEncounter, view])
 
   function handleChooseStarter(speciesId: number) {
     setSave((current) => addToRoster(current, speciesId, STARTER_LEVEL))
@@ -228,13 +234,13 @@ function App() {
     setSave((current) => buyXpBoost(current, Date.now()))
   }
 
+  // Grants XP right away, whether the player then captures, loots, or the
+  // battle was just the "Batalha" tab's fixed test dummy.
   function handleVictory(activeSpeciesId: number) {
     setSave((current) => {
       const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM)
       return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS)
     })
-    setWildEncounter(null)
-    setView('clicker')
   }
 
   function handleExitBattle() {
@@ -248,6 +254,30 @@ function App() {
 
   function handleIgnoreWild() {
     setWildEncounter(null)
+  }
+
+  // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
+  // no second chance. Doesn't clear wildEncounter itself: BattleScreen
+  // still needs it to show the result, onExit clears it once dismissed.
+  function handleCaptureWild(): string {
+    const encounter = wildEncounterRef.current
+    const entry = encounter ? (gen1Ref.current?.find((candidate) => candidate.id === encounter.speciesId) ?? null) : null
+    if (!encounter || !entry) return ''
+
+    const success = rollCapture(entry.captureRate, economyMultiplier(teamRef.current, 'captureChance'))
+    if (success) setSave((current) => addToRoster(current, entry.id, encounter.level))
+    return success ? `${entry.name} foi capturado!` : `A Pokébola falhou... ${entry.name} fugiu!`
+  }
+
+  function handleLootWild(): string {
+    const encounter = wildEncounterRef.current
+    if (!encounter) return ''
+
+    const result = rollLoot(saveRef.current, encounter.level)
+    setSave((current) => applyLoot(current, result))
+    return result.kind === 'candies'
+      ? `Você achou ${formatBigNumber(result.amount)} doces!`
+      : `Você achou uma cópia grátis de ${result.upgradeName}!`
   }
 
   if (!gen1) {
@@ -306,6 +336,8 @@ function App() {
           save={save}
           opponent={wildEncounter ? { speciesId: wildEncounter.speciesId, level: wildEncounter.level } : undefined}
           onVictory={handleVictory}
+          onCapture={handleCaptureWild}
+          onLoot={handleLootWild}
           onExit={handleExitBattle}
         />
       )}

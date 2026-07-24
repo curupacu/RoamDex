@@ -24,10 +24,14 @@ interface BattleScreenProps {
   // reachable from the "Batalha" nav tab directly.
   opponent?: { speciesId: number; level: number }
   onVictory: (activeSpeciesId: number) => void
+  // Only called for a real wild encounter (opponent is set) — roll capture
+  // or loot, apply it to the save, and return the result text to show.
+  onCapture?: () => string
+  onLoot?: () => string
   onExit: () => void
 }
 
-export function BattleScreen({ gen1, save, opponent, onVictory, onExit }: BattleScreenProps) {
+export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoot, onExit }: BattleScreenProps) {
   const enemyEntry = gen1.find((entry) => entry.id === (opponent?.speciesId ?? TEST_OPPONENT_SPECIES_ID))
   // The fixed test dummy matches the player's own level (see git history)
   // so it's actually testable instead of an instant one-shot; a real wild
@@ -41,6 +45,20 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onExit }: Battle
   battleRef.current = battle
   const [telegraph, setTelegraph] = useState(false)
   const [hitMessage, setHitMessage] = useState<string | null>(null)
+  const [postVictoryMessage, setPostVictoryMessage] = useState<string | null>(null)
+  const victoryHandledRef = useRef(false)
+  const onVictoryRef = useRef(onVictory)
+  onVictoryRef.current = onVictory
+
+  // Grants XP exactly once, right when the battle is won — independent of
+  // whatever the player picks next (capture, loot, or just "Continuar").
+  useEffect(() => {
+    if (battle.outcome !== 'victory' || victoryHandledRef.current) return
+    victoryHandledRef.current = true
+    const current = battleRef.current
+    const winner = current.playerTeam[current.activeIndex] ?? current.playerTeam[0]
+    onVictoryRef.current(winner.speciesId)
+  }, [battle.outcome])
 
   // A fresh `lastHit` object is produced on every hit (even repeats of the
   // same tier), so this effect naturally re-fires each time — no need to
@@ -136,8 +154,27 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onExit }: Battle
 
       {battle.outcome === 'victory' && (
         <div className="pokemon-detail">
-          <p>Vitória!</p>
-          <button onClick={() => onVictory(active?.speciesId ?? battle.playerTeam[0].speciesId)}>Continuar</button>
+          {!opponent && (
+            <>
+              <p>Vitória!</p>
+              <button onClick={onExit}>Continuar</button>
+            </>
+          )}
+
+          {opponent && postVictoryMessage === null && (
+            <>
+              <p>Vitória! Capturar ou pegar o loot?</p>
+              <button onClick={() => setPostVictoryMessage(onCapture?.() ?? null)}>Jogar Pokébola</button>
+              <button onClick={() => setPostVictoryMessage(onLoot?.() ?? null)}>Pegar Loot</button>
+            </>
+          )}
+
+          {opponent && postVictoryMessage !== null && (
+            <>
+              <p>{postVictoryMessage}</p>
+              <button onClick={onExit}>Continuar</button>
+            </>
+          )}
         </div>
       )}
 
