@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 5
+export const CURRENT_SAVE_VERSION = 6
 
 export interface SaveDataV1 {
   version: 1
@@ -70,7 +70,21 @@ export interface SaveDataV5 {
   activeTeamIds: number[]
 }
 
-export type SaveData = SaveDataV5
+export interface SaveDataV6 {
+  version: 6
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  roster: RosterMember[]
+  activeTeamIds: number[]
+  // buffId -> expiry timestamp (ms). Candy Shop temporary buffs
+  // (Sprint 12) — timestamp-based like everything else (CLAUDE.md rule 4),
+  // so "still active?" is just `buffs[id] > Date.now()`.
+  buffs: Record<string, number>
+}
+
+export type SaveData = SaveDataV6
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -135,6 +149,10 @@ const migrations: Record<number, Migration> = {
       roster: v4.roster.map((member) => ({ ...member, xp: 0 })),
     }
   },
+  5: (old): SaveDataV6 => {
+    const v5 = old as SaveDataV5
+    return { ...v5, version: 6, buffs: {} }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -154,6 +172,7 @@ export function createDefaultSave(): SaveData {
     upgrades: {},
     roster: [],
     activeTeamIds: [],
+    buffs: {},
   }
 }
 

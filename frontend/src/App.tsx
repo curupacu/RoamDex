@@ -14,10 +14,12 @@ import { STARTER_LEVEL } from './content/gen1/starters'
 import type { Gen1Entry } from './content/gen1/types'
 import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
+import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/economy/candyShop'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
@@ -27,7 +29,7 @@ import { TeamScreen } from './ui/screens/TeamScreen'
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -69,7 +71,7 @@ function App() {
       }))
     }
 
-    const xpPerSecond = totalXpPerSecond(saveRef.current)
+    const xpPerSecond = totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now())
     if (xpPerSecond > 0) {
       const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
       setSave((current) => gainTeamXp(current, gen1, xpGain))
@@ -127,7 +129,7 @@ function App() {
         }))
       }
 
-      const xpPerSecond = totalXpPerSecond(saveRef.current)
+      const xpPerSecond = totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now())
       if (xpPerSecond > 0) {
         const xpGain = (xpPerSecond * deltaMs) / 1000
         setSave((current) => gainTeamXp(current, gen1Ref.current ?? [], xpGain))
@@ -176,6 +178,14 @@ function App() {
     setSave((current) => buyUpgrade(current, id, upgradeCostMultiplier(team)))
   }
 
+  function handleBuyRareCandy(speciesId: number) {
+    setSave((current) => buyRareCandy(current, gen1Ref.current ?? [], speciesId))
+  }
+
+  function handleBuyXpBoost() {
+    setSave((current) => buyXpBoost(current, Date.now()))
+  }
+
   if (!gen1) {
     return (
       <main>
@@ -207,10 +217,22 @@ function App() {
         <button onClick={() => setView('pokedex')} disabled={view === 'pokedex'}>
           Pokédex
         </button>
+        <button onClick={() => setView('shop')} disabled={view === 'shop'}>
+          Loja
+        </button>
       </nav>
 
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
       {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
+      {view === 'shop' && (
+        <CandyShopScreen
+          gen1={gen1}
+          save={save}
+          now={Date.now()}
+          onBuyRareCandy={handleBuyRareCandy}
+          onBuyXpBoost={handleBuyXpBoost}
+        />
+      )}
 
       {view === 'clicker' && (
         <>
@@ -223,7 +245,11 @@ function App() {
               <button onClick={() => setOfflineSummary(null)}>Continuar</button>
             </div>
           )}
-          <div className="candy-counter">Doces: {formatBigNumber(save.candies)}</div>
+          <div className="candy-counter">
+            Saldo: {formatBigNumber(save.candies)}
+            <br />
+            Acumulado: {formatBigNumber(save.lifetimeCandies)}
+          </div>
           {clickerEntry && clickerMember && (
             <p>
               {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
