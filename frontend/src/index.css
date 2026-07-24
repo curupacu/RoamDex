@@ -5,8 +5,6 @@
 }
 
 :root {
-  --bg-sky-top: #241b3d;
-  --bg-sky-bottom: #4a3a7a;
   --panel-bg: #1e1a2e;
   --panel-border: #6a4fc0;
   --panel-border-strong: #e0645a;
@@ -23,7 +21,10 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text-light);
-  background: linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-bottom) 70%, var(--bg-sky-bottom) 100%);
+  background-image: linear-gradient(rgba(10, 10, 20, 0.55), rgba(10, 10, 20, 0.55)), url('/backgrounds/forest.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
 }
 
@@ -33,7 +34,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0px, rgba(0, 0, 0, 0.12) 1px, transparent 1px, transparent 3px);
-  opacity: 0.35;
+  opacity: 0.2;
 }
 
 main {
