@@ -20,6 +20,15 @@ const TIER_BASE_WEIGHT: Record<RarityTier, number> = {
   rare: 1,
 }
 
+// Not in the original roadmap text (section 5 just says "pool = geração
+// atual da run") — added per the project owner's request: a fresh save
+// was rolling anything up to legendaries in the first encounter. Common
+// and uncommon (which already covers early-route mons like Caterpie,
+// Metapod, Pidgey, Rattata, Spearow — all captureRate >= 50) are always
+// available; rare stays locked until this much lifetime progress.
+// Provisional threshold — Sprint 25 tunes it for real.
+export const RARE_TIER_UNLOCK_LIFETIME_CANDIES = 20_000
+
 export interface WildEncounter {
   speciesId: number
   level: number
@@ -37,10 +46,13 @@ export function wildLevelForProgress(lifetimeCandies: number): number {
 // number today (economyMultiplier(team, 'rareWildChance') from the
 // caller); Fantasma's night-window bonus has no day/night system to plug
 // into yet, so it stays a display-only "(em breve)" bonus for now.
-function pickWildSpecies(gen1: Gen1Entry[], rareBonusMultiplier: number): Gen1Entry {
+function pickWildSpecies(gen1: Gen1Entry[], lifetimeCandies: number, rareBonusMultiplier: number): Gen1Entry {
+  const rareUnlocked = lifetimeCandies >= RARE_TIER_UNLOCK_LIFETIME_CANDIES
+
   const weights = gen1.map((entry) => {
     const tier = rarityTier(entry.captureRate)
-    return tier === 'rare' ? TIER_BASE_WEIGHT.rare * rareBonusMultiplier : TIER_BASE_WEIGHT[tier]
+    if (tier === 'rare') return rareUnlocked ? TIER_BASE_WEIGHT.rare * rareBonusMultiplier : 0
+    return TIER_BASE_WEIGHT[tier]
   })
   const total = weights.reduce((sum, weight) => sum + weight, 0)
 
@@ -53,7 +65,7 @@ function pickWildSpecies(gen1: Gen1Entry[], rareBonusMultiplier: number): Gen1En
 }
 
 export function spawnWildEncounter(gen1: Gen1Entry[], lifetimeCandies: number, rareBonusMultiplier: number): WildEncounter {
-  const entry = pickWildSpecies(gen1, rareBonusMultiplier)
+  const entry = pickWildSpecies(gen1, lifetimeCandies, rareBonusMultiplier)
   return {
     speciesId: entry.id,
     level: wildLevelForProgress(lifetimeCandies),

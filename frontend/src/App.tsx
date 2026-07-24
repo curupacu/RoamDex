@@ -343,9 +343,6 @@ function App() {
         <button onClick={() => setView('shop')} disabled={view === 'shop'}>
           Loja
         </button>
-        <button onClick={() => setView('battle')} disabled={view === 'battle'}>
-          Batalha
-        </button>
         <button onClick={() => setView('admin')} disabled={view === 'admin'}>
           Admin
         </button>
@@ -359,6 +356,7 @@ function App() {
           onAddToRoster={handleAdminAddToRoster}
           onForceEncounter={handleAdminForceEncounter}
           onSetActiveLevel={handleAdminSetActiveLevel}
+          onBattleTestDummy={() => setView('battle')}
         />
       )}
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}

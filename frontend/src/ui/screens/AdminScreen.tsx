@@ -13,9 +13,21 @@ interface AdminScreenProps {
   onAddToRoster: (speciesId: number, level: number) => void
   onForceEncounter: (speciesId: number, level: number) => void
   onSetActiveLevel: (level: number) => void
+  // The "Batalha" nav tab was removed from normal play (battles only
+  // happen via real wild encounters now) — this is the only way left to
+  // reach the Sprint 13 fixed test dummy for manual testing.
+  onBattleTestDummy: () => void
 }
 
-export function AdminScreen({ gen1, save, onAddCandies, onAddToRoster, onForceEncounter, onSetActiveLevel }: AdminScreenProps) {
+export function AdminScreen({
+  gen1,
+  save,
+  onAddCandies,
+  onAddToRoster,
+  onForceEncounter,
+  onSetActiveLevel,
+  onBattleTestDummy,
+}: AdminScreenProps) {
   const [selectedSpeciesId, setSelectedSpeciesId] = useState(gen1[0]?.id ?? 1)
   const [level, setLevel] = useState(20)
   const [activeLevel, setActiveLevel] = useState(20)
@@ -54,6 +66,11 @@ export function AdminScreen({ gen1, save, onAddCandies, onAddToRoster, onForceEn
           <input type="number" min={1} max={100} value={activeLevel} onChange={(event) => setActiveLevel(Number(event.target.value))} />
         </label>
         <button onClick={() => onSetActiveLevel(activeLevel)}>Definir nível do Pokémon ativo</button>
+      </div>
+
+      <div className="pokemon-detail">
+        <h3>Batalha de teste</h3>
+        <button onClick={onBattleTestDummy}>Batalhar contra o Rattata de teste (Sprint 13)</button>
       </div>
 
       <div className="pokemon-detail">
