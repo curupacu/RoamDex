@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Gen1Entry } from '../../content/gen1/types'
+import { TYPES } from '../../content/types'
 import type { RosterMember } from '../../engine/save'
 import {
   applyEnemyAttack,
@@ -7,6 +8,7 @@ import {
   createBattle,
   ENERGY_MAX,
   ENERGY_PER_TAP,
+  hasQte,
   resolveQteAttack,
   switchActive,
 } from './engine'
@@ -55,8 +57,11 @@ describe('applyPlayerTap', () => {
     expect(result.energy).toBe(ENERGY_PER_TAP)
   })
 
-  it('deals a bigger hit and resets energy once full (type with no QTE yet, flat multiplier)', () => {
-    const gen1 = [makeEntry({ types: ['bug'] })]
+  it('deals a bigger hit and resets energy once full (defensive: a type with no QTE config, flat multiplier)', () => {
+    // All 18 real types have a QTE as of Sprint 17 — this fabricated type
+    // exercises the fallback path in case content/moves.ts ever has a gap
+    // (e.g. a future 19th type not wired up yet).
+    const gen1 = [makeEntry({ types: ['unconfigured-type' as Gen1Entry['types'][number]] })]
     let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19, stats: { hp: 100_000, attack: 10, defense: 10, 'special-attack': 10, 'special-defense': 10, speed: 10 } }), 5)
     battle = { ...battle, energy: ENERGY_MAX }
 
@@ -230,6 +235,14 @@ describe('type effectiveness', () => {
     const result = applyEnemyAttack(battle)
 
     expect(result.lastHit).toEqual({ source: 'enemy', tier: 'super' })
+  })
+})
+
+describe('hasQte', () => {
+  it('is true for all 18 types as of Sprint 17', () => {
+    for (const type of TYPES) {
+      expect(hasQte(type.id)).toBe(true)
+    }
   })
 })
 

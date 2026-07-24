@@ -565,6 +565,97 @@ button:disabled {
   background: var(--accent-yellow);
 }
 
+.qte-target-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.qte-small-target {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(168, 184, 32, 0.7);
+}
+
+.qte-small-target--cleared {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.4;
+}
+
+.qte-ghost-lane {
+  position: relative;
+  width: 240px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qte-ghost-target {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(112, 88, 152, 0.8);
+}
+
+.qte-dragon-lane {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qte-dragon-target {
+  position: absolute;
+  border: 2px dashed var(--accent-yellow);
+  border-radius: 50%;
+}
+
+.qte-dragon-ring {
+  position: absolute;
+  border: 3px solid var(--panel-border-strong);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.qte-dark-lane {
+  position: relative;
+  width: 240px;
+  height: 140px;
+  background: #050508;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+}
+
+.qte-dark-flash {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  box-shadow: 0 0 12px 4px rgba(248, 208, 48, 0.6);
+  transform: translate(-50%, -50%);
+}
+
+.qte-star-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.qte-star {
+  width: 56px;
+  height: 56px;
+  font-size: 1.25rem;
+}
+
+.qte-star--lit {
+  background: var(--accent-yellow);
+}
+
 .battle-hit-message {
   color: var(--accent-yellow);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
