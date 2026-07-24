@@ -56,7 +56,7 @@ describe('applyPlayerTap', () => {
   })
 
   it('deals a bigger hit and resets energy once full (type with no QTE yet, flat multiplier)', () => {
-    const gen1 = [makeEntry({ types: ['rock'] })]
+    const gen1 = [makeEntry({ types: ['bug'] })]
     let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19, stats: { hp: 100_000, attack: 10, defense: 10, 'special-attack': 10, 'special-defense': 10, speed: 10 } }), 5)
     battle = { ...battle, energy: ENERGY_MAX }
 
@@ -100,6 +100,14 @@ describe('applyPlayerTap', () => {
     expect(result.awaitingQte).toBe('grass')
     expect(result.enemy.currentHp).toBe(battle.enemy.currentHp)
     expect(result.energy).toBe(ENERGY_MAX)
+  })
+
+  it('opens the QTE for a Sprint 16 "leva 2" type too (rock)', () => {
+    const gen1 = [makeEntry({ types: ['rock'] })]
+    let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19 }), 5)
+    battle = { ...battle, energy: ENERGY_MAX }
+
+    expect(applyPlayerTap(battle).awaitingQte).toBe('rock')
   })
 
   it('is blocked while awaiting a QTE result', () => {

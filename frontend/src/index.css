@@ -484,6 +484,87 @@ button:disabled {
   gap: 1rem;
 }
 
+.qte-target--broken {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.4;
+}
+
+.qte-bubble-lane {
+  position: relative;
+  width: 240px;
+  height: 80px;
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.qte-bubble {
+  position: absolute;
+  bottom: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(160, 64, 160, 0.7);
+  border: 2px solid var(--panel-border-strong);
+  transform: translateX(-50%);
+}
+
+.qte-drag-track {
+  position: relative;
+  width: 240px;
+  height: 32px;
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.qte-drag-fill {
+  height: 100%;
+  background: #e0c068;
+}
+
+.qte-flying-lane {
+  position: relative;
+  width: 240px;
+  height: 60px;
+}
+
+.qte-flying-target {
+  position: absolute;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  border: 2px solid var(--panel-border);
+  transition: left 0.05s linear;
+}
+
+.qte-simon-sequence {
+  font-size: 1.5rem;
+  min-height: 2rem;
+  letter-spacing: 0.5rem;
+}
+
+.qte-simon-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.qte-simon-button {
+  width: 56px;
+  height: 56px;
+  font-size: 1.25rem;
+}
+
+.qte-simon-button--lit {
+  background: var(--accent-yellow);
+}
+
 .battle-hit-message {
   color: var(--accent-yellow);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
