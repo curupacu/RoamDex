@@ -1,15 +1,17 @@
+import { MOVES } from '../../content/moves'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { typeEffectiveness } from '../../content/typeEffectiveness'
 import type { TypeName } from '../../content/types'
 import type { RosterMember } from '../../engine/save'
 import { deriveStats } from '../team/stats'
+import { QTE_RESULT_MULTIPLIER, type QteResult } from './qte/grading'
 
 export const ENERGY_MAX = 100
 export const ENERGY_PER_TAP = 20
-// Flat bonus until the QTE framework (Sprint 15+) gates it by execution
-// quality ("QTE bem executado = dano cheio; mediano = parcial; falhou =
-// fraco" — roadmap section 3). Provisional.
-export const SUPER_ATTACK_MULTIPLIER = 2.5
+// Flat fallback for the 12 types without a QTE yet (Sprints 16-17 add the
+// rest) — same tier as a "full" QTE result, so those types aren't worse
+// off in the meantime.
+export const SUPER_ATTACK_MULTIPLIER = QTE_RESULT_MULTIPLIER.full
 
 // Softens defense into diminishing returns instead of a hard subtraction,
 // so a high-DEF unit can't reduce incoming damage to 0. Provisional.
@@ -42,6 +44,16 @@ export interface BattleState {
   energy: number
   outcome: BattleOutcome
   lastHit: BattleHit | null
+  // Set to the active unit's type when energy is full AND that type has a
+  // real QTE (content/moves.ts) — the caller (BattleScreen) shows the
+  // minigame and calls resolveQteAttack() with the result. Types without a
+  // QTE yet skip straight to the flat SUPER_ATTACK_MULTIPLIER, so this
+  // stays null for them.
+  awaitingQte: TypeName | null
+}
+
+export function hasQte(type: TypeName): boolean {
+  return MOVES[type] !== undefined
 }
 
 function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
@@ -84,6 +96,7 @@ export function createBattle(
     energy: 0,
     outcome: playerTeam.length === 0 ? 'defeat' : 'ongoing',
     lastHit: null,
+    awaitingQte: null,
   }
 }
 
@@ -109,13 +122,19 @@ function nextLivingIndex(team: BattleUnit[], from: number): number {
   return -1
 }
 
-// Tap-to-attack (roadmap section 4). Energy fills with taps; once full,
-// the next tap releases the super attack instead and resets it.
+// Tap-to-attack (roadmap section 4). Energy fills with taps; once full, the
+// next tap either opens the type's QTE (if it has one) or releases the
+// flat-multiplier super attack immediately.
 export function applyPlayerTap(state: BattleState): BattleState {
-  if (state.outcome !== 'ongoing') return state
+  if (state.outcome !== 'ongoing' || state.awaitingQte) return state
 
   const active = state.playerTeam[state.activeIndex]
   const useSuper = state.energy >= ENERGY_MAX
+
+  if (useSuper && hasQte(active.type)) {
+    return { ...state, awaitingQte: active.type }
+  }
+
   const { amount, tier } = calculateDamage(active, state.enemy)
   const dealt = amount * (useSuper ? SUPER_ATTACK_MULTIPLIER : 1)
   const enemyHp = Math.max(0, state.enemy.currentHp - dealt)
@@ -129,11 +148,31 @@ export function applyPlayerTap(state: BattleState): BattleState {
   }
 }
 
+// Called once the QTE minigame finishes — deals the super attack, graded
+// by execution quality instead of the flat multiplier.
+export function resolveQteAttack(state: BattleState, result: QteResult): BattleState {
+  if (state.outcome !== 'ongoing' || !state.awaitingQte) return state
+
+  const active = state.playerTeam[state.activeIndex]
+  const { amount, tier } = calculateDamage(active, state.enemy)
+  const dealt = amount * QTE_RESULT_MULTIPLIER[result]
+  const enemyHp = Math.max(0, state.enemy.currentHp - dealt)
+
+  return {
+    ...state,
+    enemy: { ...state.enemy, currentHp: enemyHp },
+    energy: 0,
+    awaitingQte: null,
+    outcome: enemyHp <= 0 ? 'victory' : 'ongoing',
+    lastHit: { source: 'player', tier },
+  }
+}
+
 // The enemy attacks on a timer (driven by the caller, telegraphed before
 // impact) — this just applies one hit. If the active unit faints, the next
 // living team member switches in automatically; no survivors = defeat.
 export function applyEnemyAttack(state: BattleState): BattleState {
-  if (state.outcome !== 'ongoing') return state
+  if (state.outcome !== 'ongoing' || state.awaitingQte) return state
 
   const active = state.playerTeam[state.activeIndex]
   const { amount, tier } = calculateDamage(state.enemy, active)

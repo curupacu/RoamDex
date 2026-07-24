@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import type { Gen1Entry } from '../../content/gen1/types'
 import type { RosterMember } from '../../engine/save'
-import { applyEnemyAttack, applyPlayerTap, createBattle, ENERGY_MAX, ENERGY_PER_TAP, switchActive } from './engine'
+import {
+  applyEnemyAttack,
+  applyPlayerTap,
+  createBattle,
+  ENERGY_MAX,
+  ENERGY_PER_TAP,
+  resolveQteAttack,
+  switchActive,
+} from './engine'
 
 function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
   return {
@@ -47,8 +55,8 @@ describe('applyPlayerTap', () => {
     expect(result.energy).toBe(ENERGY_PER_TAP)
   })
 
-  it('deals a bigger hit and resets energy once full', () => {
-    const gen1 = [makeEntry()]
+  it('deals a bigger hit and resets energy once full (type with no QTE yet, flat multiplier)', () => {
+    const gen1 = [makeEntry({ types: ['rock'] })]
     let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19, stats: { hp: 100_000, attack: 10, defense: 10, 'special-attack': 10, 'special-defense': 10, speed: 10 } }), 5)
     battle = { ...battle, energy: ENERGY_MAX }
 
@@ -80,6 +88,60 @@ describe('applyPlayerTap', () => {
     const battle = applyPlayerTap(createBattle(gen1, [makeMember(1)], [1], weakEnemy, 1))
 
     expect(applyPlayerTap(battle)).toEqual(battle)
+  })
+
+  it('opens the QTE instead of dealing damage when energy is full and the type has one (grass)', () => {
+    const gen1 = [makeEntry({ types: ['grass'] })]
+    let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19 }), 5)
+    battle = { ...battle, energy: ENERGY_MAX }
+
+    const result = applyPlayerTap(battle)
+
+    expect(result.awaitingQte).toBe('grass')
+    expect(result.enemy.currentHp).toBe(battle.enemy.currentHp)
+    expect(result.energy).toBe(ENERGY_MAX)
+  })
+
+  it('is blocked while awaiting a QTE result', () => {
+    const gen1 = [makeEntry({ types: ['grass'] })]
+    let battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19 }), 5)
+    battle = { ...battle, energy: ENERGY_MAX }
+    const awaiting = applyPlayerTap(battle)
+
+    expect(applyPlayerTap(awaiting)).toEqual(awaiting)
+  })
+})
+
+describe('resolveQteAttack', () => {
+  it('deals full/partial/weak damage graded by the QTE result and clears awaitingQte', () => {
+    const gen1 = [makeEntry({ types: ['grass'] })]
+    const enemy = makeEntry({ id: 19, stats: { hp: 100_000, attack: 10, defense: 10, 'special-attack': 10, 'special-defense': 10, speed: 10 } })
+
+    const makeAwaiting = () => {
+      let battle = createBattle(gen1, [makeMember(1)], [1], enemy, 5)
+      battle = { ...battle, energy: ENERGY_MAX }
+      return applyPlayerTap(battle)
+    }
+
+    const full = resolveQteAttack(makeAwaiting(), 'full')
+    const partial = resolveQteAttack(makeAwaiting(), 'partial')
+    const weak = resolveQteAttack(makeAwaiting(), 'weak')
+
+    expect(full.awaitingQte).toBeNull()
+    expect(full.energy).toBe(0)
+
+    const fullDamage = 100_000 - full.enemy.currentHp
+    const partialDamage = 100_000 - partial.enemy.currentHp
+    const weakDamage = 100_000 - weak.enemy.currentHp
+    expect(fullDamage).toBeGreaterThan(partialDamage)
+    expect(partialDamage).toBeGreaterThan(weakDamage)
+  })
+
+  it('is a no-op when not awaiting a QTE', () => {
+    const gen1 = [makeEntry({ types: ['grass'] })]
+    const battle = createBattle(gen1, [makeMember(1)], [1], makeEntry({ id: 19 }), 5)
+
+    expect(resolveQteAttack(battle, 'full')).toEqual(battle)
   })
 })
 

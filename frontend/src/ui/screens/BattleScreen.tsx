@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ENEMY_ATTACK_INTERVAL_MS, TELEGRAPH_WINDOW_MS, TEST_OPPONENT_LEVEL, TEST_OPPONENT_SPECIES_ID } from '../../content/battle'
 import type { Gen1Entry } from '../../content/gen1/types'
+import { moveNameForStage } from '../../content/moves'
 import { GameLoop } from '../../engine/gameLoop'
 import type { SaveData } from '../../engine/save'
 import {
@@ -8,10 +9,13 @@ import {
   applyPlayerTap,
   createBattle,
   ENERGY_MAX,
+  resolveQteAttack,
   switchActive,
   type BattleState,
 } from '../../systems/battle/engine'
+import { moveStage } from '../../systems/battle/moveStage'
 import { HpBar } from '../components/HpBar'
+import { QteModal } from '../components/qte/QteModal'
 
 interface BattleScreenProps {
   gen1: Gen1Entry[]
@@ -46,7 +50,7 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
     let msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      if (battleRef.current.outcome !== 'ongoing') return
+      if (battleRef.current.outcome !== 'ongoing' || battleRef.current.awaitingQte) return
 
       msUntilAttack -= deltaMs
       setTelegraph(msUntilAttack <= TELEGRAPH_WINDOW_MS)
@@ -68,6 +72,8 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
 
   const active = battle.playerTeam[battle.activeIndex]
   const activeEntry = active ? gen1.find((entry) => entry.id === active.speciesId) : null
+  const activeMoveName =
+    active && activeEntry ? moveNameForStage(active.type, moveStage(activeEntry, active.level)) : null
 
   return (
     <div className="battle-screen">
@@ -80,13 +86,20 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
         <HpBar current={battle.enemy.currentHp} max={battle.enemy.maxHp} />
       </div>
 
-      {battle.outcome === 'ongoing' && active && activeEntry && (
+      {battle.outcome === 'ongoing' && active && activeEntry && battle.awaitingQte && (
+        <div className="pokemon-detail">
+          <QteModal type={battle.awaitingQte} onComplete={(result) => setBattle((current) => resolveQteAttack(current, result))} />
+        </div>
+      )}
+
+      {battle.outcome === 'ongoing' && active && activeEntry && !battle.awaitingQte && (
         <>
           <button className="battle-tap-area" onClick={() => setBattle((current) => applyPlayerTap(current))}>
             <img src={activeEntry.sprite.local} alt={active.name} />
           </button>
           <p>
             {active.name} Nv.{active.level}
+            {activeMoveName && <> — {activeMoveName}</>}
           </p>
           <HpBar current={active.currentHp} max={active.maxHp} />
           <div className="energy-bar">
