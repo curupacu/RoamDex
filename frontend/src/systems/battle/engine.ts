@@ -17,6 +17,15 @@ export const SUPER_ATTACK_MULTIPLIER = QTE_RESULT_MULTIPLIER.full
 // so a high-DEF unit can't reduce incoming damage to 0. Provisional.
 const DEF_DAMPING = 0.5
 
+// ATK and HP come from unrelated base stats (a low-HP "glass cannon" like
+// Rattata can still have a big ATK/DEF), so raw atk-def subtraction
+// regularly exceeded a target's whole HP pool in one hit — found by
+// testing Sprint 15's QTE, which needs several taps per fight to ever
+// trigger. This scales damage down to a fraction of the raw stat gap so a
+// fight takes a handful of hits instead of one. Provisional — Sprint 25
+// balances this for real.
+const DAMAGE_SCALE = 0.15
+
 export interface BattleUnit {
   speciesId: number
   name: string
@@ -110,7 +119,7 @@ function effectivenessTier(multiplier: number): EffectivenessTier {
 // same lookup whether the player or the enemy is attacking.
 function calculateDamage(attacker: BattleUnit, defender: BattleUnit): { amount: number; tier: EffectivenessTier } {
   const multiplier = typeEffectiveness(attacker.type, defender.type)
-  const base = Math.max(1, Math.round(attacker.atk - defender.def * DEF_DAMPING))
+  const base = Math.max(1, Math.round((attacker.atk - defender.def * DEF_DAMPING) * DAMAGE_SCALE))
   return { amount: Math.max(1, Math.round(base * multiplier)), tier: effectivenessTier(multiplier) }
 }
 
