@@ -17,6 +17,7 @@ import { applyClick, clickValue } from './systems/economy/click'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps } from './systems/economy/upgrades'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
@@ -205,7 +206,7 @@ function App() {
               <button onClick={() => setOfflineSummary(null)}>Continuar</button>
             </div>
           )}
-          <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
+          <div className="candy-counter">Doces: {formatBigNumber(save.candies)}</div>
           {clickerEntry && (
             <p>
               {clickerEntry.name} Nv.{rosterMember(save, clickerEntry.id)?.level}
@@ -226,7 +227,7 @@ function App() {
             <ul className="type-bonuses">
               {bonusBreakdown(team).map((entry) => (
                 <li key={entry.typeId}>
-                  {entry.typeName}: +{(entry.percent * 100).toFixed(0)}%{' '}
+                  <TypeBadge type={entry.typeId} /> +{(entry.percent * 100).toFixed(0)}%{' '}
                   {entry.isLive ? '' : '(em breve) '}
                   {BONUS_KIND_LABELS[entry.bonusKind]}
                 </li>

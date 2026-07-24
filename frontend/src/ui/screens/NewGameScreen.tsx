@@ -1,5 +1,6 @@
 import { STARTER_IDS } from '../../content/gen1/starters'
 import type { Gen1Entry } from '../../content/gen1/types'
+import { TypeBadge } from '../components/TypeBadge'
 
 interface NewGameScreenProps {
   gen1: Gen1Entry[]
@@ -19,6 +20,11 @@ export function NewGameScreen({ gen1, onChoose }: NewGameScreenProps) {
           <button key={starter.id} className="starter-choice" onClick={() => onChoose(starter.id)}>
             <img src={starter.sprite.local} alt={starter.name} />
             <span>{starter.name}</span>
+            <span>
+              {starter.types.map((type) => (
+                <TypeBadge key={type} type={type} />
+              ))}
+            </span>
           </button>
         ))}
       </div>

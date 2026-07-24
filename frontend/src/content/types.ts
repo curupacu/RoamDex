@@ -99,3 +99,26 @@ export const BONUS_KIND_LABELS: Record<EconomicBonusKind, string> = {
 export const BONUS_PERCENT_PER_POKEMON = 0.02
 export const DRAGON_ALL_STATS_PERCENT = 0.01
 export const SECONDARY_TYPE_WEIGHT = 0.5
+
+// Standard type colors used across the Pokémon fangame community — not
+// official Nintendo/Game Freak branding, just a widely shared convention.
+export const TYPE_COLORS: Record<TypeName, string> = {
+  grass: '#78c850',
+  fire: '#f08030',
+  water: '#6890f0',
+  electric: '#f8d030',
+  normal: '#a8a878',
+  ice: '#98d8d8',
+  fighting: '#c03028',
+  poison: '#a040a0',
+  ground: '#e0c068',
+  flying: '#a890f0',
+  psychic: '#f85888',
+  bug: '#a8b820',
+  rock: '#b8a038',
+  ghost: '#705898',
+  dragon: '#7038f8',
+  steel: '#b8b8d0',
+  dark: '#705848',
+  fairy: '#ee99ac',
+}

@@ -1,6 +1,7 @@
 import type { Gen1Entry } from '../../content/gen1/types'
 import type { SaveData } from '../../engine/save'
 import { isInActiveTeam, MAX_TEAM_SIZE } from '../../systems/team/roster'
+import { TypeBadge } from '../components/TypeBadge'
 
 interface TeamScreenProps {
   gen1: Gen1Entry[]
@@ -26,6 +27,9 @@ export function TeamScreen({ gen1, save, onToggle }: TeamScreenProps) {
                 <img src={entry.sprite.local} alt={entry.name} />
                 <span>
                   {entry.name} Nv.{member.level}
+                  {entry.types.map((type) => (
+                    <TypeBadge key={type} type={type} />
+                  ))}
                 </span>
                 <span>{active ? 'No time' : 'No banco'}</span>
               </button>

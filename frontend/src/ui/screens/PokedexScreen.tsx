@@ -3,6 +3,7 @@ import type { Gen1Entry } from '../../content/gen1/types'
 import { TYPES, type TypeName } from '../../content/types'
 import type { SaveData } from '../../engine/save'
 import { isCaptured, rosterMember } from '../../systems/team/roster'
+import { TypeBadge } from '../components/TypeBadge'
 
 interface PokedexScreenProps {
   gen1: Gen1Entry[]
@@ -80,7 +81,11 @@ export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
           <h3>
             {selected.name} — Nv.{selectedMember.level}
           </h3>
-          <p>Tipo: {selected.types.join(' / ')}</p>
+          <p>
+            {selected.types.map((type) => (
+              <TypeBadge key={type} type={type} />
+            ))}
+          </p>
           <ul>
             {(Object.keys(selected.stats) as (keyof Gen1Entry['stats'])[]).map((stat) => (
               <li key={stat}>
