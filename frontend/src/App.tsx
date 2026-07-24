@@ -294,10 +294,10 @@ function App() {
     setSave((current) => addToRoster(current, speciesId, level))
   }
 
-  function handleAdminForceEncounter(speciesId: number) {
+  function handleAdminForceEncounter(speciesId: number, level: number) {
     const entry = gen1Ref.current?.find((candidate) => candidate.id === speciesId)
     if (!entry) return
-    setWildEncounter({ speciesId, level: 10, tier: rarityTier(entry.captureRate) })
+    setWildEncounter({ speciesId, level, tier: rarityTier(entry.captureRate) })
   }
 
   function handleAdminSetActiveLevel(level: number) {

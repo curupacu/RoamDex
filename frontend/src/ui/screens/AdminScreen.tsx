@@ -11,7 +11,7 @@ interface AdminScreenProps {
   save: SaveData
   onAddCandies: (amount: number) => void
   onAddToRoster: (speciesId: number, level: number) => void
-  onForceEncounter: (speciesId: number) => void
+  onForceEncounter: (speciesId: number, level: number) => void
   onSetActiveLevel: (level: number) => void
 }
 
@@ -45,7 +45,7 @@ export function AdminScreen({ gen1, save, onAddCandies, onAddToRoster, onForceEn
         </label>
         <br />
         <button onClick={() => onAddToRoster(selectedSpeciesId, level)}>Adicionar ao time</button>
-        <button onClick={() => onForceEncounter(selectedSpeciesId)}>Forçar encontro selvagem com essa espécie</button>
+        <button onClick={() => onForceEncounter(selectedSpeciesId, level)}>Forçar encontro selvagem com essa espécie/nível</button>
       </div>
 
       <div className="pokemon-detail">

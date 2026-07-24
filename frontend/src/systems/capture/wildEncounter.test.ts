@@ -20,7 +20,7 @@ describe('wildLevelForProgress', () => {
   })
 
   it('grows with lifetime candies', () => {
-    expect(wildLevelForProgress(1_000)).toBeGreaterThan(wildLevelForProgress(0))
+    expect(wildLevelForProgress(20_000)).toBeGreaterThan(wildLevelForProgress(0))
   })
 
   it('caps at the max level', () => {

@@ -25,9 +25,12 @@ const DEF_DAMPING = 0.5
 // regularly exceeded a target's whole HP pool in one hit — found by
 // testing Sprint 15's QTE, which needs several taps per fight to ever
 // trigger. This scales damage down to a fraction of the raw stat gap so a
-// fight takes a handful of hits instead of one. Provisional — Sprint 25
+// fight takes several hits instead of one. Provisional — Sprint 25
 // balances this for real.
-const DAMAGE_SCALE = 0.15
+// (Was 0.15 — testing found that still ended most fights in ~5 hits on
+// either side, both directions, which felt over almost instantly. Lowered
+// so a typical early fight takes closer to 10-15 hits.)
+const DAMAGE_SCALE = 0.06
 
 export interface BattleUnit {
   speciesId: number
@@ -47,6 +50,11 @@ export type EffectivenessTier = 'super' | 'normal' | 'weak'
 export interface BattleHit {
   source: 'player' | 'enemy'
   tier: EffectivenessTier
+  // Set only when this hit came from resolveQteAttack — the UI uses it to
+  // show "Golpe cheio!/parcial/fraco" so the QTE_RESULT_MULTIPLIER
+  // difference (2.5x/1.6x/1x) is actually visible, not just a slightly
+  // different number.
+  qteResult?: QteResult
 }
 
 export interface BattleState {
@@ -176,7 +184,7 @@ export function resolveQteAttack(state: BattleState, result: QteResult): BattleS
     energy: 0,
     awaitingQte: null,
     outcome: enemyHp <= 0 ? 'victory' : 'ongoing',
-    lastHit: { source: 'player', tier },
+    lastHit: { source: 'player', tier, qteResult: result },
   }
 }
 

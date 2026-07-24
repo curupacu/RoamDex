@@ -6,8 +6,12 @@ export const BASE_SPAWN_INTERVAL_MS = 90_000
 export const IGNORE_TIMEOUT_MS = 20_000
 
 // Provisional — Sprint 25 tunes the level curve against real progress data.
+// (Was 100 candies/level — found via testing that this hit the level cap
+// almost immediately, since typical play accumulates thousands of
+// lifetime candies within minutes. 2000 keeps early encounters low-level
+// for a meaningful stretch of play.)
 const BASE_LEVEL = 5
-const LEVEL_PER_LIFETIME_CANDIES = 100
+const LEVEL_PER_LIFETIME_CANDIES = 2_000
 const MAX_LEVEL = 100
 
 const TIER_BASE_WEIGHT: Record<RarityTier, number> = {

@@ -67,11 +67,23 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
 
   // A fresh `lastHit` object is produced on every hit (even repeats of the
   // same tier), so this effect naturally re-fires each time — no need to
-  // compare against the previous value.
+  // compare against the previous value. Leads with the QTE quality message
+  // (if any) so "Golpe cheio!" vs "Golpe fraco..." is actually visible,
+  // not just a slightly different number.
   useEffect(() => {
-    if (!battle.lastHit || battle.lastHit.tier === 'normal') return
+    if (!battle.lastHit) return
 
-    setHitMessage(battle.lastHit.tier === 'super' ? 'Super efetivo!' : 'Não muito efetivo...')
+    const parts: string[] = []
+    if (battle.lastHit.qteResult) {
+      parts.push(
+        { full: 'Golpe cheio!', partial: 'Golpe parcial!', weak: 'Golpe fraco...' }[battle.lastHit.qteResult],
+      )
+    }
+    if (battle.lastHit.tier === 'super') parts.push('Super efetivo!')
+    if (battle.lastHit.tier === 'weak') parts.push('Não muito efetivo...')
+    if (parts.length === 0) return
+
+    setHitMessage(parts.join(' '))
     const id = setTimeout(() => setHitMessage(null), 900)
     return () => clearTimeout(id)
   }, [battle.lastHit])
@@ -79,15 +91,31 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
   useEffect(() => {
     const loop = new GameLoop()
     let msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
+    let wasAwaitingQte = false
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      if (battleRef.current.outcome !== 'ongoing' || battleRef.current.awaitingQte) return
+      const current = battleRef.current
+      if (current.outcome !== 'ongoing') return
+
+      if (current.awaitingQte) {
+        if (!wasAwaitingQte) setTelegraph(false)
+        wasAwaitingQte = true
+        return
+      }
+
+      if (wasAwaitingQte) {
+        // Just finished a QTE — give a full fresh window instead of
+        // attacking immediately with whatever little time was left when
+        // it opened (was landing as "got hit right after the minigame").
+        wasAwaitingQte = false
+        msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
+      }
 
       msUntilAttack -= deltaMs
       setTelegraph(msUntilAttack <= TELEGRAPH_WINDOW_MS)
 
       if (msUntilAttack <= 0) {
-        setBattle((current) => applyEnemyAttack(current))
+        setBattle((state) => applyEnemyAttack(state))
         msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
       }
     })

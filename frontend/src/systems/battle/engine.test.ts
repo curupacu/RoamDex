@@ -149,6 +149,10 @@ describe('resolveQteAttack', () => {
     const weakDamage = 100_000 - weak.enemy.currentHp
     expect(fullDamage).toBeGreaterThan(partialDamage)
     expect(partialDamage).toBeGreaterThan(weakDamage)
+
+    expect(full.lastHit?.qteResult).toBe('full')
+    expect(partial.lastHit?.qteResult).toBe('partial')
+    expect(weak.lastHit?.qteResult).toBe('weak')
   })
 
   it('is a no-op when not awaiting a QTE', () => {
