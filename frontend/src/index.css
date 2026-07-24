@@ -14,3 +14,49 @@ body {
 main {
   margin: 0 auto;
 }
+
+.click-area {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.click-area:disabled {
+  cursor: default;
+}
+
+.click-area img {
+  width: 160px;
+  height: 160px;
+  image-rendering: pixelated;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.click-area:active img {
+  scale: 0.94;
+}
+
+.candy-pop {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  color: #ffcc00;
+  font-weight: bold;
+  font-size: 1.25rem;
+  pointer-events: none;
+  animation: candy-pop-float 0.7s ease-out forwards;
+}
+
+@keyframes candy-pop-float {
+  from {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--pop-x, 0px)), 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--pop-x, 0px)), -60px);
+  }
+}

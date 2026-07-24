@@ -1,29 +1,35 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { GameLoop } from './engine/gameLoop'
 import { formatBigNumber } from './engine/numberFormat'
 import { loadSave, writeSave, type SaveData } from './engine/save'
 import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
+import { applyClick, CANDY_PER_CLICK } from './systems/economy/click'
 
 interface Gen1Entry {
   id: number
   name: string
+  sprite: { url: string; local: string }
 }
 
-const CANDIES_PER_SECOND = 1
+// Sprint 8 adds the new-game starter picker; until then it's fixed.
+const PLACEHOLDER_STARTER_ID = 1
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
+const CANDY_POP_LIFETIME_MS = 700
 
 function App() {
-  const [gen1Count, setGen1Count] = useState<number | null>(null)
+  const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
   const [save, setSave] = useState<SaveData>(() => loadSave())
   const saveRef = useRef(save)
   saveRef.current = save
   const uidRef = useRef<string | null>(null)
+  const [candyPops, setCandyPops] = useState<{ id: number; x: number }[]>([])
+  const nextPopId = useRef(0)
 
   useEffect(() => {
     fetch('/data/gen1.json')
       .then((res) => res.json() as Promise<Gen1Entry[]>)
-      .then((data) => setGen1Count(data.length))
+      .then(setGen1)
   }, [])
 
   // Cloud sync runs in the background and never blocks the game loop —
@@ -59,8 +65,6 @@ function App() {
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      setSave((current) => ({ ...current, candies: current.candies + (CANDIES_PER_SECOND * deltaMs) / 1000 }))
-
       msSinceSave += deltaMs
       if (msSinceSave >= AUTOSAVE_INTERVAL_MS) {
         msSinceSave = 0
@@ -79,11 +83,31 @@ function App() {
     }
   }, [])
 
+  const starter = gen1?.find((entry) => entry.id === PLACEHOLDER_STARTER_ID) ?? null
+
+  function handleClick() {
+    setSave((current) => applyClick(current))
+
+    const id = nextPopId.current++
+    const x = Math.random() * 40 - 20
+    setCandyPops((current) => [...current, { id, x }])
+    setTimeout(() => {
+      setCandyPops((current) => current.filter((pop) => pop.id !== id))
+    }, CANDY_POP_LIFETIME_MS)
+  }
+
   return (
     <main>
       <h1>PokéIdle</h1>
-      <p>gen1.json carregado: {gen1Count ?? '...'} Pokémon</p>
-      <p>Doces (save v{save.version}, ticking @{CANDIES_PER_SECOND}/s): {formatBigNumber(save.candies)}</p>
+      <p>Doces (save v{save.version}): {formatBigNumber(save.candies)}</p>
+      <button className="click-area" onClick={handleClick} disabled={!starter}>
+        {starter && <img src={starter.sprite.local} alt={starter.name} />}
+        {candyPops.map((pop) => (
+          <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
+            +{CANDY_PER_CLICK}
+          </span>
+        ))}
+      </button>
     </main>
   )
 }
