@@ -20,7 +20,12 @@ export function UpgradesPanel({ save, onBuy, costMultiplier = 1 }: UpgradesPanel
         {visible.map((def) => {
           const owned = ownedCount(save, def.id)
           const cost = upgradeCost(def, owned, costMultiplier)
-          const effectLabel = def.kind === 'click' ? `+${def.effect} por clique` : `+${def.effect}/s`
+          const effectLabel =
+            def.kind === 'click'
+              ? `+${def.effect} doces por clique`
+              : def.kind === 'cps'
+                ? `+${def.effect} doces/s`
+                : `+${def.effect} XP/s pro time`
 
           return (
             <li key={def.id}>

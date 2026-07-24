@@ -1,7 +1,7 @@
 export interface UpgradeDefinition {
   id: string
   name: string
-  kind: 'click' | 'cps'
+  kind: 'click' | 'cps' | 'xp'
   baseCost: number
   effect: number
   // Lifetime candies (see SaveDataV2) required before the upgrade shows up.
@@ -19,4 +19,7 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'collection-post', name: 'Posto de Coleta', kind: 'cps', baseCost: 180, effect: 1, unlockAt: 100 },
   { id: 'candy-conveyor', name: 'Esteira de Doces', kind: 'cps', baseCost: 2_000, effect: 8, unlockAt: 1_500 },
   { id: 'candy-factory', name: 'Fábrica de Doces', kind: 'cps', baseCost: 22_000, effect: 47, unlockAt: 15_000 },
+  // Idle XP complement (roadmap section 7) — "pra ninguém travar por odiar
+  // batalhar", since the battle system itself isn't built until Sprint 13+.
+  { id: 'training-regimen', name: 'Treinamento', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200 },
 ]

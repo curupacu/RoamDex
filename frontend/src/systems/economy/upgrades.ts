@@ -45,3 +45,7 @@ export function totalClickBonus(save: SaveData): number {
 export function totalCps(save: SaveData, multiplier = 1): number {
   return sumEffect(save, 'cps') * multiplier
 }
+
+export function totalXpPerSecond(save: SaveData): number {
+  return sumEffect(save, 'xp')
+}

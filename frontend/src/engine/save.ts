@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 4
+export const CURRENT_SAVE_VERSION = 5
 
 export interface SaveDataV1 {
   version: 1
@@ -33,7 +33,7 @@ export interface SaveDataV3 {
   activePokemon: ActivePokemon | null
 }
 
-export interface RosterMember {
+export interface RosterMemberV4 {
   speciesId: number
   level: number
 }
@@ -47,13 +47,30 @@ export interface SaveDataV4 {
   // Every species ever obtained (today: only ever the chosen starter,
   // until Sprint 19 adds capturing). Empty = hasn't finished the
   // new-game starter picker yet (Sprint 8).
-  roster: RosterMember[]
+  roster: RosterMemberV4[]
   // Up to 6 speciesIds from roster; index 0 is the one you click/battle
   // with (roadmap section 4, "1v1 com troca").
   activeTeamIds: number[]
 }
 
-export type SaveData = SaveDataV4
+export interface RosterMember {
+  speciesId: number
+  level: number
+  // Progress toward xpForNextLevel(level) — see systems/team/leveling.ts.
+  xp: number
+}
+
+export interface SaveDataV5 {
+  version: 5
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  roster: RosterMember[]
+  activeTeamIds: number[]
+}
+
+export type SaveData = SaveDataV5
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -106,6 +123,16 @@ const migrations: Record<number, Migration> = {
       upgrades: v3.upgrades,
       roster,
       activeTeamIds: roster.map((member) => member.speciesId),
+    }
+  },
+  4: (old): SaveDataV5 => {
+    const v4 = old as SaveDataV4
+    return {
+      ...v4,
+      version: 5,
+      // Best-effort backfill: v4 had no XP tracking, so start everyone at
+      // 0 progress toward their next level instead of guessing.
+      roster: v4.roster.map((member) => ({ ...member, xp: 0 })),
     }
   },
 }

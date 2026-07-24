@@ -17,7 +17,7 @@ export function isInActiveTeam(save: SaveData, speciesId: number): boolean {
 export function addToRoster(save: SaveData, speciesId: number, level: number): SaveData {
   if (isCaptured(save, speciesId)) return save
 
-  const roster = [...save.roster, { speciesId, level }]
+  const roster = [...save.roster, { speciesId, level, xp: 0 }]
   const activeTeamIds =
     save.activeTeamIds.length < MAX_TEAM_SIZE ? [...save.activeTeamIds, speciesId] : save.activeTeamIds
 

@@ -15,7 +15,8 @@ import type { Gen1Entry } from './content/gen1/types'
 import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
-import { buyUpgrade, totalCps } from './systems/economy/upgrades'
+import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
+import { gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
@@ -30,6 +31,8 @@ type View = 'clicker' | 'team' | 'pokedex'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
+  const gen1Ref = useRef(gen1)
+  gen1Ref.current = gen1
   const [save, setSave] = useState<SaveData>(() => loadSave())
   const saveRef = useRef(save)
   saveRef.current = save
@@ -42,6 +45,7 @@ function App() {
 
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
   const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
+  const clickerMember = clickerEntry ? rosterMember(save, clickerEntry.id) : null
   const team: TeamMember[] = save.activeTeamIds
     .map((id) => gen1?.find((entry) => entry.id === id))
     .filter((entry): entry is Gen1Entry => entry !== undefined)
@@ -64,6 +68,13 @@ function App() {
         lifetimeCandies: current.lifetimeCandies + progress.candiesEarned,
       }))
     }
+
+    const xpPerSecond = totalXpPerSecond(saveRef.current)
+    if (xpPerSecond > 0) {
+      const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
+      setSave((current) => gainTeamXp(current, gen1, xpGain))
+    }
+
     if (shouldShowOfflineBanner(progress)) setOfflineSummary(progress)
   }, [gen1])
 
@@ -114,6 +125,12 @@ function App() {
           candies: current.candies + gain,
           lifetimeCandies: current.lifetimeCandies + gain,
         }))
+      }
+
+      const xpPerSecond = totalXpPerSecond(saveRef.current)
+      if (xpPerSecond > 0) {
+        const xpGain = (xpPerSecond * deltaMs) / 1000
+        setSave((current) => gainTeamXp(current, gen1Ref.current ?? [], xpGain))
       }
 
       msSinceSave += deltaMs
@@ -207,9 +224,10 @@ function App() {
             </div>
           )}
           <div className="candy-counter">Doces: {formatBigNumber(save.candies)}</div>
-          {clickerEntry && (
+          {clickerEntry && clickerMember && (
             <p>
-              {clickerEntry.name} Nv.{rosterMember(save, clickerEntry.id)?.level}
+              {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
+              {xpForNextLevel(clickerMember.level)} XP)
             </p>
           )}
           <div className="game-area">

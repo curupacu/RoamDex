@@ -9,10 +9,18 @@ export interface Gen1Stats {
   speed: number
 }
 
+export interface EvolutionStep {
+  id: number
+  species: string
+  trigger: string
+  minLevel: number | null
+}
+
 export interface Gen1Entry {
   id: number
   name: string
   types: TypeName[]
   stats: Gen1Stats
+  evolutionChain: EvolutionStep[]
   sprite: { url: string; local: string }
 }

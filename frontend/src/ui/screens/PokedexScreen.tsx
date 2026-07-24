@@ -3,6 +3,7 @@ import type { Gen1Entry } from '../../content/gen1/types'
 import { TYPES, type TypeName } from '../../content/types'
 import type { SaveData } from '../../engine/save'
 import { isCaptured, rosterMember } from '../../systems/team/roster'
+import { deriveStats } from '../../systems/team/stats'
 import { TypeBadge } from '../components/TypeBadge'
 
 interface PokedexScreenProps {
@@ -11,15 +12,6 @@ interface PokedexScreenProps {
 }
 
 type CapturedFilter = 'all' | 'captured' | 'not-captured'
-
-const STAT_LABELS: Record<keyof Gen1Entry['stats'], string> = {
-  hp: 'HP',
-  attack: 'ATK',
-  defense: 'DEF',
-  'special-attack': 'Atq. Esp.',
-  'special-defense': 'Def. Esp.',
-  speed: 'Velocidade',
-}
 
 export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
   const [typeFilter, setTypeFilter] = useState<TypeName | 'all'>('all')
@@ -36,6 +28,7 @@ export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
 
   const selected = selectedId !== null ? (gen1.find((entry) => entry.id === selectedId) ?? null) : null
   const selectedMember = selected ? rosterMember(save, selected.id) : null
+  const selectedStats = selected && selectedMember ? deriveStats(selected, selectedMember.level) : null
 
   return (
     <div className="pokedex-screen">
@@ -73,7 +66,7 @@ export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
         })}
       </div>
 
-      {selected && selectedMember && (
+      {selected && selectedMember && selectedStats && (
         <div className="pokemon-detail">
           <button className="pokemon-detail-close" onClick={() => setSelectedId(null)}>
             Fechar
@@ -87,11 +80,10 @@ export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
             ))}
           </p>
           <ul>
-            {(Object.keys(selected.stats) as (keyof Gen1Entry['stats'])[]).map((stat) => (
-              <li key={stat}>
-                {STAT_LABELS[stat]}: {selected.stats[stat]}
-              </li>
-            ))}
+            <li>HP: {selectedStats.hp}</li>
+            <li>ATK: {selectedStats.atk}</li>
+            <li>DEF: {selectedStats.def}</li>
+            <li>Velocidade (base): {selected.stats.speed}</li>
           </ul>
         </div>
       )}
