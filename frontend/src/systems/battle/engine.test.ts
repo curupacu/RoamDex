@@ -117,6 +117,52 @@ describe('applyEnemyAttack', () => {
   })
 })
 
+describe('type effectiveness', () => {
+  const neutralStats = { hp: 1000, attack: 50, defense: 20, 'special-attack': 50, 'special-defense': 20, speed: 10 }
+
+  it('deals more damage and reports "super" for a super-effective attack', () => {
+    const fireAttacker = makeEntry({ id: 1, types: ['fire'], stats: neutralStats })
+    const grassDefender = makeEntry({ id: 19, types: ['grass'], stats: neutralStats })
+    const gen1 = [fireAttacker]
+    const battle = createBattle(gen1, [makeMember(1)], [1], grassDefender, 10)
+
+    const superHit = applyPlayerTap(battle)
+    const neutralBattle = createBattle(
+      [makeEntry({ id: 1, types: ['normal'], stats: neutralStats })],
+      [makeMember(1)],
+      [1],
+      makeEntry({ id: 19, types: ['grass'], stats: neutralStats }),
+      10,
+    )
+    const neutralHit = applyPlayerTap(neutralBattle)
+
+    expect(superHit.lastHit).toEqual({ source: 'player', tier: 'super' })
+    const superDamage = battle.enemy.currentHp - superHit.enemy.currentHp
+    const neutralDamage = neutralBattle.enemy.currentHp - neutralHit.enemy.currentHp
+    expect(superDamage).toBeGreaterThan(neutralDamage)
+  })
+
+  it('deals less damage and reports "weak" for a not-very-effective attack', () => {
+    const fireAttacker = makeEntry({ id: 1, types: ['fire'], stats: neutralStats })
+    const waterDefender = makeEntry({ id: 19, types: ['water'], stats: neutralStats })
+    const battle = createBattle([fireAttacker], [makeMember(1)], [1], waterDefender, 10)
+
+    const result = applyPlayerTap(battle)
+
+    expect(result.lastHit).toEqual({ source: 'player', tier: 'weak' })
+  })
+
+  it('applies the same effectiveness lookup to enemy attacks', () => {
+    const waterAttacker = makeEntry({ id: 19, types: ['water'], stats: neutralStats })
+    const fireDefender = makeEntry({ id: 1, types: ['fire'], stats: neutralStats })
+    const battle = createBattle([fireDefender], [makeMember(1)], [1], waterAttacker, 10)
+
+    const result = applyEnemyAttack(battle)
+
+    expect(result.lastHit).toEqual({ source: 'enemy', tier: 'super' })
+  })
+})
+
 describe('switchActive', () => {
   it('switches to a different living team member', () => {
     const gen1 = [makeEntry({ id: 1 }), makeEntry({ id: 4, name: 'charmander' })]

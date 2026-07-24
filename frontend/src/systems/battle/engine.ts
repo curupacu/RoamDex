@@ -1,4 +1,6 @@
 import type { Gen1Entry } from '../../content/gen1/types'
+import { typeEffectiveness } from '../../content/typeEffectiveness'
+import type { TypeName } from '../../content/types'
 import type { RosterMember } from '../../engine/save'
 import { deriveStats } from '../team/stats'
 
@@ -10,8 +12,7 @@ export const ENERGY_PER_TAP = 20
 export const SUPER_ATTACK_MULTIPLIER = 2.5
 
 // Softens defense into diminishing returns instead of a hard subtraction,
-// so a high-DEF unit can't reduce incoming damage to 0. Provisional —
-// type effectiveness (Sprint 14) multiplies on top of this later.
+// so a high-DEF unit can't reduce incoming damage to 0. Provisional.
 const DEF_DAMPING = 0.5
 
 export interface BattleUnit {
@@ -22,9 +23,17 @@ export interface BattleUnit {
   currentHp: number
   atk: number
   def: number
+  // Primary type only, used for effectiveness — see docs/decisoes/0007.
+  type: TypeName
 }
 
 export type BattleOutcome = 'ongoing' | 'victory' | 'defeat'
+export type EffectivenessTier = 'super' | 'normal' | 'weak'
+
+export interface BattleHit {
+  source: 'player' | 'enemy'
+  tier: EffectivenessTier
+}
 
 export interface BattleState {
   enemy: BattleUnit
@@ -32,6 +41,7 @@ export interface BattleState {
   activeIndex: number
   energy: number
   outcome: BattleOutcome
+  lastHit: BattleHit | null
 }
 
 function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
@@ -44,6 +54,7 @@ function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
     currentHp: stats.hp,
     atk: stats.atk,
     def: stats.def,
+    type: entry.types[0],
   }
 }
 
@@ -72,11 +83,22 @@ export function createBattle(
     activeIndex: 0,
     energy: 0,
     outcome: playerTeam.length === 0 ? 'defeat' : 'ongoing',
+    lastHit: null,
   }
 }
 
-function calculateDamage(attackerAtk: number, defenderDef: number): number {
-  return Math.max(1, Math.round(attackerAtk - defenderDef * DEF_DAMPING))
+function effectivenessTier(multiplier: number): EffectivenessTier {
+  if (multiplier > 1) return 'super'
+  if (multiplier < 1) return 'weak'
+  return 'normal'
+}
+
+// "Efetividade de tipos... aplica em ambos os lados" (roadmap section 4):
+// same lookup whether the player or the enemy is attacking.
+function calculateDamage(attacker: BattleUnit, defender: BattleUnit): { amount: number; tier: EffectivenessTier } {
+  const multiplier = typeEffectiveness(attacker.type, defender.type)
+  const base = Math.max(1, Math.round(attacker.atk - defender.def * DEF_DAMPING))
+  return { amount: Math.max(1, Math.round(base * multiplier)), tier: effectivenessTier(multiplier) }
 }
 
 function nextLivingIndex(team: BattleUnit[], from: number): number {
@@ -94,7 +116,8 @@ export function applyPlayerTap(state: BattleState): BattleState {
 
   const active = state.playerTeam[state.activeIndex]
   const useSuper = state.energy >= ENERGY_MAX
-  const dealt = calculateDamage(active.atk, state.enemy.def) * (useSuper ? SUPER_ATTACK_MULTIPLIER : 1)
+  const { amount, tier } = calculateDamage(active, state.enemy)
+  const dealt = amount * (useSuper ? SUPER_ATTACK_MULTIPLIER : 1)
   const enemyHp = Math.max(0, state.enemy.currentHp - dealt)
 
   return {
@@ -102,6 +125,7 @@ export function applyPlayerTap(state: BattleState): BattleState {
     enemy: { ...state.enemy, currentHp: enemyHp },
     energy: useSuper ? 0 : Math.min(ENERGY_MAX, state.energy + ENERGY_PER_TAP),
     outcome: enemyHp <= 0 ? 'victory' : 'ongoing',
+    lastHit: { source: 'player', tier },
   }
 }
 
@@ -112,9 +136,9 @@ export function applyEnemyAttack(state: BattleState): BattleState {
   if (state.outcome !== 'ongoing') return state
 
   const active = state.playerTeam[state.activeIndex]
-  const dealt = calculateDamage(state.enemy.atk, active.def)
+  const { amount, tier } = calculateDamage(state.enemy, active)
   const playerTeam = state.playerTeam.map((unit, index) =>
-    index === state.activeIndex ? { ...unit, currentHp: Math.max(0, unit.currentHp - dealt) } : unit,
+    index === state.activeIndex ? { ...unit, currentHp: Math.max(0, unit.currentHp - amount) } : unit,
   )
 
   const stillAlive = playerTeam[state.activeIndex].currentHp > 0
@@ -125,6 +149,7 @@ export function applyEnemyAttack(state: BattleState): BattleState {
     playerTeam,
     activeIndex: activeIndex === -1 ? state.activeIndex : activeIndex,
     outcome: activeIndex === -1 ? 'defeat' : 'ongoing',
+    lastHit: { source: 'enemy', tier },
   }
 }
 

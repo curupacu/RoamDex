@@ -384,6 +384,12 @@ button:disabled {
   transition: width 0.15s ease-out;
 }
 
+.battle-hit-message {
+  color: var(--accent-yellow);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  margin-bottom: 0.75rem;
+}
+
 .battle-enemy {
   margin-bottom: 1.5rem;
   transition: transform 0.15s ease-in-out;

@@ -28,6 +28,18 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
   const battleRef = useRef(battle)
   battleRef.current = battle
   const [telegraph, setTelegraph] = useState(false)
+  const [hitMessage, setHitMessage] = useState<string | null>(null)
+
+  // A fresh `lastHit` object is produced on every hit (even repeats of the
+  // same tier), so this effect naturally re-fires each time — no need to
+  // compare against the previous value.
+  useEffect(() => {
+    if (!battle.lastHit || battle.lastHit.tier === 'normal') return
+
+    setHitMessage(battle.lastHit.tier === 'super' ? 'Super efetivo!' : 'Não muito efetivo...')
+    const id = setTimeout(() => setHitMessage(null), 900)
+    return () => clearTimeout(id)
+  }, [battle.lastHit])
 
   useEffect(() => {
     const loop = new GameLoop()
@@ -59,6 +71,7 @@ export function BattleScreen({ gen1, save, onVictory, onExit }: BattleScreenProp
 
   return (
     <div className="battle-screen">
+      {hitMessage && <p className="battle-hit-message">{hitMessage}</p>}
       <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
         <img src={enemyEntry.sprite.local} alt={enemyEntry.name} />
         <p>
