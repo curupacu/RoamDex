@@ -32,12 +32,17 @@ interface BattleScreenProps {
 }
 
 export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoot, onExit }: BattleScreenProps) {
-  const enemyEntry = gen1.find((entry) => entry.id === (opponent?.speciesId ?? TEST_OPPONENT_SPECIES_ID))
+  // Frozen at mount: if the parent's wildEncounter changed for any reason
+  // while this screen is still up (e.g. a future timer edge case), the
+  // fight in progress must not suddenly show a different enemy sprite/name
+  // than the one createBattle() actually built stats for below.
+  const [frozenOpponent] = useState(opponent)
+  const enemyEntry = gen1.find((entry) => entry.id === (frozenOpponent?.speciesId ?? TEST_OPPONENT_SPECIES_ID))
   // The fixed test dummy matches the player's own level (see git history)
   // so it's actually testable instead of an instant one-shot; a real wild
   // encounter already comes with its own run-scaled level.
   const activeLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
-  const enemyLevel = opponent?.level ?? activeLevel
+  const enemyLevel = frozenOpponent?.level ?? activeLevel
   const [battle, setBattle] = useState<BattleState>(() =>
     createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], enemyLevel),
   )
@@ -154,14 +159,14 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
 
       {battle.outcome === 'victory' && (
         <div className="pokemon-detail">
-          {!opponent && (
+          {!frozenOpponent && (
             <>
               <p>Vitória!</p>
               <button onClick={onExit}>Continuar</button>
             </>
           )}
 
-          {opponent && postVictoryMessage === null && (
+          {frozenOpponent && postVictoryMessage === null && (
             <>
               <p>Vitória! Capturar ou pegar o loot?</p>
               <button onClick={() => setPostVictoryMessage(onCapture?.() ?? null)}>Jogar Pokébola</button>
@@ -169,7 +174,7 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
             </>
           )}
 
-          {opponent && postVictoryMessage !== null && (
+          {frozenOpponent && postVictoryMessage !== null && (
             <>
               <p>{postVictoryMessage}</p>
               <button onClick={onExit}>Continuar</button>

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { makeSave } from '../../engine/save.testUtils'
 import { addToRoster } from './roster'
-import { applyXpGain, gainTeamXp, resolveEvolution, xpForNextLevel } from './leveling'
+import { applyXpGain, gainMemberXp, gainTeamXp, resolveEvolution, resolveEvolutionSafely, xpForNextLevel } from './leveling'
 
 function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
   return {
@@ -54,6 +54,40 @@ describe('resolveEvolution', () => {
 
   it('picks the highest qualifying stage when jumping past more than one', () => {
     expect(resolveEvolution(makeEntry(), 40)).toBe(3)
+  })
+})
+
+describe('resolveEvolutionSafely', () => {
+  it('evolves normally when nothing else in the roster has that species', () => {
+    const save = addToRoster(makeSave(), 1, 15)
+    expect(resolveEvolutionSafely(save, [makeEntry()], 1, 16)).toBe(2)
+  })
+
+  it('skips the evolution if another roster member already has that species', () => {
+    let save = addToRoster(makeSave(), 1, 15) // bulbasaur, about to hit lvl 16 -> ivysaur
+    save = addToRoster(save, 2, 20) // already have an ivysaur caught separately
+
+    expect(resolveEvolutionSafely(save, [makeEntry()], 1, 16)).toBe(1)
+  })
+
+  it('does not treat the member itself as a collision', () => {
+    const save = addToRoster(makeSave(), 1, 15)
+    expect(resolveEvolutionSafely(save, [makeEntry()], 1, 15)).toBe(1)
+  })
+})
+
+describe('gainMemberXp (evolution collision)', () => {
+  it('gains the level but keeps the original species when evolution would collide', () => {
+    let save = addToRoster(makeSave(), 1, 15)
+    save = addToRoster(save, 2, 20)
+    const gen1 = [makeEntry()]
+
+    const result = gainMemberXp(save, gen1, 1, xpForNextLevel(15) + 1)
+
+    const bulbasaur = result.roster.find((m) => m.speciesId === 1)
+    expect(bulbasaur?.level).toBe(16)
+    expect(result.roster.filter((m) => m.speciesId === 2)).toHaveLength(1)
+    expect(result.roster.filter((m) => m.speciesId === 1)).toHaveLength(1)
   })
 })
 

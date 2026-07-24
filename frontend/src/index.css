@@ -253,6 +253,22 @@ button:disabled {
   image-rendering: pixelated;
 }
 
+.admin-screen .pokemon-detail {
+  max-width: 420px;
+  margin: 0 auto 1rem;
+}
+
+.admin-screen select,
+.admin-screen input {
+  font-family: inherit;
+  color: var(--text-light);
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 0.3rem;
+  margin: 0.3rem 0;
+}
+
 .wild-encounter-banner {
   margin: 0 auto 1rem;
   max-width: 320px;

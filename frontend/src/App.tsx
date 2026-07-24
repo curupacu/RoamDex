@@ -19,11 +19,12 @@ import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMemb
 import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
-import { addToRoster, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
+import { addToRoster, isCaptured, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { rollCapture } from './systems/capture/capture'
 import { applyLoot, rollLoot } from './systems/capture/loot'
-import { RARITY_LABELS } from './systems/capture/rarityTier'
+import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
+import { AdminScreen } from './ui/screens/AdminScreen'
 import { BattleScreen } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
@@ -35,7 +36,7 @@ import { TeamScreen } from './ui/screens/TeamScreen'
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -264,6 +265,10 @@ function App() {
     const entry = encounter ? (gen1Ref.current?.find((candidate) => candidate.id === encounter.speciesId) ?? null) : null
     if (!encounter || !entry) return ''
 
+    // The roster can't hold two of the same species yet — be honest about
+    // it instead of claiming a capture that doesn't actually change anything.
+    if (isCaptured(saveRef.current, entry.id)) return `Você já tem um ${entry.name}!`
+
     const success = rollCapture(entry.captureRate, economyMultiplier(teamRef.current, 'captureChance'))
     if (success) setSave((current) => addToRoster(current, entry.id, encounter.level))
     return success ? `${entry.name} foi capturado!` : `A Pokébola falhou... ${entry.name} fugiu!`
@@ -278,6 +283,30 @@ function App() {
     return result.kind === 'candies'
       ? `Você achou ${formatBigNumber(result.amount)} doces!`
       : `Você achou uma cópia grátis de ${result.upgradeName}!`
+  }
+
+  // --- Admin (temporary, for manual testing — see AdminScreen.tsx) ---
+  function handleAdminAddCandies(amount: number) {
+    setSave((current) => ({ ...current, candies: current.candies + amount, lifetimeCandies: current.lifetimeCandies + amount }))
+  }
+
+  function handleAdminAddToRoster(speciesId: number, level: number) {
+    setSave((current) => addToRoster(current, speciesId, level))
+  }
+
+  function handleAdminForceEncounter(speciesId: number) {
+    const entry = gen1Ref.current?.find((candidate) => candidate.id === speciesId)
+    if (!entry) return
+    setWildEncounter({ speciesId, level: 10, tier: rarityTier(entry.captureRate) })
+  }
+
+  function handleAdminSetActiveLevel(level: number) {
+    const activeId = saveRef.current.activeTeamIds[0]
+    if (!activeId) return
+    setSave((current) => ({
+      ...current,
+      roster: current.roster.map((member) => (member.speciesId === activeId ? { ...member, level, xp: 0 } : member)),
+    }))
   }
 
   if (!gen1) {
@@ -317,8 +346,21 @@ function App() {
         <button onClick={() => setView('battle')} disabled={view === 'battle'}>
           Batalha
         </button>
+        <button onClick={() => setView('admin')} disabled={view === 'admin'}>
+          Admin
+        </button>
       </nav>
 
+      {view === 'admin' && (
+        <AdminScreen
+          gen1={gen1}
+          save={save}
+          onAddCandies={handleAdminAddCandies}
+          onAddToRoster={handleAdminAddToRoster}
+          onForceEncounter={handleAdminForceEncounter}
+          onSetActiveLevel={handleAdminSetActiveLevel}
+        />
+      )}
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
       {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
       {view === 'shop' && (

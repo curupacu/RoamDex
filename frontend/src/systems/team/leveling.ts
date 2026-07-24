@@ -39,6 +39,24 @@ export function resolveEvolution(entry: Gen1Entry, level: number): number {
   return speciesId
 }
 
+// The roster is keyed by speciesId with no duplicate-id support. Evolution
+// used to assume that was always safe ("duplicates aren't possible
+// pre-capture" — true when this was written in Sprint 11), but real
+// capture (Sprint 19) can now put both a pre-evolution and its evolved
+// form in the roster separately. If evolving would collide with a
+// *different* existing member, skip the species change (level/xp still
+// apply) instead of silently creating two roster entries with the same id.
+export function resolveEvolutionSafely(save: SaveData, gen1: Gen1Entry[], speciesId: number, level: number): number {
+  const entry = gen1.find((candidate) => candidate.id === speciesId)
+  if (!entry) return speciesId
+
+  const evolvedId = resolveEvolution(entry, level)
+  if (evolvedId === speciesId) return evolvedId
+
+  const collides = save.roster.some((member) => member.speciesId !== speciesId && member.speciesId === evolvedId)
+  return collides ? speciesId : evolvedId
+}
+
 // Grants XP to a single roster member (by current speciesId), evolving it
 // if the new level crosses a threshold. Shared by the idle "Treinamento"
 // upgrade, Rare Candy, and battle XP rewards (Sprint 13).
@@ -48,8 +66,7 @@ export function gainMemberXp(save: SaveData, gen1: Gen1Entry[], speciesId: numbe
   if (!member) return save
 
   const leveled = applyXpGain(member, amount)
-  const entry = gen1.find((candidate) => candidate.id === leveled.speciesId)
-  const newSpeciesId = entry ? resolveEvolution(entry, leveled.level) : leveled.speciesId
+  const newSpeciesId = resolveEvolutionSafely(save, gen1, leveled.speciesId, leveled.level)
 
   const roster = save.roster.map((candidate) =>
     candidate.speciesId === speciesId ? { ...leveled, speciesId: newSpeciesId } : candidate,
@@ -60,9 +77,9 @@ export function gainMemberXp(save: SaveData, gen1: Gen1Entry[], speciesId: numbe
 }
 
 // Applies idle XP (roadmap section 7, "Treinamento" upgrade) to every
-// active team member equally. Duplicates aren't possible pre-capture
-// (Sprint 19), so id collisions between two evolving members in the same
-// call aren't a concern yet.
+// active team member equally. Each call threads through gainMemberXp via
+// reduce, so resolveEvolutionSafely always checks against the up-to-date
+// roster — including evolutions already applied earlier in the same call.
 export function gainTeamXp(save: SaveData, gen1: Gen1Entry[], amount: number): SaveData {
   if (amount <= 0 || save.activeTeamIds.length === 0) return save
 

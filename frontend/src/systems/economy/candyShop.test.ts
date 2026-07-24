@@ -49,6 +49,18 @@ describe('buyRareCandy', () => {
     const save = { ...makeSave(), candies: 1_000_000 }
     expect(buyRareCandy(save, [makeEntry()], 1)).toEqual(save)
   })
+
+  it('still levels up but skips the species change when evolution would collide with another roster member', () => {
+    let save = addToRoster(makeSave(), 1, 15)
+    save = addToRoster(save, 2, 20) // already have an ivysaur caught separately
+    save = { ...save, candies: rareCandyCost(15) }
+
+    const result = buyRareCandy(save, [makeEntry()], 1)
+
+    const bulbasaur = result.roster.find((m) => m.speciesId === 1)
+    expect(bulbasaur?.level).toBe(16)
+    expect(result.roster.filter((m) => m.speciesId === 2)).toHaveLength(1)
+  })
 })
 
 describe('buyXpBoost / isBuffActive / xpMultiplierFromBuffs', () => {

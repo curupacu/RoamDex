@@ -72,7 +72,18 @@ export const TYPES: TypeDefinition[] = [
   { id: 'fairy', name: 'Fada', bonusKind: 'captureChance' },
 ]
 
-export const LIVE_BONUS_KINDS: EconomicBonusKind[] = ['cps', 'clickCandies', 'upgradeCostDiscount', 'allStatsSmall']
+// Kinds with a real consuming system today. wildSpawnRate/rareWildChance
+// (Sprint 18) and captureChance (Sprint 19) joined the original Sprint 9
+// four once encounters and capture shipped.
+export const LIVE_BONUS_KINDS: EconomicBonusKind[] = [
+  'cps',
+  'clickCandies',
+  'upgradeCostDiscount',
+  'allStatsSmall',
+  'wildSpawnRate',
+  'rareWildChance',
+  'captureChance',
+]
 
 export const BONUS_KIND_LABELS: Record<EconomicBonusKind, string> = {
   cps: 'CPS',

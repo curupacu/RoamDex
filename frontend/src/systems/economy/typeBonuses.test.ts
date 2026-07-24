@@ -79,4 +79,13 @@ describe('bonusBreakdown', () => {
     expect(poison?.isLive).toBe(false)
     expect(poison?.percent).toBeCloseTo(BONUS_PERCENT_PER_POKEMON * 0.5)
   })
+
+  it('marks Voador/Inseto/Fada as live now that encounters and capture exist (Sprints 18-19)', () => {
+    const team = [member('flying'), member('bug'), member('fairy')]
+    const breakdown = bonusBreakdown(team)
+
+    expect(breakdown.find((entry) => entry.typeId === 'flying')?.isLive).toBe(true)
+    expect(breakdown.find((entry) => entry.typeId === 'bug')?.isLive).toBe(true)
+    expect(breakdown.find((entry) => entry.typeId === 'fairy')?.isLive).toBe(true)
+  })
 })

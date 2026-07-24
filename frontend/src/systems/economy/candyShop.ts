@@ -8,7 +8,7 @@ import {
   XP_BOOST_MULTIPLIER,
 } from '../../content/shop'
 import type { SaveData } from '../../engine/save'
-import { resolveEvolution } from '../team/leveling'
+import { resolveEvolutionSafely } from '../team/leveling'
 import { rosterMember } from '../team/roster'
 
 export function rareCandyCost(level: number): number {
@@ -25,8 +25,7 @@ export function buyRareCandy(save: SaveData, gen1: Gen1Entry[], speciesId: numbe
   if (save.candies < cost) return save
 
   const newLevel = member.level + 1
-  const entry = gen1.find((candidate) => candidate.id === speciesId)
-  const newSpeciesId = entry ? resolveEvolution(entry, newLevel) : speciesId
+  const newSpeciesId = resolveEvolutionSafely(save, gen1, speciesId, newLevel)
 
   const roster = save.roster.map((candidate) =>
     candidate.speciesId === speciesId ? { ...candidate, level: newLevel, speciesId: newSpeciesId } : candidate,
