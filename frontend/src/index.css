@@ -270,6 +270,46 @@ button:disabled {
   margin: 0.3rem 0;
 }
 
+.location-nav {
+  margin: 0 auto 1rem;
+  max-width: 420px;
+  padding: 0.75rem 1rem;
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.location-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.location-nav-row h2 {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.location-nav-row button {
+  font-size: 0.55rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.location-locked-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+}
+
+.location-gym-button {
+  margin-top: 0.5rem;
+  width: 100%;
+  border-color: var(--panel-border-strong);
+  color: var(--accent-yellow);
+}
+
 .wild-encounter-banner {
   margin: 0 auto 1rem;
   max-width: 320px;

@@ -10,6 +10,7 @@ import {
 import { loadSave, writeSave, type SaveData } from './engine/save'
 import { ensureSignedIn } from './services/auth'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
+import { GYMS } from './content/gen1/gyms'
 import { STARTER_LEVEL } from './content/gen1/starters'
 import type { Gen1Entry } from './content/gen1/types'
 import { BONUS_KIND_LABELS } from './content/types'
@@ -24,9 +25,12 @@ import { rollCapture } from './systems/capture/capture'
 import { applyLoot, rollLoot } from './systems/capture/loot'
 import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
+import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
+import { locationById, nextLocationOf, prevLocationOf, travelTo } from './systems/gyms/locations'
 import { AdminScreen } from './ui/screens/AdminScreen'
-import { BattleScreen } from './ui/screens/BattleScreen'
+import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
+import { LocationNav } from './ui/components/LocationNav'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
@@ -54,6 +58,7 @@ function App() {
   const [wildEncounter, setWildEncounter] = useState<WildEncounter | null>(null)
   const wildEncounterRef = useRef(wildEncounter)
   wildEncounterRef.current = wildEncounter
+  const [activeGymId, setActiveGymId] = useState<string | null>(null)
 
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
   const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
@@ -65,6 +70,26 @@ function App() {
     .map((entry) => ({ types: entry.types }))
   const teamRef = useRef(team)
   teamRef.current = team
+
+  // Sprint 20's route/gym "trilha" (roadmap section 8) — where the player
+  // currently is in Kanto, and what's adjacent to travel to.
+  const currentLocation = locationById(save.currentLocationId)
+  const prevLocation = prevLocationOf(save.currentLocationId)
+  const nextLocation = nextLocationOf(save.currentLocationId)
+  const gymHere = gymForLocation(save.currentLocationId)
+
+  // Which fight BattleScreen is showing: an explicit gym challenge wins
+  // over a pending wild encounter (both shouldn't normally coexist), which
+  // wins over the Sprint 13 fixed test dummy (Admin-only fallback).
+  const activeGym = activeGymId ? (GYMS.find((gym) => gym.id === activeGymId) ?? null) : null
+  const battleEncounter: BattleEncounter | null =
+    view !== 'battle'
+      ? null
+      : activeGym
+        ? { kind: 'gym', gym: activeGym }
+        : wildEncounter
+          ? { kind: 'wild', speciesId: wildEncounter.speciesId, level: wildEncounter.level }
+          : { kind: 'dummy' }
 
   // Runs once gen1 has loaded (so the team's type bonuses are known),
   // against the save as read from disk before any other effect touches it.
@@ -165,23 +190,29 @@ function App() {
   }, [])
 
   // "Durante o clicker, a cada X tempo... aparece um selvagem" (roadmap
-  // section 5). Voador's wildSpawnRate bonus shortens the interval; Inseto's
-  // rareWildChance biases which species spawns. Only one encounter at a
-  // time; a second timer auto-dismisses it if ignored too long.
+  // section 5), now drawn from the CURRENT LOCATION's own pool (Sprint 20 —
+  // see docs/ROTAS-KANTO.md) instead of a global pool; towns/gyms have no
+  // encounters at all. Voador's wildSpawnRate bonus shortens the interval;
+  // Inseto's rareWildChance biases which species spawns. Only one encounter
+  // at a time; a second timer auto-dismisses it if ignored too long.
   useEffect(() => {
     const loop = new GameLoop()
     let msUntilSpawn = BASE_SPAWN_INTERVAL_MS
 
     const unsubscribe = loop.subscribe((deltaMs) => {
       const currentGen1 = gen1Ref.current
-      if (wildEncounterRef.current || saveRef.current.roster.length === 0 || !currentGen1?.length) return
+      const location = locationById(saveRef.current.currentLocationId)
+      if (wildEncounterRef.current || saveRef.current.roster.length === 0 || !currentGen1?.length || location.encounters.length === 0) {
+        return
+      }
 
       const spawnRateMultiplier = economyMultiplier(teamRef.current, 'wildSpawnRate')
       msUntilSpawn -= deltaMs * spawnRateMultiplier
       if (msUntilSpawn <= 0) {
         msUntilSpawn = BASE_SPAWN_INTERVAL_MS
         const rareBonus = economyMultiplier(teamRef.current, 'rareWildChance')
-        setWildEncounter(spawnWildEncounter(currentGen1, saveRef.current.lifetimeCandies, rareBonus))
+        const spawned = spawnWildEncounter(location, currentGen1, rareBonus)
+        if (spawned) setWildEncounter(spawned)
       }
     })
     loop.start()
@@ -246,6 +277,7 @@ function App() {
 
   function handleExitBattle() {
     setWildEncounter(null)
+    setActiveGymId(null)
     setView('clicker')
   }
 
@@ -255,6 +287,19 @@ function App() {
 
   function handleIgnoreWild() {
     setWildEncounter(null)
+  }
+
+  function handleTravel(locationId: string) {
+    setSave((current) => travelTo(current, locationId))
+  }
+
+  function handleChallengeGym(gymId: string) {
+    setActiveGymId(gymId)
+    setView('battle')
+  }
+
+  function handleGymVictory(gymId: string) {
+    setSave((current) => awardBadge(current, gymId))
   }
 
   // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
@@ -370,20 +415,31 @@ function App() {
           onBuyXpBoost={handleBuyXpBoost}
         />
       )}
-      {view === 'battle' && (
+      {view === 'battle' && battleEncounter && (
         <BattleScreen
           gen1={gen1}
           save={save}
-          opponent={wildEncounter ? { speciesId: wildEncounter.speciesId, level: wildEncounter.level } : undefined}
+          encounter={battleEncounter}
           onVictory={handleVictory}
           onCapture={handleCaptureWild}
           onLoot={handleLootWild}
+          onGymVictory={handleGymVictory}
           onExit={handleExitBattle}
         />
       )}
 
       {view === 'clicker' && (
         <>
+          <LocationNav
+            location={currentLocation}
+            prevLocation={prevLocation}
+            nextLocation={nextLocation}
+            lifetimeCandies={save.lifetimeCandies}
+            onTravel={handleTravel}
+            gym={gymHere}
+            hasBadge={gymHere ? hasBadge(save, gymHere.id) : false}
+            onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
+          />
           {wildEncounter && wildEntry && (
             <div className="wild-encounter-banner">
               <img src={wildEntry.sprite.local} alt={wildEntry.name} />

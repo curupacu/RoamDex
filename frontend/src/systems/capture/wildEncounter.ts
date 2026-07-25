@@ -1,33 +1,13 @@
+import type { LocationDefinition } from '../../content/gen1/locations'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { rarityTier, type RarityTier } from './rarityTier'
 
-// Roadmap section 5's own numbers, not invented.
-export const BASE_SPAWN_INTERVAL_MS = 90_000
-export const IGNORE_TIMEOUT_MS = 20_000
-
-// Provisional — Sprint 25 tunes the level curve against real progress data.
-// (Was 100 candies/level — found via testing that this hit the level cap
-// almost immediately, since typical play accumulates thousands of
-// lifetime candies within minutes. 2000 keeps early encounters low-level
-// for a meaningful stretch of play.)
-const BASE_LEVEL = 5
-const LEVEL_PER_LIFETIME_CANDIES = 2_000
-const MAX_LEVEL = 100
-
-const TIER_BASE_WEIGHT: Record<RarityTier, number> = {
-  common: 10,
-  uncommon: 4,
-  rare: 1,
-}
-
-// Not in the original roadmap text (section 5 just says "pool = geração
-// atual da run") — added per the project owner's request: a fresh save
-// was rolling anything up to legendaries in the first encounter. Common
-// and uncommon (which already covers early-route mons like Caterpie,
-// Metapod, Pidgey, Rattata, Spearow — all captureRate >= 50) are always
-// available; rare stays locked until this much lifetime progress.
-// Provisional threshold — Sprint 25 tunes it for real.
-export const RARE_TIER_UNLOCK_LIFETIME_CANDIES = 20_000
+// Provisional — Sprint 25 tunes these against real play data. Tuned down
+// from 90s/20s per the project owner's own playtest: encounters felt too
+// slow, and someone who doesn't want to fight should be able to just wait
+// the banner out instead of needing to tap "Ignorar".
+export const BASE_SPAWN_INTERVAL_MS = 45_000
+export const IGNORE_TIMEOUT_MS = 30_000
 
 export interface WildEncounter {
   speciesId: number
@@ -35,40 +15,50 @@ export interface WildEncounter {
   tier: RarityTier
 }
 
-// "Nível do selvagem escala com o progresso da run (doces totais)" —
-// roadmap section 5.
-export function wildLevelForProgress(lifetimeCandies: number): number {
-  return Math.min(MAX_LEVEL, BASE_LEVEL + Math.floor(lifetimeCandies / LEVEL_PER_LIFETIME_CANDIES))
-}
-
-// "Raridade por tier... Inseto/Fantasma no time mexem nas chances" —
-// roadmap section 5. Only Inseto's rareWildChance is wired to a real
-// number today (economyMultiplier(team, 'rareWildChance') from the
-// caller); Fantasma's night-window bonus has no day/night system to plug
-// into yet, so it stays a display-only "(em breve)" bonus for now.
-function pickWildSpecies(gen1: Gen1Entry[], lifetimeCandies: number, rareBonusMultiplier: number): Gen1Entry {
-  const rareUnlocked = lifetimeCandies >= RARE_TIER_UNLOCK_LIFETIME_CANDIES
-
-  const weights = gen1.map((entry) => {
-    const tier = rarityTier(entry.captureRate)
-    if (tier === 'rare') return rareUnlocked ? TIER_BASE_WEIGHT.rare * rareBonusMultiplier : 0
-    return TIER_BASE_WEIGHT[tier]
-  })
+// Encounters now come from the CURRENT LOCATION's own pool
+// (docs/ROTAS-KANTO.md, researched from Bulbapedia) instead of a global
+// roll weighted by rarity tier across all of Gen 1 — "na rota 2 só pode
+// aparecer weedle, pidgey e rattata" was the whole point of that research.
+//
+// Inseto's rareWildChance bonus biases the roll toward whichever species in
+// the pool has the lowest weight (this location's "rarest" pick) — there's
+// no separate global rare-tier gate anymore, so this is the new home for
+// that bonus.
+function pickEncounter(location: LocationDefinition, rareBonusMultiplier: number) {
+  const lowestWeight = Math.min(...location.encounters.map((encounter) => encounter.weight))
+  const weights = location.encounters.map((encounter) =>
+    encounter.weight === lowestWeight ? encounter.weight * rareBonusMultiplier : encounter.weight,
+  )
   const total = weights.reduce((sum, weight) => sum + weight, 0)
 
   let roll = Math.random() * total
-  for (let i = 0; i < gen1.length; i++) {
+  for (let i = 0; i < location.encounters.length; i++) {
     roll -= weights[i]
-    if (roll <= 0) return gen1[i]
+    if (roll <= 0) return location.encounters[i]
   }
-  return gen1[gen1.length - 1]
+  return location.encounters[location.encounters.length - 1]
 }
 
-export function spawnWildEncounter(gen1: Gen1Entry[], lifetimeCandies: number, rareBonusMultiplier: number): WildEncounter {
-  const entry = pickWildSpecies(gen1, lifetimeCandies, rareBonusMultiplier)
+function rollLevel(minLevel: number, maxLevel: number): number {
+  return minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1))
+}
+
+// null for a location with no wild encounters at all (towns, gyms).
+export function spawnWildEncounter(
+  location: LocationDefinition,
+  gen1: Gen1Entry[],
+  rareBonusMultiplier: number,
+): WildEncounter | null {
+  if (location.encounters.length === 0) return null
+
+  const chosen = pickEncounter(location, rareBonusMultiplier)
+  const entry = gen1.find((candidate) => candidate.id === chosen.speciesId)
+
   return {
-    speciesId: entry.id,
-    level: wildLevelForProgress(lifetimeCandies),
-    tier: rarityTier(entry.captureRate),
+    speciesId: chosen.speciesId,
+    level: rollLevel(chosen.minLevel, chosen.maxLevel),
+    // Still shown as a "comum/incomum/raro" badge in the UI (RARITY_LABELS)
+    // even though it no longer drives which species can spawn.
+    tier: entry ? rarityTier(entry.captureRate) : 'common',
   }
 }

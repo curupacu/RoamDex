@@ -38,11 +38,11 @@ describe('save', () => {
     expect(migrated.activeTeamIds).toEqual([1])
   })
 
-  it('migrates a v1 save (pre-upgrades) up to v6, backfilling lifetimeCandies and the starter', () => {
+  it('migrates a v1 save (pre-upgrades) up to v7, backfilling lifetimeCandies and the starter', () => {
     const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
 
     expect(migrated).toEqual({
-      version: 6,
+      version: 7,
       candies: 250,
       lifetimeCandies: 250,
       lastSavedAt: 123,
@@ -50,14 +50,16 @@ describe('save', () => {
       roster: [{ speciesId: 1, level: 5, xp: 0 }],
       activeTeamIds: [1],
       buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
     })
   })
 
-  it('migrates a v2 save (pre-starter-picker) up to v6, backfilling the placeholder starter', () => {
+  it('migrates a v2 save (pre-starter-picker) up to v7, backfilling the placeholder starter', () => {
     const migrated = migrateSave({ version: 2, candies: 10, lifetimeCandies: 10, lastSavedAt: 5, upgrades: { a: 1 } })
 
     expect(migrated).toEqual({
-      version: 6,
+      version: 7,
       candies: 10,
       lifetimeCandies: 10,
       lastSavedAt: 5,
@@ -65,6 +67,8 @@ describe('save', () => {
       roster: [{ speciesId: 1, level: 5, xp: 0 }],
       activeTeamIds: [1],
       buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
     })
   })
 
@@ -82,7 +86,7 @@ describe('save', () => {
     expect(migrated.activeTeamIds).toEqual([])
   })
 
-  it('migrates a v3 save with a chosen starter up to v6, moving it into the roster', () => {
+  it('migrates a v3 save with a chosen starter up to v7, moving it into the roster', () => {
     const migrated = migrateSave({
       version: 3,
       candies: 42,
@@ -93,7 +97,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 6,
+      version: 7,
       candies: 42,
       lifetimeCandies: 42,
       lastSavedAt: 5,
@@ -101,10 +105,12 @@ describe('save', () => {
       roster: [{ speciesId: 4, level: 5, xp: 0 }],
       activeTeamIds: [4],
       buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
     })
   })
 
-  it('migrates a v4 save (pre-XP) up to v6, backfilling xp for every roster member', () => {
+  it('migrates a v4 save (pre-XP) up to v7, backfilling xp for every roster member', () => {
     const migrated = migrateSave({
       version: 4,
       candies: 5,
@@ -116,7 +122,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 6,
+      version: 7,
       candies: 5,
       lifetimeCandies: 5,
       lastSavedAt: 5,
@@ -124,10 +130,12 @@ describe('save', () => {
       roster: [{ speciesId: 1, level: 8, xp: 0 }],
       activeTeamIds: [1],
       buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
     })
   })
 
-  it('migrates a v5 save (pre-buffs) up to v6, backfilling an empty buffs map', () => {
+  it('migrates a v5 save (pre-buffs) up to v7, backfilling an empty buffs map', () => {
     const migrated = migrateSave({
       version: 5,
       candies: 5,
@@ -139,6 +147,21 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
+      version: 7,
+      candies: 5,
+      lifetimeCandies: 5,
+      lastSavedAt: 5,
+      upgrades: {},
+      roster: [],
+      activeTeamIds: [],
+      buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
+    })
+  })
+
+  it('migrates a v6 save (pre-locations) up to v7, backfilling Pallet Town and no badges', () => {
+    const migrated = migrateSave({
       version: 6,
       candies: 5,
       lifetimeCandies: 5,
@@ -147,6 +170,19 @@ describe('save', () => {
       roster: [],
       activeTeamIds: [],
       buffs: {},
+    })
+
+    expect(migrated).toEqual({
+      version: 7,
+      candies: 5,
+      lifetimeCandies: 5,
+      lastSavedAt: 5,
+      upgrades: {},
+      roster: [],
+      activeTeamIds: [],
+      buffs: {},
+      currentLocationId: 'pallet-town',
+      badges: [],
     })
   })
 

@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 6
+export const CURRENT_SAVE_VERSION = 7
 
 export interface SaveDataV1 {
   version: 1
@@ -84,7 +84,25 @@ export interface SaveDataV6 {
   buffs: Record<string, number>
 }
 
-export type SaveData = SaveDataV6
+export interface SaveDataV7 {
+  version: 7
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  roster: RosterMember[]
+  activeTeamIds: number[]
+  buffs: Record<string, number>
+  // Kanto location id the player is standing at — see
+  // systems/gyms/locations.ts. Hardcoded starting id instead of importing
+  // content/gen1/locations.ts, so engine/ doesn't depend on content/.
+  currentLocationId: string
+  // Gym ids beaten so far (content/gen1/gyms.ts) — the "trilha" of
+  // routes/gyms from roadmap section 8 / Sprint 20.
+  badges: string[]
+}
+
+export type SaveData = SaveDataV7
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -153,6 +171,10 @@ const migrations: Record<number, Migration> = {
     const v5 = old as SaveDataV5
     return { ...v5, version: 6, buffs: {} }
   },
+  6: (old): SaveDataV7 => {
+    const v6 = old as SaveDataV6
+    return { ...v6, version: 7, currentLocationId: 'pallet-town', badges: [] }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -173,6 +195,8 @@ export function createDefaultSave(): SaveData {
     roster: [],
     activeTeamIds: [],
     buffs: {},
+    currentLocationId: 'pallet-town',
+    badges: [],
   }
 }
 

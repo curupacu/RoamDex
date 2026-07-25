@@ -57,8 +57,20 @@ export interface BattleHit {
   qteResult?: QteResult
 }
 
+// One member of the roster a battle is fought against — a wild encounter's
+// roster is always length 1, a gym leader's/trainer's can be several.
+export interface EnemyRosterEntry {
+  entry: Gen1Entry
+  level: number
+}
+
 export interface BattleState {
-  enemy: BattleUnit
+  enemyTeam: BattleUnit[]
+  // Index into enemyTeam currently fighting — advances automatically as
+  // each one faints (a trainer sends out their next Pokémon; there's no
+  // player choice on that side). Wild encounters have a single-entry team,
+  // so this always stays 0 for those fights.
+  enemyIndex: number
   playerTeam: BattleUnit[]
   activeIndex: number
   energy: number
@@ -93,13 +105,15 @@ function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
 // HP lives only inside BattleState — the save never tracks it, since the
 // roadmap has no persistent damage ("Pós-batalha, todo mundo cura full
 // automaticamente... Não existe morte, custo de cura nem hospital"). Every
-// new battle starts everyone back at full HP for free.
+// new battle starts everyone back at full HP for free. A gym leader's team
+// doesn't heal between their own Pokémon though (only the Elite Four's
+// between-battle 50% heal is a thing, per the roadmap) — it's one
+// continuous fight, same as the real games.
 export function createBattle(
   gen1: Gen1Entry[],
   roster: RosterMember[],
   activeTeamIds: number[],
-  enemyEntry: Gen1Entry,
-  enemyLevel: number,
+  enemyRoster: EnemyRosterEntry[],
 ): BattleState {
   const playerTeam = activeTeamIds
     .map((id) => {
@@ -109,12 +123,15 @@ export function createBattle(
     })
     .filter((unit): unit is BattleUnit => unit !== null)
 
+  const enemyTeam = enemyRoster.map(({ entry, level }) => makeUnit(entry, level))
+
   return {
-    enemy: makeUnit(enemyEntry, enemyLevel),
+    enemyTeam,
+    enemyIndex: 0,
     playerTeam,
     activeIndex: 0,
     energy: 0,
-    outcome: playerTeam.length === 0 ? 'defeat' : 'ongoing',
+    outcome: playerTeam.length === 0 || enemyTeam.length === 0 ? 'defeat' : 'ongoing',
     lastHit: null,
     awaitingQte: null,
   }
@@ -142,6 +159,23 @@ function nextLivingIndex(team: BattleUnit[], from: number): number {
   return -1
 }
 
+// Applies damage to the currently active enemy and, if that faints, sends
+// out the trainer's next living Pokémon automatically (or ends the battle
+// in victory once none are left).
+function applyDamageToEnemyTeam(state: BattleState, dealt: number): Pick<BattleState, 'enemyTeam' | 'enemyIndex' | 'outcome'> {
+  const activeEnemy = state.enemyTeam[state.enemyIndex]
+  const enemyHp = Math.max(0, activeEnemy.currentHp - dealt)
+  const enemyTeam = state.enemyTeam.map((unit, index) => (index === state.enemyIndex ? { ...unit, currentHp: enemyHp } : unit))
+
+  const nextIndex = enemyHp > 0 ? state.enemyIndex : nextLivingIndex(enemyTeam, state.enemyIndex + 1)
+
+  return {
+    enemyTeam,
+    enemyIndex: nextIndex === -1 ? state.enemyIndex : nextIndex,
+    outcome: nextIndex === -1 ? 'victory' : 'ongoing',
+  }
+}
+
 // Tap-to-attack (roadmap section 4). Energy fills with taps; once full, the
 // next tap either opens the type's QTE (if it has one) or releases the
 // flat-multiplier super attack immediately.
@@ -149,21 +183,20 @@ export function applyPlayerTap(state: BattleState): BattleState {
   if (state.outcome !== 'ongoing' || state.awaitingQte) return state
 
   const active = state.playerTeam[state.activeIndex]
+  const activeEnemy = state.enemyTeam[state.enemyIndex]
   const useSuper = state.energy >= ENERGY_MAX
 
   if (useSuper && hasQte(active.type)) {
     return { ...state, awaitingQte: active.type }
   }
 
-  const { amount, tier } = calculateDamage(active, state.enemy)
+  const { amount, tier } = calculateDamage(active, activeEnemy)
   const dealt = amount * (useSuper ? SUPER_ATTACK_MULTIPLIER : 1)
-  const enemyHp = Math.max(0, state.enemy.currentHp - dealt)
 
   return {
     ...state,
-    enemy: { ...state.enemy, currentHp: enemyHp },
+    ...applyDamageToEnemyTeam(state, dealt),
     energy: useSuper ? 0 : Math.min(ENERGY_MAX, state.energy + ENERGY_PER_TAP),
-    outcome: enemyHp <= 0 ? 'victory' : 'ongoing',
     lastHit: { source: 'player', tier },
   }
 }
@@ -174,16 +207,15 @@ export function resolveQteAttack(state: BattleState, result: QteResult): BattleS
   if (state.outcome !== 'ongoing' || !state.awaitingQte) return state
 
   const active = state.playerTeam[state.activeIndex]
-  const { amount, tier } = calculateDamage(active, state.enemy)
+  const activeEnemy = state.enemyTeam[state.enemyIndex]
+  const { amount, tier } = calculateDamage(active, activeEnemy)
   const dealt = amount * QTE_RESULT_MULTIPLIER[result]
-  const enemyHp = Math.max(0, state.enemy.currentHp - dealt)
 
   return {
     ...state,
-    enemy: { ...state.enemy, currentHp: enemyHp },
+    ...applyDamageToEnemyTeam(state, dealt),
     energy: 0,
     awaitingQte: null,
-    outcome: enemyHp <= 0 ? 'victory' : 'ongoing',
     lastHit: { source: 'player', tier, qteResult: result },
   }
 }
@@ -195,7 +227,8 @@ export function applyEnemyAttack(state: BattleState): BattleState {
   if (state.outcome !== 'ongoing' || state.awaitingQte) return state
 
   const active = state.playerTeam[state.activeIndex]
-  const { amount, tier } = calculateDamage(state.enemy, active)
+  const activeEnemy = state.enemyTeam[state.enemyIndex]
+  const { amount, tier } = calculateDamage(activeEnemy, active)
   const playerTeam = state.playerTeam.map((unit, index) =>
     index === state.activeIndex ? { ...unit, currentHp: Math.max(0, unit.currentHp - amount) } : unit,
   )

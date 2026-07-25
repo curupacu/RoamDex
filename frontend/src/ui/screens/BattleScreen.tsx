@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ENEMY_ATTACK_INTERVAL_MS, TELEGRAPH_WINDOW_MS, TEST_OPPONENT_LEVEL, TEST_OPPONENT_SPECIES_ID } from '../../content/battle'
+import type { GymDefinition } from '../../content/gen1/gyms'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { moveNameForStage } from '../../content/moves'
 import { GameLoop } from '../../engine/gameLoop'
@@ -12,40 +13,61 @@ import {
   resolveQteAttack,
   switchActive,
   type BattleState,
+  type EnemyRosterEntry,
 } from '../../systems/battle/engine'
 import { moveStage } from '../../systems/battle/moveStage'
 import { HpBar } from '../components/HpBar'
 import { QteModal } from '../components/qte/QteModal'
 
+// A real wild encounter (Sprint 18) or a gym leader (Sprint 20) — both come
+// with an opponent roster; 'dummy' is the fixed Sprint 13 test fight, only
+// reachable from the Admin screen now that the "Batalha" nav tab is gone.
+export type BattleEncounter =
+  | { kind: 'wild'; speciesId: number; level: number }
+  | { kind: 'gym'; gym: GymDefinition }
+  | { kind: 'dummy' }
+
 interface BattleScreenProps {
   gen1: Gen1Entry[]
   save: SaveData
-  // A real wild encounter (Sprint 18); omitted for the fixed test dummy
-  // reachable from the "Batalha" nav tab directly.
-  opponent?: { speciesId: number; level: number }
+  encounter: BattleEncounter
   onVictory: (activeSpeciesId: number) => void
-  // Only called for a real wild encounter (opponent is set) — roll capture
-  // or loot, apply it to the save, and return the result text to show.
+  // Only called for encounter.kind === 'wild' — roll capture or loot, apply
+  // it to the save, and return the result text to show.
   onCapture?: () => string
   onLoot?: () => string
+  // Only called for encounter.kind === 'gym' — awards the badge.
+  onGymVictory?: (gymId: string) => void
   onExit: () => void
 }
 
-export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoot, onExit }: BattleScreenProps) {
-  // Frozen at mount: if the parent's wildEncounter changed for any reason
-  // while this screen is still up (e.g. a future timer edge case), the
-  // fight in progress must not suddenly show a different enemy sprite/name
-  // than the one createBattle() actually built stats for below.
-  const [frozenOpponent] = useState(opponent)
-  const enemyEntry = gen1.find((entry) => entry.id === (frozenOpponent?.speciesId ?? TEST_OPPONENT_SPECIES_ID))
+function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLevel: number): EnemyRosterEntry[] {
+  if (encounter.kind === 'wild') {
+    const entry = gen1.find((candidate) => candidate.id === encounter.speciesId)
+    return entry ? [{ entry, level: encounter.level }] : []
+  }
+  if (encounter.kind === 'gym') {
+    return encounter.gym.team
+      .map(({ speciesId, level }) => {
+        const entry = gen1.find((candidate) => candidate.id === speciesId)
+        return entry ? { entry, level } : null
+      })
+      .filter((member): member is EnemyRosterEntry => member !== null)
+  }
+  const entry = gen1.find((candidate) => candidate.id === TEST_OPPONENT_SPECIES_ID)
+  return entry ? [{ entry, level: dummyLevel }] : []
+}
+
+export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLoot, onGymVictory, onExit }: BattleScreenProps) {
+  // Frozen at mount: if the parent's state changed for any reason while
+  // this screen is still up, the fight in progress must not suddenly show
+  // a different opponent than the one createBattle() built stats for below.
+  const [frozenEncounter] = useState(encounter)
   // The fixed test dummy matches the player's own level (see git history)
-  // so it's actually testable instead of an instant one-shot; a real wild
-  // encounter already comes with its own run-scaled level.
-  const activeLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
-  const enemyLevel = frozenOpponent?.level ?? activeLevel
-  const [battle, setBattle] = useState<BattleState>(() =>
-    createBattle(gen1, save.roster, save.activeTeamIds, enemyEntry ?? gen1[0], enemyLevel),
-  )
+  // so it's actually testable instead of an instant one-shot.
+  const dummyLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
+  const [enemyRoster] = useState(() => buildEnemyRoster(frozenEncounter, gen1, dummyLevel))
+  const [battle, setBattle] = useState<BattleState>(() => createBattle(gen1, save.roster, save.activeTeamIds, enemyRoster))
   const battleRef = useRef(battle)
   battleRef.current = battle
   const [telegraph, setTelegraph] = useState(false)
@@ -54,16 +76,20 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
   const victoryHandledRef = useRef(false)
   const onVictoryRef = useRef(onVictory)
   onVictoryRef.current = onVictory
+  const onGymVictoryRef = useRef(onGymVictory)
+  onGymVictoryRef.current = onGymVictory
 
   // Grants XP exactly once, right when the battle is won — independent of
   // whatever the player picks next (capture, loot, or just "Continuar").
+  // Gym battles also award the badge here, once.
   useEffect(() => {
     if (battle.outcome !== 'victory' || victoryHandledRef.current) return
     victoryHandledRef.current = true
     const current = battleRef.current
     const winner = current.playerTeam[current.activeIndex] ?? current.playerTeam[0]
     onVictoryRef.current(winner.speciesId)
-  }, [battle.outcome])
+    if (frozenEncounter.kind === 'gym') onGymVictoryRef.current?.(frozenEncounter.gym.id)
+  }, [battle.outcome, frozenEncounter])
 
   // A fresh `lastHit` object is produced on every hit (even repeats of the
   // same tier), so this effect naturally re-fires each time — no need to
@@ -127,7 +153,9 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
     }
   }, [])
 
-  if (!enemyEntry) return null
+  const activeEnemyUnit = battle.enemyTeam[battle.enemyIndex]
+  const activeEnemyEntry = activeEnemyUnit ? gen1.find((entry) => entry.id === activeEnemyUnit.speciesId) : null
+  if (!activeEnemyUnit || !activeEnemyEntry) return null
 
   const active = battle.playerTeam[battle.activeIndex]
   const activeEntry = active ? gen1.find((entry) => entry.id === active.speciesId) : null
@@ -138,11 +166,12 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
     <div className="battle-screen">
       {hitMessage && <p className="battle-hit-message">{hitMessage}</p>}
       <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
-        <img src={enemyEntry.sprite.local} alt={enemyEntry.name} />
+        <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>
-          {enemyEntry.name} Nv.{battle.enemy.level}
+          {activeEnemyEntry.name} Nv.{activeEnemyUnit.level}
+          {battle.enemyTeam.length > 1 && ` (${battle.enemyIndex + 1}/${battle.enemyTeam.length})`}
         </p>
-        <HpBar current={battle.enemy.currentHp} max={battle.enemy.maxHp} />
+        <HpBar current={activeEnemyUnit.currentHp} max={activeEnemyUnit.maxHp} />
       </div>
 
       {battle.outcome === 'ongoing' && active && activeEntry && battle.awaitingQte && (
@@ -187,14 +216,21 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
 
       {battle.outcome === 'victory' && (
         <div className="pokemon-detail">
-          {!frozenOpponent && (
+          {frozenEncounter.kind === 'dummy' && (
             <>
               <p>Vitória!</p>
               <button onClick={onExit}>Continuar</button>
             </>
           )}
 
-          {frozenOpponent && postVictoryMessage === null && (
+          {frozenEncounter.kind === 'gym' && (
+            <>
+              <p>Vitória! Você conquistou a {frozenEncounter.gym.badgeName}!</p>
+              <button onClick={onExit}>Continuar</button>
+            </>
+          )}
+
+          {frozenEncounter.kind === 'wild' && postVictoryMessage === null && (
             <>
               <p>Vitória! Capturar ou pegar o loot?</p>
               <button onClick={() => setPostVictoryMessage(onCapture?.() ?? null)}>Jogar Pokébola</button>
@@ -202,7 +238,7 @@ export function BattleScreen({ gen1, save, opponent, onVictory, onCapture, onLoo
             </>
           )}
 
-          {frozenOpponent && postVictoryMessage !== null && (
+          {frozenEncounter.kind === 'wild' && postVictoryMessage !== null && (
             <>
               <p>{postVictoryMessage}</p>
               <button onClick={onExit}>Continuar</button>

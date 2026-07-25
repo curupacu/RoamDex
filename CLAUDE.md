@@ -7,6 +7,9 @@ Idle/clicker de navegador com Pokémon. O documento canônico de design e
 planejamento é `docs/ROADMAP-E-SPRINTS.md` — **leia antes de qualquer sprint**.
 Nada de implementar features fora do sprint atual sem alinhar com o dono do projeto.
 
+**Antes de começar a próxima sessão, leia `docs/BACKLOG.md`** — bugs e ideias
+que o dono do projeto reportou no playtest e ainda não foram triados/codados.
+
 ## Regras de arquitetura (invioláveis)
 1. **PokeAPI só em build-time.** O jogo NUNCA chama a PokeAPI em runtime.
    Dados vêm de `frontend/public/data/*.json`, gerados por `scripts/build-data/`.
