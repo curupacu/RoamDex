@@ -1,7 +1,14 @@
 import type { Gen1Entry } from '../../content/gen1/types'
 
-// Provisional growth rate — Sprint 25 ("Balanceamento") tunes this.
-const STAT_GROWTH_PER_LEVEL = 0.03
+// Provisional growth rate — Sprint 25 ("Balanceamento") does the real tuning
+// with simulation data. Bumped from 0.03 after playtest: at 3%/level, a
+// level 5 starter could solo a level ~21 gym team (Lt. Surge) because level
+// barely moved the stats — a level-25 Pokémon was only ~1.5x a level-5 one
+// of the same species. 0.1 puts that ratio closer to ~3x (roughly what the
+// real games' level curve does over the same range), so being badly
+// underleveled for a gym is a real wall again, without touching the
+// same-level matchups (early routes/wild encounters) much.
+const STAT_GROWTH_PER_LEVEL = 0.1
 
 export interface DerivedStats {
   hp: number

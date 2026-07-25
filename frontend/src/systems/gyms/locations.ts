@@ -1,5 +1,6 @@
 import { KANTO_LOCATIONS, type LocationDefinition } from '../../content/gen1/locations'
 import type { SaveData } from '../../engine/save'
+import { gymForLocation, hasBadge } from './gymProgress'
 
 export function locationIndex(id: string): number {
   return KANTO_LOCATIONS.findIndex((location) => location.id === id)
@@ -25,12 +26,19 @@ export function nextLocationOf(id: string): LocationDefinition | null {
 // Only one step at a time — going back is always free, going forward needs
 // the lifetime-candy gate. No teleporting/skipping: the project owner's
 // call to keep the region a single line instead of a real (tangled) map.
+// Forward also requires the current location's own gym badge (if it hosts
+// one) — otherwise the candy gate alone let players walk past an unbeaten
+// gym straight to the next town.
 export function canTravelTo(save: SaveData, targetId: string): boolean {
   const currentIndex = locationIndex(save.currentLocationId)
   const targetIndex = locationIndex(targetId)
   if (currentIndex === -1 || targetIndex === -1) return false
   if (targetIndex === currentIndex - 1) return true
-  if (targetIndex === currentIndex + 1) return save.lifetimeCandies >= KANTO_LOCATIONS[targetIndex].unlockAt
+  if (targetIndex === currentIndex + 1) {
+    if (save.lifetimeCandies < KANTO_LOCATIONS[targetIndex].unlockAt) return false
+    const currentGym = gymForLocation(save.currentLocationId)
+    return !currentGym || hasBadge(save, currentGym.id)
+  }
   return false
 }
 

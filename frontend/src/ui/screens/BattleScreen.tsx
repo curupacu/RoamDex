@@ -130,11 +130,14 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
       }
 
       if (wasAwaitingQte) {
-        // Just finished a QTE — give a full fresh window instead of
-        // attacking immediately with whatever little time was left when
-        // it opened (was landing as "got hit right after the minigame").
+        // Just finished a QTE — guarantee at least a telegraph window's
+        // worth of reaction time instead of attacking immediately with
+        // whatever little time was left when it opened (was landing as
+        // "got hit right after the minigame"). A full reset here was
+        // exploitable: chaining QTEs back-to-back kept the enemy from ever
+        // attacking. Only top up the remainder, never restart it.
         wasAwaitingQte = false
-        msUntilAttack = ENEMY_ATTACK_INTERVAL_MS
+        msUntilAttack = Math.max(msUntilAttack, TELEGRAPH_WINDOW_MS)
       }
 
       msUntilAttack -= deltaMs
@@ -164,7 +167,10 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
 
   return (
     <div className="battle-screen">
-      {hitMessage && <p className="battle-hit-message">{hitMessage}</p>}
+      {/* Always mounted (min-height reserved in CSS) — unmounting this when
+          hitMessage clears would shift everything below it up, including a
+          QTE hold button, right out from under the player's finger. */}
+      <p className="battle-hit-message">{hitMessage}</p>
       <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
         <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>

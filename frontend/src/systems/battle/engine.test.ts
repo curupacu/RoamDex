@@ -259,7 +259,10 @@ describe('multi-Pokémon enemy team (gym battles)', () => {
   })
 
   it("attacks the player with whichever enemy is currently active, not always the first", () => {
-    const gen1 = [makeEntry({ id: 1, stats: { hp: 1000, attack: 1, defense: 1, 'special-attack': 1, 'special-defense': 1, speed: 1 } })]
+    // attack is huge (unlike defense) so the opening tap reliably one-shots
+    // weakEntry(74) regardless of how STAT_GROWTH_PER_LEVEL gets tuned —
+    // this test is about enemy-switch behavior, not tap damage sizing.
+    const gen1 = [makeEntry({ id: 1, stats: { hp: 1000, attack: 100_000, defense: 1, 'special-attack': 1, 'special-defense': 1, speed: 1 } })]
     let battle = createBattle(
       gen1,
       [makeMember(1)],

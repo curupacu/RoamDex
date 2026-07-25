@@ -6,8 +6,17 @@ const BUBBLE_COUNT = 5
 const BUBBLE_WINDOW_MS = 700
 
 // "Estourar bolhas de veneno que sobem na tela" (roadmap section 3).
+// Lazy initializer instead of useState(null) + setBubble() inside the
+// effect — that gap (blank on the first render, position set only once the
+// effect fires a render later) was the "flicada ao surgir" bug: the target
+// popped in a beat after the modal, sometimes at a different spot than
+// what the player had already started aiming for.
+function randomBubble(index: number): { index: number; x: number } {
+  return { index, x: Math.random() * 80 + 10 }
+}
+
 export function PoisonQte({ onComplete }: { onComplete: (result: QteResult) => void }) {
-  const [bubble, setBubble] = useState<{ index: number; x: number } | null>(null)
+  const [bubble, setBubble] = useState(() => randomBubble(0))
   const [popped, setPopped] = useState(0)
   const poppedRef = useRef(0)
   const respondedRef = useRef(false)
@@ -19,7 +28,6 @@ export function PoisonQte({ onComplete }: { onComplete: (result: QteResult) => v
     const loop = new GameLoop()
     let msInWindow = 0
     let index = 0
-    setBubble({ index: 0, x: Math.random() * 80 + 10 })
 
     const unsubscribe = loop.subscribe((deltaMs) => {
       if (doneRef.current) return
@@ -34,7 +42,7 @@ export function PoisonQte({ onComplete }: { onComplete: (result: QteResult) => v
         return
       }
       respondedRef.current = false
-      setBubble({ index, x: Math.random() * 80 + 10 })
+      setBubble(randomBubble(index))
     })
     loop.start()
     return () => {
@@ -54,9 +62,7 @@ export function PoisonQte({ onComplete }: { onComplete: (result: QteResult) => v
     <div className="qte-screen">
       <p>Estoure as bolhas de veneno assim que subirem!</p>
       <div className="qte-bubble-lane">
-        {bubble && (
-          <button key={bubble.index} className="qte-bubble" style={{ left: `${bubble.x}%` }} onClick={handlePop} />
-        )}
+        <button key={bubble.index} className="qte-bubble" style={{ left: `${bubble.x}%` }} onClick={handlePop} />
       </div>
       <p className="qte-count">
         {popped}/{BUBBLE_COUNT}

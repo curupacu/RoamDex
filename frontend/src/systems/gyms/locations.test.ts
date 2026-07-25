@@ -47,6 +47,21 @@ describe('canTravelTo', () => {
     const save = makeSave({ currentLocationId: 'pallet-town', lifetimeCandies: 1_000_000 })
     expect(canTravelTo(save, 'viridian-forest')).toBe(false)
   })
+
+  it('blocks moving past a gym location whose badge has not been earned', () => {
+    const save = makeSave({ currentLocationId: 'pewter-city', lifetimeCandies: 1_000_000, badges: [] })
+    expect(canTravelTo(save, 'route-3')).toBe(false)
+  })
+
+  it('allows moving past a gym location once its badge is earned', () => {
+    const save = makeSave({ currentLocationId: 'pewter-city', lifetimeCandies: 1_000_000, badges: ['brock'] })
+    expect(canTravelTo(save, 'route-3')).toBe(true)
+  })
+
+  it('does not gate travel out of a location with no gym', () => {
+    const save = makeSave({ currentLocationId: 'route-1', lifetimeCandies: 1_000_000, badges: [] })
+    expect(canTravelTo(save, 'route-2')).toBe(true)
+  })
 })
 
 describe('travelTo', () => {

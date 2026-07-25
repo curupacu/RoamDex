@@ -740,6 +740,10 @@ button:disabled {
   color: var(--accent-yellow);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
   margin-bottom: 0.75rem;
+  /* Reserves one line even with no message, so the message disappearing
+     mid-QTE doesn't reflow the QTE below it out from under a held pointer
+     (was firing a spurious pointerleave, reading as "let go early"). */
+  min-height: 1.2em;
 }
 
 .battle-enemy {

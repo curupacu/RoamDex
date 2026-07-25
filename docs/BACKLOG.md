@@ -1,30 +1,46 @@
 # Backlog — bugs e ideias pra próxima sessão
 
 > Registrado em 2026-07-25 pelo dono do projeto, depois de testar o Sprint 20
-> (rotas + 8 ginásios) ao vivo. Nada disto foi implementado ainda — é ponto
-> de partida da próxima sessão, alinhar prioridade antes de codar.
+> (rotas + 8 ginásios) ao vivo.
 
-## Bugs encontrados no playtest
+## Bugs encontrados no playtest — corrigidos em 2026-07-25
 
-1. **QTE do golpe especial "buga" ao aparecer.** O card do golpe especial dá
-   uma "flicada" (pisca) quando surge, e isso às vezes faz o jogador errar o
-   ataque sem ter feito nada de errado — parece bug de render/timing, não
-   dificuldade de verdade. Investigar `ui/components/qte/QteModal.tsx` e o
-   componente do tipo específico onde acontece.
-2. **O ataque às vezes reseta o cooldown de ataque do inimigo.** Some com o
-   timer do próximo golpe inimigo (`ENEMY_ATTACK_INTERVAL_MS` em
-   `content/battle.ts`, controlado em `BattleScreen.tsx`). Isso é
-   **explorável**: sendo rápido o suficiente, dá pra vencer qualquer
-   batalha (inclusive ginásio) com um Bulbasaur nível 1, porque o inimigo
-   nunca chega a atacar de volta. Prioridade alta — é um exploit, não só um
-   incômodo visual.
-3. **Dá pra avançar de rota/ginásio sem ter vencido o ginásio anterior.**
-   `systems/gyms/locations.ts` (`canTravelTo`) hoje só checa
-   `lifetimeCandies` acumulado contra `unlockAt` — não checa
-   `hasBadge(save, gymId)` da localização anterior. Precisa: só liberar a
-   travessia pra além de uma cidade com ginásio se a insígnia daquele
-   ginásio já tiver sido conquistada (além do gate de doces, que continua
-   valendo pras rotas sem ginásio).
+1. ~~QTE do golpe especial "buga" ao aparecer.~~ **Corrigido.** Causa raiz:
+   `DarkQte.tsx`/`PoisonQte.tsx` sorteavam a posição do alvo dentro do
+   `useEffect` via `setState`, então o alvo só aparecia (e "pulava" para a
+   posição sorteada) um render depois do modal já estar na tela. Trocado
+   por inicializador preguiçoso do `useState` (`useState(() => ...)`), que
+   fixa a posição já no primeiro render.
+2. ~~O ataque às vezes reseta o cooldown de ataque do inimigo (exploit).~~
+   **Corrigido.** `BattleScreen.tsx` dava um reset completo de
+   `ENEMY_ATTACK_INTERVAL_MS` toda vez que um QTE terminava — encadear QTEs
+   sem parar mantinha o inimigo parado pra sempre. Agora só garante um piso
+   de `TELEGRAPH_WINDOW_MS` de reação (`Math.max`), sem restartar o timer
+   inteiro.
+3. ~~Dá pra avançar de rota/ginásio sem ter vencido o ginásio anterior.~~
+   **Corrigido.** `canTravelTo` (`systems/gyms/locations.ts`) agora também
+   checa `hasBadge` do ginásio da localização atual (se houver) antes de
+   liberar o próximo passo — o gate de doces continua valendo do mesmo
+   jeito pras rotas sem ginásio.
+
+## Balanceamento — ajustes provisórios em 2026-07-25 (fora do Sprint 25 oficial, a pedido do dono)
+
+- **Nível quase não importava.** `STAT_GROWTH_PER_LEVEL` (`systems/team/stats.ts`)
+  estava em 0.03 (3%/nível) — nível 25 tinha só ~1.5x os status de nível 5,
+  então um Bulbasaur nv5 arrasava o Lt. Surge (nv 18-24). Subido pra 0.1.
+- **Ritmo de ataque do inimigo muito mais lento que o do jogador.** Tap do
+  jogador não tem cooldown nenhum (limitado só pela velocidade de clique) e
+  enche energia pra ulta a cada ~4 taps, enquanto o inimigo só atacava a
+  cada 3s fixos (`ENEMY_ATTACK_INTERVAL_MS`, `content/battle.ts`) — na
+  prática o jogador emendava ultas toda hora enquanto o inimigo "batia
+  raramente e fraco". `ENEMY_ATTACK_INTERVAL_MS` 3000→1500 e
+  `TELEGRAPH_WINDOW_MS` 800→500, pra deixar o ritmo do inimigo mais
+  próximo do ritmo natural de tap/ulta do jogador.
+- Ambos continuam **provisórios** — o Sprint 25 formal ("Balanceamento") é
+  quem faz o ajuste fino de verdade com dados de simulação
+  (`tests/simulations/`). Vale o dono do projeto validar em jogo se o Lt.
+  Surge (e os ginásios seguintes) ficaram desafiadores sem virar parede
+  intransponível.
 
 ## Upgrades genéricos demais
 
@@ -33,6 +49,11 @@ Os upgrades atuais (`content/gen1/upgrades.ts`) são só "+N doces/clique" e
 Cookie Clicker (upgrades com efeitos variados/inusitados, não só
 multiplicador linear). Preciso de uma sessão de brainstorm de conteúdo
 antes de codar isso — não é só "adicionar mais linhas na tabela".
+**Pesquisa de como o Cookie Clicker estrutura isso:**
+[`docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md`](PESQUISA-UPGRADES-COOKIE-CLICKER.md)
+(2026-07-25) — 4 padrões identificados (building empilhável, cadeia de
+upgrade de compra única por tier, sinergia entre dois sistemas, marco
+global) e ideias iniciais de como mapear pro que o RoamDex já tem.
 
 ## Ideias de feature / polish (não priorizadas ainda)
 
