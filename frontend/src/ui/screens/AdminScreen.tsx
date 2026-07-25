@@ -17,6 +17,9 @@ interface AdminScreenProps {
   // happen via real wild encounters now) — this is the only way left to
   // reach the Sprint 13 fixed test dummy for manual testing.
   onBattleTestDummy: () => void
+  // Grinding all 8 badges + 525k lifetime candies for real just to reach
+  // the Elite Four (Sprint 21) isn't practical for manual testing.
+  onUnlockEliteFour: () => void
 }
 
 export function AdminScreen({
@@ -27,6 +30,7 @@ export function AdminScreen({
   onForceEncounter,
   onSetActiveLevel,
   onBattleTestDummy,
+  onUnlockEliteFour,
 }: AdminScreenProps) {
   const [selectedSpeciesId, setSelectedSpeciesId] = useState(gen1[0]?.id ?? 1)
   const [level, setLevel] = useState(20)
@@ -71,6 +75,8 @@ export function AdminScreen({
       <div className="pokemon-detail">
         <h3>Batalha de teste</h3>
         <button onClick={onBattleTestDummy}>Batalhar contra o Rattata de teste (Sprint 13)</button>
+        <br />
+        <button onClick={onUnlockEliteFour}>Pular pra Victory Road (8 insígnias + doces)</button>
       </div>
 
       <div className="pokemon-detail">

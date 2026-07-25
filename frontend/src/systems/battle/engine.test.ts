@@ -6,11 +6,14 @@ import {
   applyEnemyAttack,
   applyPlayerTap,
   createBattle,
+  currentTrainerProgress,
   ENERGY_MAX,
   ENERGY_PER_TAP,
   hasQte,
   resolveQteAttack,
   switchActive,
+  TRAINER_TRANSITION_HEAL_FRACTION,
+  type BattleState,
 } from './engine'
 
 function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
@@ -278,6 +281,149 @@ describe('multi-Pokémon enemy team (gym battles)', () => {
 
     const result = applyEnemyAttack(battle)
     expect(result.playerTeam[0].currentHp).toBe(0)
+  })
+})
+
+describe('trainer sequence (Elite Four)', () => {
+  function weakEntry(id: number): Gen1Entry {
+    return makeEntry({ id, stats: { hp: 1, attack: 1, defense: 0, 'special-attack': 1, 'special-defense': 0, speed: 1 } })
+  }
+
+  // Quarter HP instead of half — leaves headroom under maxHp so a 50% heal
+  // doesn't accidentally land on the cap and mask a wiring bug.
+  function quarterHp(battle: BattleState): BattleState {
+    return { ...battle, playerTeam: battle.playerTeam.map((unit) => ({ ...unit, currentHp: Math.round(unit.maxHp / 4) })) }
+  }
+
+  it('heals the player team by the roadmap fraction when crossing into a new trainer', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    const tankyBoundary = makeEntry({
+      id: 95,
+      name: 'onix',
+      stats: { hp: 1000, attack: 1, defense: 1000, 'special-attack': 1, 'special-defense': 1000, speed: 1 },
+    })
+    let battle = createBattle(
+      gen1,
+      [makeMember(1)],
+      [1],
+      [
+        { entry: weakEntry(74), level: 12, trainerName: 'Lorelei' },
+        { entry: tankyBoundary, level: 53, trainerName: 'Bruno' },
+      ],
+    )
+    battle = quarterHp(battle)
+    const maxHp = battle.playerTeam[0].maxHp
+    const beforeHp = battle.playerTeam[0].currentHp
+
+    const result = applyPlayerTap(battle) // faints Lorelei's only mon, crosses into Bruno
+
+    expect(result.enemyIndex).toBe(1)
+    expect(result.playerTeam[0].currentHp).toBe(Math.min(maxHp, Math.round(beforeHp + maxHp * TRAINER_TRANSITION_HEAL_FRACTION)))
+  })
+
+  it('caps the heal at maxHp instead of overhealing', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    let battle = createBattle(
+      gen1,
+      [makeMember(1)],
+      [1],
+      [
+        { entry: weakEntry(74), level: 12, trainerName: 'Lorelei' },
+        { entry: weakEntry(95), level: 14, trainerName: 'Bruno' },
+      ],
+    )
+    const maxHp = battle.playerTeam[0].maxHp
+    battle = { ...battle, playerTeam: battle.playerTeam.map((unit) => ({ ...unit, currentHp: maxHp - 1 })) }
+
+    const result = applyPlayerTap(battle)
+
+    expect(result.playerTeam[0].currentHp).toBe(maxHp)
+  })
+
+  it('does not heal when switching within a single trainer team (no trainerName tag — gym parity)', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    let battle = createBattle(
+      gen1,
+      [makeMember(1)],
+      [1],
+      [
+        { entry: weakEntry(74), level: 12 }, // same trainer, untagged — like a gym leader's own team
+        { entry: makeEntry({ id: 95, name: 'onix' }), level: 14 },
+      ],
+    )
+    battle = quarterHp(battle)
+    const beforeHp = battle.playerTeam[0].currentHp
+
+    const result = applyPlayerTap(battle)
+
+    expect(result.enemyIndex).toBe(1)
+    expect(result.playerTeam[0].currentHp).toBe(beforeHp)
+  })
+
+  it('does not heal on a non-lethal tap, even when the active enemy already sits at a boundary index (regression)', () => {
+    // Regression for a bug caught during design review: healing on "nextIndex
+    // is a boundary" alone (instead of "just crossed into one") would heal
+    // on every single tap against a trainer's opener, not just the switch.
+    const gen1 = [makeEntry({ id: 1, stats: { hp: 1000, attack: 1, defense: 1, 'special-attack': 1, 'special-defense': 1, speed: 1 } })]
+    const tankyBoundary = makeEntry({
+      id: 95,
+      name: 'onix',
+      stats: { hp: 100_000, attack: 1, defense: 1000, 'special-attack': 1, 'special-defense': 1000, speed: 1 },
+    })
+    let battle = createBattle(gen1, [makeMember(1)], [1], [{ entry: tankyBoundary, level: 53, trainerName: 'Bruno' }])
+    battle = quarterHp(battle)
+    const beforeHp = battle.playerTeam[0].currentHp
+
+    const result = applyPlayerTap(battle) // weak attacker, won't faint the tanky opener
+
+    expect(result.enemyTeam[0].currentHp).toBeGreaterThan(0)
+    expect(result.playerTeam[0].currentHp).toBe(beforeHp)
+  })
+
+  it('declares victory only after the last trainer\'s last Pokémon faints', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    let battle = createBattle(
+      gen1,
+      [makeMember(1)],
+      [1],
+      [
+        { entry: weakEntry(74), level: 12, trainerName: 'Lorelei' },
+        { entry: weakEntry(95), level: 14, trainerName: 'Bruno' },
+      ],
+    )
+
+    battle = applyPlayerTap(battle)
+    expect(battle.outcome).toBe('ongoing')
+
+    battle = applyPlayerTap(battle)
+    expect(battle.outcome).toBe('victory')
+  })
+})
+
+describe('currentTrainerProgress', () => {
+  it('is null for single-trainer fights (wild, gym — empty trainerBoundaries)', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    const battle = createBattle(gen1, [makeMember(1)], [1], [{ entry: makeEntry({ id: 19 }), level: 5 }])
+
+    expect(currentTrainerProgress(battle)).toBeNull()
+  })
+
+  it('reports the current trainer name and position within their team', () => {
+    const gen1 = [makeEntry({ id: 1 })]
+    const battle = createBattle(
+      gen1,
+      [makeMember(1)],
+      [1],
+      [
+        { entry: makeEntry({ id: 74 }), level: 12, trainerName: 'Lorelei' },
+        { entry: makeEntry({ id: 91 }), level: 13 },
+        { entry: makeEntry({ id: 95 }), level: 14, trainerName: 'Bruno' },
+      ],
+    )
+
+    expect(currentTrainerProgress(battle)).toEqual({ name: 'Lorelei', position: 1, size: 2 })
+    expect(currentTrainerProgress({ ...battle, enemyIndex: 1 })).toEqual({ name: 'Lorelei', position: 2, size: 2 })
+    expect(currentTrainerProgress({ ...battle, enemyIndex: 2 })).toEqual({ name: 'Bruno', position: 1, size: 1 })
   })
 })
 

@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { ENEMY_ATTACK_INTERVAL_MS, TELEGRAPH_WINDOW_MS, TEST_OPPONENT_LEVEL, TEST_OPPONENT_SPECIES_ID } from '../../content/battle'
-import type { GymDefinition } from '../../content/gen1/gyms'
+import { ELITE_FOUR } from '../../content/gen1/eliteFour'
+import type { GymDefinition, GymTeamMember } from '../../content/gen1/gyms'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { moveNameForStage } from '../../content/moves'
 import { GameLoop } from '../../engine/gameLoop'
 import type { SaveData } from '../../engine/save'
+import { eliteFourSequence } from '../../systems/gyms/champion'
 import {
   applyEnemyAttack,
   applyPlayerTap,
   createBattle,
+  currentTrainerProgress,
   ENERGY_MAX,
   resolveQteAttack,
   switchActive,
@@ -19,12 +22,14 @@ import { moveStage } from '../../systems/battle/moveStage'
 import { HpBar } from '../components/HpBar'
 import { QteModal } from '../components/qte/QteModal'
 
-// A real wild encounter (Sprint 18) or a gym leader (Sprint 20) — both come
-// with an opponent roster; 'dummy' is the fixed Sprint 13 test fight, only
-// reachable from the Admin screen now that the "Batalha" nav tab is gone.
+// A real wild encounter (Sprint 18), a gym leader (Sprint 20), or the Elite
+// Four + Champion sequence (Sprint 21) — all three come with an opponent
+// roster; 'dummy' is the fixed Sprint 13 test fight, only reachable from
+// the Admin screen now that the "Batalha" nav tab is gone.
 export type BattleEncounter =
   | { kind: 'wild'; speciesId: number; level: number }
   | { kind: 'gym'; gym: GymDefinition }
+  | { kind: 'elite-four' }
   | { kind: 'dummy' }
 
 interface BattleScreenProps {
@@ -41,18 +46,25 @@ interface BattleScreenProps {
   onExit: () => void
 }
 
-function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLevel: number): EnemyRosterEntry[] {
+function rosterFromTeam(team: GymTeamMember[], gen1: Gen1Entry[], trainerName?: string): EnemyRosterEntry[] {
+  return team
+    .map(({ speciesId, level }, index): EnemyRosterEntry | null => {
+      const entry = gen1.find((candidate) => candidate.id === speciesId)
+      return entry ? { entry, level, trainerName: index === 0 ? trainerName : undefined } : null
+    })
+    .filter((member): member is EnemyRosterEntry => member !== null)
+}
+
+function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLevel: number, save: SaveData): EnemyRosterEntry[] {
   if (encounter.kind === 'wild') {
     const entry = gen1.find((candidate) => candidate.id === encounter.speciesId)
     return entry ? [{ entry, level: encounter.level }] : []
   }
   if (encounter.kind === 'gym') {
-    return encounter.gym.team
-      .map(({ speciesId, level }) => {
-        const entry = gen1.find((candidate) => candidate.id === speciesId)
-        return entry ? { entry, level } : null
-      })
-      .filter((member): member is EnemyRosterEntry => member !== null)
+    return rosterFromTeam(encounter.gym.team, gen1)
+  }
+  if (encounter.kind === 'elite-four') {
+    return eliteFourSequence(ELITE_FOUR, save, gen1).flatMap(({ name, team }) => rosterFromTeam(team, gen1, name))
   }
   const entry = gen1.find((candidate) => candidate.id === TEST_OPPONENT_SPECIES_ID)
   return entry ? [{ entry, level: dummyLevel }] : []
@@ -66,7 +78,7 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
   // The fixed test dummy matches the player's own level (see git history)
   // so it's actually testable instead of an instant one-shot.
   const dummyLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
-  const [enemyRoster] = useState(() => buildEnemyRoster(frozenEncounter, gen1, dummyLevel))
+  const [enemyRoster] = useState(() => buildEnemyRoster(frozenEncounter, gen1, dummyLevel, save))
   const [battle, setBattle] = useState<BattleState>(() => createBattle(gen1, save.roster, save.activeTeamIds, enemyRoster))
   const battleRef = useRef(battle)
   battleRef.current = battle
@@ -165,6 +177,10 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
   const activeMoveName =
     active && activeEntry ? moveNameForStage(active.type, moveStage(activeEntry, active.level)) : null
 
+  // "3/5 do Bruno" instead of the raw "9/26" for multi-trainer sequences
+  // (Elite Four) — null (and the plain counter below) for wild/gym fights.
+  const trainerProgress = currentTrainerProgress(battle)
+
   return (
     <div className="battle-screen">
       {/* Always mounted (min-height reserved in CSS) — unmounting this when
@@ -175,7 +191,9 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
         <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>
           {activeEnemyEntry.name} Nv.{activeEnemyUnit.level}
-          {battle.enemyTeam.length > 1 && ` (${battle.enemyIndex + 1}/${battle.enemyTeam.length})`}
+          {trainerProgress
+            ? ` (${trainerProgress.name} ${trainerProgress.position}/${trainerProgress.size})`
+            : battle.enemyTeam.length > 1 && ` (${battle.enemyIndex + 1}/${battle.enemyTeam.length})`}
         </p>
         <HpBar current={activeEnemyUnit.currentHp} max={activeEnemyUnit.maxHp} />
       </div>
@@ -232,6 +250,17 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
           {frozenEncounter.kind === 'gym' && (
             <>
               <p>Vitória! Você conquistou a {frozenEncounter.gym.badgeName}!</p>
+              <button onClick={onExit}>Continuar</button>
+            </>
+          )}
+
+          {/* No save mutation here on purpose — the victory cutscene, Victory
+              Road registration and rebirth button are Sprint 22 (roadmap
+              section 8). This sprint only needs the sequence itself:
+              lose-and-retry or win-and-see-a-screen. */}
+          {frozenEncounter.kind === 'elite-four' && (
+            <>
+              <p>Vitória! Você derrotou a Elite Four e o Campeão!</p>
               <button onClick={onExit}>Continuar</button>
             </>
           )}

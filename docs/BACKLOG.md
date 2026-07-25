@@ -42,6 +42,25 @@
   Surge (e os ginásios seguintes) ficaram desafiadores sem virar parede
   intransponível.
 
+## Balanceamento — round 2 (Sprint 21, playtest da Elite Four)
+
+- **Selvagens ainda raros demais.** `BASE_SPAWN_INTERVAL_MS`
+  (`systems/capture/wildEncounter.ts`) 45s→25s.
+- **Elite Four/Campeão sem ameaça real** — um Dragonite nv67 sozinho não
+  passou nem perto de meia vida na sequência inteira (26 Pokémon, 4 curas de
+  50% entre treinadores). Os níveis de `docs/ROTAS-KANTO.md` são os do jogo
+  original (RPG de save único) — o próprio doc já avisa que são "referência
+  de proporção, não número absoluto" pro ritmo idle. `content/gen1/eliteFour.ts`
+  ganhou um `LEVEL_BUMP = 12` aplicado em cima de todo nível pesquisado
+  (números da Bulbapedia continuam visíveis no código, só somados). Só afeta
+  Elite Four/Campeão — ginásios normais não mudaram, sem relato de estarem
+  fracos.
+- Continua tudo **provisório** — é um ajuste redondo, não calibrado por
+  simulação; o dono do projeto precisa confirmar se o Dragonite (ou outro
+  time forte) agora sente a sequência como "difícil de verdade, dá pra
+  perder" em vez de "parede" ou ainda "fácil demais" — pode precisar de
+  outra rodada pra qualquer um dos dois lados.
+
 ## Upgrades genéricos demais
 
 Os upgrades atuais (`content/gen1/upgrades.ts`) são só "+N doces/clique" e

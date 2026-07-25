@@ -3,10 +3,10 @@ import type { Gen1Entry } from '../../content/gen1/types'
 import { rarityTier, type RarityTier } from './rarityTier'
 
 // Provisional — Sprint 25 tunes these against real play data. Tuned down
-// from 90s/20s per the project owner's own playtest: encounters felt too
-// slow, and someone who doesn't want to fight should be able to just wait
-// the banner out instead of needing to tap "Ignorar".
-export const BASE_SPAWN_INTERVAL_MS = 45_000
+// from 90s/20s, then again from 45s per the project owner's own playtest:
+// encounters still felt too rare. IGNORE_TIMEOUT_MS stays as-is — nobody
+// complained about that one.
+export const BASE_SPAWN_INTERVAL_MS = 25_000
 export const IGNORE_TIMEOUT_MS = 30_000
 
 export interface WildEncounter {

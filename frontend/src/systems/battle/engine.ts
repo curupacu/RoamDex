@@ -16,6 +16,12 @@ export const ENERGY_PER_TAP = 25
 // off in the meantime.
 export const SUPER_ATTACK_MULTIPLIER = QTE_RESULT_MULTIPLIER.full
 
+// "Entre batalhas da sequência: cura parcial (50%)" — roadmap section 8,
+// Elite Four only. Applied once when the active enemy index crosses into a
+// new trainer's team (see trainerBoundaries below), never between a single
+// trainer's own Pokémon (that stays a zero-heal switch, per Sprint 20).
+export const TRAINER_TRANSITION_HEAL_FRACTION = 0.5
+
 // Softens defense into diminishing returns instead of a hard subtraction,
 // so a high-DEF unit can't reduce incoming damage to 0. Provisional.
 const DEF_DAMPING = 0.5
@@ -62,6 +68,11 @@ export interface BattleHit {
 export interface EnemyRosterEntry {
   entry: Gen1Entry
   level: number
+  // Set only on the FIRST entry of each trainer within a multi-trainer
+  // sequence (Elite Four) — its presence marks a trainerBoundaries index
+  // and doubles as that trainer's display name, so callers don't need to
+  // thread a second parallel array through just for the label.
+  trainerName?: string
 }
 
 export interface BattleState {
@@ -71,6 +82,11 @@ export interface BattleState {
   // player choice on that side). Wild encounters have a single-entry team,
   // so this always stays 0 for those fights.
   enemyIndex: number
+  // enemyTeam index -> trainer display name, for the indices where a new
+  // trainer's team starts within a multi-trainer sequence (Elite Four).
+  // Empty for single-trainer fights (wild, gym) — crossing into one of
+  // these indices is what triggers TRAINER_TRANSITION_HEAL_FRACTION.
+  trainerBoundaries: Record<number, string>
   playerTeam: BattleUnit[]
   activeIndex: number
   energy: number
@@ -124,10 +140,15 @@ export function createBattle(
     .filter((unit): unit is BattleUnit => unit !== null)
 
   const enemyTeam = enemyRoster.map(({ entry, level }) => makeUnit(entry, level))
+  const trainerBoundaries: Record<number, string> = {}
+  enemyRoster.forEach((member, index) => {
+    if (member.trainerName) trainerBoundaries[index] = member.trainerName
+  })
 
   return {
     enemyTeam,
     enemyIndex: 0,
+    trainerBoundaries,
     playerTeam,
     activeIndex: 0,
     energy: 0,
@@ -159,20 +180,32 @@ function nextLivingIndex(team: BattleUnit[], from: number): number {
   return -1
 }
 
+function healFraction(team: BattleUnit[], fraction: number): BattleUnit[] {
+  return team.map((unit) => ({ ...unit, currentHp: Math.min(unit.maxHp, Math.round(unit.currentHp + unit.maxHp * fraction)) }))
+}
+
 // Applies damage to the currently active enemy and, if that faints, sends
 // out the trainer's next living Pokémon automatically (or ends the battle
-// in victory once none are left).
-function applyDamageToEnemyTeam(state: BattleState, dealt: number): Pick<BattleState, 'enemyTeam' | 'enemyIndex' | 'outcome'> {
+// in victory once none are left). If that switch crosses into a new
+// trainer's team (Elite Four sequence), the player's team gets the
+// roadmap's 50% partial heal — but ONLY on the switch itself, never on a
+// tap that doesn't faint anything, even if the still-active enemy happens
+// to sit at a boundary index (that would heal on every single hit against
+// a trainer's opener instead of once, on the crossing).
+function applyDamageToEnemyTeam(state: BattleState, dealt: number): Pick<BattleState, 'enemyTeam' | 'enemyIndex' | 'outcome' | 'playerTeam'> {
   const activeEnemy = state.enemyTeam[state.enemyIndex]
   const enemyHp = Math.max(0, activeEnemy.currentHp - dealt)
   const enemyTeam = state.enemyTeam.map((unit, index) => (index === state.enemyIndex ? { ...unit, currentHp: enemyHp } : unit))
+  const fainted = enemyHp <= 0
 
-  const nextIndex = enemyHp > 0 ? state.enemyIndex : nextLivingIndex(enemyTeam, state.enemyIndex + 1)
+  const nextIndex = fainted ? nextLivingIndex(enemyTeam, state.enemyIndex + 1) : state.enemyIndex
+  const crossedIntoNewTrainer = fainted && nextIndex !== -1 && state.trainerBoundaries[nextIndex] !== undefined
 
   return {
     enemyTeam,
     enemyIndex: nextIndex === -1 ? state.enemyIndex : nextIndex,
     outcome: nextIndex === -1 ? 'victory' : 'ongoing',
+    playerTeam: crossedIntoNewTrainer ? healFraction(state.playerTeam, TRAINER_TRANSITION_HEAL_FRACTION) : state.playerTeam,
   }
 }
 
@@ -252,4 +285,26 @@ export function switchActive(state: BattleState, index: number): BattleState {
   if (index === state.activeIndex) return state
   if (!state.playerTeam[index] || state.playerTeam[index].currentHp <= 0) return state
   return { ...state, activeIndex: index }
+}
+
+export interface TrainerProgress {
+  name: string
+  position: number // 1-based index within this trainer's own team
+  size: number // this trainer's team size
+}
+
+// Derives "which trainer, how far into their team" from trainerBoundaries
+// for multi-trainer sequences (Elite Four) — null for single-trainer
+// fights (wild, gym), where the UI keeps its existing plain counter.
+export function currentTrainerProgress(state: BattleState): TrainerProgress | null {
+  const boundaryIndices = Object.keys(state.trainerBoundaries)
+    .map(Number)
+    .sort((a, b) => a - b)
+  if (boundaryIndices.length === 0) return null
+
+  const start = boundaryIndices.filter((index) => index <= state.enemyIndex).pop() ?? boundaryIndices[0]
+  const next = boundaryIndices.find((index) => index > start)
+  const size = (next ?? state.enemyTeam.length) - start
+
+  return { name: state.trainerBoundaries[start], position: state.enemyIndex - start + 1, size }
 }

@@ -11,6 +11,11 @@ interface LocationNavProps {
   gym: GymDefinition | null
   hasBadge: boolean
   onChallengeGym: () => void
+  // Location-only gate (victory-road) — App.tsx trusts canTravelTo's badge
+  // chain as the single source of truth for "can the player even be here",
+  // same trust model as `gym` above. See systems/gyms/locations.ts.
+  eliteFourAvailable: boolean
+  onChallengeEliteFour: () => void
 }
 
 export function LocationNav({
@@ -22,6 +27,8 @@ export function LocationNav({
   gym,
   hasBadge,
   onChallengeGym,
+  eliteFourAvailable,
+  onChallengeEliteFour,
 }: LocationNavProps) {
   const nextLocked = nextLocation !== null && lifetimeCandies < nextLocation.unlockAt
 
@@ -46,6 +53,12 @@ export function LocationNav({
       {gym && (
         <button className="location-gym-button" onClick={onChallengeGym}>
           {hasBadge ? `${gym.leaderName} derrotado ✓` : `Desafiar ${gym.leaderName}`}
+        </button>
+      )}
+
+      {eliteFourAvailable && (
+        <button className="location-gym-button" onClick={onChallengeEliteFour}>
+          Desafiar a Elite Four
         </button>
       )}
     </div>

@@ -59,6 +59,7 @@ function App() {
   const wildEncounterRef = useRef(wildEncounter)
   wildEncounterRef.current = wildEncounter
   const [activeGymId, setActiveGymId] = useState<string | null>(null)
+  const [challengingEliteFour, setChallengingEliteFour] = useState(false)
 
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
   const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
@@ -78,18 +79,21 @@ function App() {
   const nextLocation = nextLocationOf(save.currentLocationId)
   const gymHere = gymForLocation(save.currentLocationId)
 
-  // Which fight BattleScreen is showing: an explicit gym challenge wins
-  // over a pending wild encounter (both shouldn't normally coexist), which
-  // wins over the Sprint 13 fixed test dummy (Admin-only fallback).
+  // Which fight BattleScreen is showing: an explicit gym or Elite Four
+  // challenge wins over a pending wild encounter (none of these should
+  // normally coexist), which wins over the Sprint 13 fixed test dummy
+  // (Admin-only fallback).
   const activeGym = activeGymId ? (GYMS.find((gym) => gym.id === activeGymId) ?? null) : null
   const battleEncounter: BattleEncounter | null =
     view !== 'battle'
       ? null
       : activeGym
         ? { kind: 'gym', gym: activeGym }
-        : wildEncounter
-          ? { kind: 'wild', speciesId: wildEncounter.speciesId, level: wildEncounter.level }
-          : { kind: 'dummy' }
+        : challengingEliteFour
+          ? { kind: 'elite-four' }
+          : wildEncounter
+            ? { kind: 'wild', speciesId: wildEncounter.speciesId, level: wildEncounter.level }
+            : { kind: 'dummy' }
 
   // Runs once gen1 has loaded (so the team's type bonuses are known),
   // against the save as read from disk before any other effect touches it.
@@ -278,6 +282,7 @@ function App() {
   function handleExitBattle() {
     setWildEncounter(null)
     setActiveGymId(null)
+    setChallengingEliteFour(false)
     setView('clicker')
   }
 
@@ -295,6 +300,11 @@ function App() {
 
   function handleChallengeGym(gymId: string) {
     setActiveGymId(gymId)
+    setView('battle')
+  }
+
+  function handleChallengeEliteFour() {
+    setChallengingEliteFour(true)
     setView('battle')
   }
 
@@ -343,6 +353,15 @@ function App() {
     const entry = gen1Ref.current?.find((candidate) => candidate.id === speciesId)
     if (!entry) return
     setWildEncounter({ speciesId, level, tier: rarityTier(entry.captureRate) })
+  }
+
+  function handleAdminUnlockEliteFour() {
+    setSave((current) => ({
+      ...current,
+      lifetimeCandies: Math.max(current.lifetimeCandies, locationById('victory-road').unlockAt),
+      badges: GYMS.map((gym) => gym.id),
+      currentLocationId: 'victory-road',
+    }))
   }
 
   function handleAdminSetActiveLevel(level: number) {
@@ -402,6 +421,7 @@ function App() {
           onForceEncounter={handleAdminForceEncounter}
           onSetActiveLevel={handleAdminSetActiveLevel}
           onBattleTestDummy={() => setView('battle')}
+          onUnlockEliteFour={handleAdminUnlockEliteFour}
         />
       )}
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
@@ -439,6 +459,8 @@ function App() {
             gym={gymHere}
             hasBadge={gymHere ? hasBadge(save, gymHere.id) : false}
             onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
+            eliteFourAvailable={currentLocation.id === 'victory-road'}
+            onChallengeEliteFour={handleChallengeEliteFour}
           />
           {wildEncounter && wildEntry && (
             <div className="wild-encounter-banner">
