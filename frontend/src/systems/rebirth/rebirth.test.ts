@@ -121,9 +121,14 @@ describe('insigniasEarned', () => {
 })
 
 describe('unlockNextRegion', () => {
+  it('unlocks the next region in REGION_ORDER', () => {
+    const save = makeSaveWithRegion()
+    expect(unlockNextRegion(save, 'kanto' as RegionId).regionsUnlocked).toEqual(['kanto', 'johto'])
+  })
+
   it('is a no-op past the last defined region', () => {
     const save = makeSaveWithRegion()
-    expect(unlockNextRegion(save, 'kanto' as RegionId)).toEqual(save)
+    expect(unlockNextRegion(save, 'johto' as RegionId)).toEqual(save)
   })
 })
 

@@ -20,6 +20,11 @@
 body {
   margin: 0;
   min-height: 100vh;
+  /* .game-area usa o truque de "full-bleed" (width:100vw + margem
+     negativa) pra encostar nas bordas da JANELA, não do <main>
+     centralizado — sem isso, 100vw conta a barra de rolagem vertical e
+     sobra um pixel de scroll horizontal indesejado. */
+  overflow-x: hidden;
   color: var(--text-light);
   /* --bg-image is set per-location by App.tsx (docs/decisoes/0024-fundos-por-local.md)
      — the url() here is just the fallback for screens with no active location
@@ -49,7 +54,11 @@ body::before {
 main {
   position: relative;
   margin: 0 auto;
-  max-width: 720px;
+  /* Decisão 0033: 1040px, não 720px — o game-area (clique | cena | loja)
+     de 3 colunas fixas lado a lado precisa de mais espaço horizontal que
+     as telas de menu/login (essas continuam com card centralizado, só
+     ganham mais respiro ao redor; nada nelas depende de main ser estreito). */
+  max-width: 1040px;
   padding: 1.5rem 1rem 3rem;
   text-align: center;
   line-height: 1.8;
@@ -412,17 +421,37 @@ button:disabled {
   text-align: left;
 }
 
+/* Decisão 0038: virou grid de 3 colunas (não flex) — "auto 1fr 320px".
+   auto = clique encolhe/cresce só o necessário pro Pokémon (encostado a
+   15px da borda esquerda). 1fr = a cena fica com o resto do espaço, mas
+   o .upgrade-scene tem largura FIXA em px e margin:auto pra ficar
+   centralizada NESSA faixa sem esticar conforme o tamanho da tela (era
+   flex:1 antes, esticava; pedido explícito pra ser tamanho fixo).
+   320px = loja, presa na borda direita. Full-bleed continua (decisão
+   0037) — encosta na janela, não no <main> centralizado. Sem altura fixa
+   e sem overflow interno — quem rola é a página inteira. */
 .game-area {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr 320px;
+  column-gap: 2rem;
+  align-items: start;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 2rem 0 2rem 15px;
+}
+
+/* Decisão 0034/0037: coluna direita — grid de clique empilhado em cima
+   da loja. Cresce naturalmente com o conteúdo, sem scroll próprio. */
+.side-column {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .upgrades-panel {
   text-align: left;
-  min-width: 240px;
 }
 
 .upgrades-panel ul {
@@ -430,21 +459,272 @@ button:disabled {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .upgrades-panel li {
   padding: 0;
+  overflow: hidden;
 }
 
-.upgrades-panel button {
+/* Decisão 0033: linha compacta tipo Cookie Clicker de verdade — ícone +
+   nome + custo, só isso. Efeito/flavor viraram tooltip nativo (title) em
+   vez de linha sempre visível; a linha inteira é o botão de compra (sem
+   um "Comprar" separado — não existe assim na referência real). */
+.upgrade-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   width: 100%;
   text-align: left;
-  padding: 0.5rem;
+  padding: 0.4rem 0.5rem;
   border: none;
+  border-left: 4px solid transparent;
+  border-radius: 0;
   box-shadow: none;
   background: none;
-  line-height: 1.6;
+}
+
+/* Green edge = affordable right now, matching --hp-green used everywhere
+   else as "good to go" (roster-entry--active uses the same signal). */
+.upgrade-row:not(:disabled) {
+  border-left-color: var(--hp-green);
+}
+
+.upgrade-icon {
+  position: relative;
+  flex: none;
+}
+
+.upgrades-panel img {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.4));
+}
+
+.upgrade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.upgrade-cost {
+  color: var(--accent-yellow);
+  font-size: 0.6rem;
+}
+
+/* "???" — upgrade ainda bloqueado, mas visível (decisão 0030), mesma ideia
+   dos prédios com "???" no Cookie Clicker antes de dar pra pagar. */
+.upgrade-locked-row {
+  opacity: 0.6;
+}
+
+.upgrade-icon--locked {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+.click-upgrade-square--locked {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.click-upgrade-locked-mark,
+.upgrade-locked-mark {
+  color: var(--text-dim);
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* Idle flourish: an owned CPS upgrade pops its own +N every so often
+   (UpgradesPanel.tsx) — same float-and-fade as .candy-pop, smaller and
+   anchored over the row's own icon instead of the click area. */
+.upgrade-pop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  color: var(--hp-green);
+  font-size: 0.55rem;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  animation: candy-pop-float 0.9s ease-out forwards;
+}
+
+.click-stage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/* Quadradinhos de upgrade de clique (decisão 0028). Decisão 0034: saiu de
+   perto do Pokémon e foi pro topo da coluna direita (.side-column), junto
+   com a loja — pedido direto do dono do projeto (desenho de referência).
+   Largura toda da coluna disponível agora, então 4 colunas em vez de 2. */
+.click-upgrades-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.click-upgrade-square {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.click-upgrade-square img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.click-upgrade-cost {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  font-size: 0.55rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--accent-yellow);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.click-upgrade-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  border-radius: 9px;
+  background: var(--panel-border-strong);
+  color: var(--text-light);
+  font-size: 0.55rem;
+  line-height: 18px;
+  text-align: center;
+}
+
+.click-upgrade-badge--done {
+  background: var(--hp-green);
+}
+
+/* Cena dos geradores de CPS possuídos (decisão 0029/0030/0033/0034/0036/
+   0037, UpgradeScene.tsx) — coluna do MEIO do game-area (entre o clique e
+   a loja), igual o jardim do Cookie Clicker de referência, faixas largas
+   empilhadas (uma por upgrade). Decisão 0038: largura FIXA (não mais
+   flex:1 esticando) + margin:0 auto pra ficar centralizada na faixa do
+   meio do grid sem depender do tamanho da tela. SEM scroll próprio
+   (decisão 0037) — cresce com o conteúdo, é a página que rola. */
+.upgrade-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 560px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Banner de fundo de verdade (decisão 0035) — reaproveita os fundos por
+   localização que já existem (decisão 0024) em vez de um padrão CSS
+   (a tentativa anterior "hachurado" ficou feia). background-image vem
+   inline por linha (UpgradeScene.tsx escolhe um arquivo por upgrade);
+   aqui só o comportamento comum (cover, nunca deforma). overflow:hidden
+   é rede de segurança — nenhum ícone deve visualmente vazar da caixa.
+   Decisão 0038: mais alta (3 linhas de sprite em vez de 2) — pedido de
+   caber mais sprites, maiores, dentro da faixa. */
+.scene-lane {
+  position: relative;
+  width: 100%;
+  min-height: 190px;
+  flex: none;
+  border: 2px solid var(--panel-border);
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.scene-lane--full {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 8px rgba(248, 208, 48, 0.7);
+}
+
+.scene-lane-sprite {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.5));
+  animation: scene-bob 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* translate(-50%,-50%) tem que ir DENTRO de cada keyframe — uma animação
+   substitui o transform inteiro, não soma com o transform base do
+   elemento. Sem isso aqui o bob "roubava" a centralização do ícone e
+   ele acabava desenhado deslocado, meio pra fora da faixa. */
+@keyframes scene-bob {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-4px);
+  }
+}
+
+/* Golden Encounter (decisão 0030) — Pokémon raro clicável, brilho dourado
+   pulsante pra ler como "especial" sem precisar de arte nova (reaproveita
+   o sprite normal + filtro CSS). */
+.golden-encounter {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  z-index: 5;
+  animation: golden-pulse 1.2s ease-in-out infinite;
+}
+
+.golden-encounter img {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 6px gold) drop-shadow(0 0 12px orange) brightness(1.15) saturate(1.3);
+}
+
+@keyframes golden-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.frenzy-banner {
+  color: var(--accent-yellow);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  animation: golden-pulse 1s ease-in-out infinite;
 }
 
 .click-area {
@@ -460,8 +740,8 @@ button:disabled {
 }
 
 .click-area img {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   image-rendering: pixelated;
   user-select: none;
   -webkit-user-drag: none;

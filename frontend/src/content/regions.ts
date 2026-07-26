@@ -3,13 +3,20 @@ import { KANTO_LOCATIONS, type LocationDefinition } from './gen1/locations'
 import { CHAMPION_DEFAULT_STARTER_ID, CHAMPION_TEAM_BY_STARTER, ELITE_FOUR, type EliteFourMember } from './gen1/eliteFour'
 import { UPGRADES, type UpgradeDefinition } from './gen1/upgrades'
 import { STARTER_IDS, STARTER_LEVEL } from './gen1/starters'
+import { GYMS as JOHTO_GYMS } from './gen2/gyms'
+import { JOHTO_LOCATIONS } from './gen2/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as JOHTO_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as JOHTO_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as JOHTO_ELITE_FOUR,
+} from './gen2/eliteFour'
+import { UPGRADES as JOHTO_UPGRADES } from './gen2/upgrades'
+import { STARTER_IDS as JOHTO_STARTER_IDS, STARTER_LEVEL as JOHTO_STARTER_LEVEL } from './gen2/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
-// Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion). Only
-// Kanto has real content today; adding a region later is "append an id
-// here + a REGIONS entry", not a systems-level refactor.
-export const REGION_ORDER: RegionId[] = ['kanto']
+// Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -20,7 +27,6 @@ export interface UpcomingRegion {
 }
 
 export const UPCOMING_REGIONS: UpcomingRegion[] = [
-  { id: 'johto', name: 'Johto' },
   { id: 'hoenn', name: 'Hoenn' },
   { id: 'sinnoh', name: 'Sinnoh' },
 ]
@@ -59,5 +65,18 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: UPGRADES,
     starterIds: STARTER_IDS,
     starterLevel: STARTER_LEVEL,
+  },
+  johto: {
+    id: 'johto',
+    name: 'Johto',
+    dataUrl: '/data/gen2.json',
+    locations: JOHTO_LOCATIONS,
+    gyms: JOHTO_GYMS,
+    eliteFour: JOHTO_ELITE_FOUR,
+    championTeamByStarter: JOHTO_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: JOHTO_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: JOHTO_UPGRADES,
+    starterIds: JOHTO_STARTER_IDS,
+    starterLevel: JOHTO_STARTER_LEVEL,
   },
 }

@@ -14,7 +14,12 @@ export function makeRegionSave(overrides: Partial<RegionSave> = {}): RegionSave 
 }
 
 // For the few tests exercising the full account-level SaveData (rebirth
-// across regions, migrations) with a specific region's contents.
+// across regions, migrations) with a specific region's contents. Also
+// makes that region the active one (currentRegionId) — createDefaultSave()
+// no longer assumes 'kanto' is active by default (a brand-new account
+// starts at the region-select menu instead), so tests that need an active
+// region have to say so explicitly, same as production code does.
 export function makeSaveWithRegion(overrides: Partial<RegionSave> = {}): SaveData {
-  return withRegion(makeSave(), makeRegionSave(overrides))
+  const region = makeRegionSave(overrides)
+  return { ...withRegion(makeSave(), region), currentRegionId: region.regionId }
 }

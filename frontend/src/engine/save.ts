@@ -155,7 +155,7 @@ export interface SaveDataV9 {
 // only content/regions.ts knows what a RegionId actually contains — engine/
 // stays content-agnostic, same rule that already kept 'pallet-town' a plain
 // string literal instead of an import.
-export type RegionId = 'kanto'
+export type RegionId = 'kanto' | 'johto'
 
 // Everything that resets on THAT region's rebirth. One run's worth of
 // progress — a player with two unlocked regions has two of these, entirely
@@ -353,7 +353,14 @@ export function createDefaultSave(): SaveData {
     lastSavedAt: Date.now(),
     regions: { kanto: emptyRegionSave('kanto', 'pallet-town') },
     regionsUnlocked: ['kanto'],
-    currentRegionId: 'kanto',
+    // null (not 'kanto') so a brand-new account lands on the Menu/Tela de
+    // Regiões (App.tsx's `!activeRegionDef` branch) instead of skipping
+    // straight into Kanto — went unnoticed while Kanto was the only region
+    // that existed (decision 0022 built the screens but nothing ever forced
+    // a fresh save through them). The 9→10 migration still hardcodes
+    // 'kanto' for existing players on purpose (see its own comment) — this
+    // only affects saves that never existed before.
+    currentRegionId: null,
     victoryRoad: [],
     insignias: 0,
     rebirthUpgrades: {},

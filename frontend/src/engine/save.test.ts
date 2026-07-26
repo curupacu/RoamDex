@@ -10,7 +10,7 @@ describe('save', () => {
   it('returns a default save when nothing is stored', () => {
     const save = loadSave()
     expect(save.version).toBe(CURRENT_SAVE_VERSION)
-    expect(save.currentRegionId).toBe('kanto')
+    expect(save.currentRegionId).toBeNull()
     expect(save.regionsUnlocked).toEqual(['kanto'])
     expect(save.regions.kanto?.candies).toBe(0)
     expect(save.regions.kanto?.roster).toEqual([])

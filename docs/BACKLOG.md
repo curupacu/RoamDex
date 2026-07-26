@@ -3,6 +3,29 @@
 > Registrado em 2026-07-25 pelo dono do projeto, depois de testar o Sprint 20
 > (rotas + 8 ginásios) ao vivo.
 
+## Sprint 24 (Gen 2 completa) — pronto e playtestado em 2026-07-26
+
+Johto está implementado (39 localizações, 8 ginásios, Elite Four + Campeão,
+pipeline `build:gen2`) — ver `docs/decisoes/0025-sprint24-gen2.md` pro
+detalhe completo. **Playtest manual básico confirmado pelo dono do
+projeto**: login → seleção de região → Johto → fluxo funcionando, fundos e
+sprites carregando certo, encontros selvagens batendo com a rota (o susto
+inicial com Metapod/Graveler era comportamento correto — ambos aparecem
+selvagens de verdade nessas rotas em Gold, sem bug). Ainda em aberto, sem
+dado de playtest suficiente pra fechar de vez:
+
+1. `LEVEL_BUMP = 25` do Elite Four/Campeão de Johto é um chute (decisão
+   0025) — precisa da mesma calibração que Kanto levou duas rodadas pra
+   acertar (chegar até lá e ver se a Elite Four/Lance oferecem desafio
+   real).
+2. A curva de `unlockAt` das 39 localizações (0 → 650.000) também é só
+   escalada da curva de Kanto, não simulada — vale confirmar se o ritmo de
+   doces por ginásio está bom.
+3. Algumas tabelas de encontro selvagem de Johto (rotas com muita divisão
+   manhã/dia/noite, e a tabela de Victory Road) passaram por normalização
+   manual mais pesada na pesquisa — `docs/ROTAS-JOHTO.md` já marca quais
+   merecem conferência contra a fonte antes de tratar como definitivas.
+
 ## Bugs encontrados no playtest — corrigidos em 2026-07-25
 
 1. ~~QTE do golpe especial "buga" ao aparecer.~~ **Corrigido.** Causa raiz:
@@ -61,18 +84,25 @@
   perder" em vez de "parede" ou ainda "fácil demais" — pode precisar de
   outra rodada pra qualquer um dos dois lados.
 
-## Upgrades genéricos demais
+## Upgrades genéricos demais — 1ª cadeia entregue em 2026-07-26
 
-Os upgrades atuais (`content/gen1/upgrades.ts`) são só "+N doces/clique" e
-"+N CPS" — o dono do projeto quer algo com mais personalidade, no estilo
-Cookie Clicker (upgrades com efeitos variados/inusitados, não só
-multiplicador linear). Preciso de uma sessão de brainstorm de conteúdo
-antes de codar isso — não é só "adicionar mais linhas na tabela".
-**Pesquisa de como o Cookie Clicker estrutura isso:**
+Os upgrades atuais (`content/gen1/upgrades.ts`) eram só "+N doces/clique" e
+"+N CPS" — o dono do projeto queria algo com mais personalidade, estilo
+Cookie Clicker. Pesquisa em
 [`docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md`](PESQUISA-UPGRADES-COOKIE-CLICKER.md)
-(2026-07-25) — 4 padrões identificados (building empilhável, cadeia de
-upgrade de compra única por tier, sinergia entre dois sistemas, marco
-global) e ideias iniciais de como mapear pro que o RoamDex já tem.
+(2026-07-25) mapeou 4 padrões — **Padrão 2 (cadeia de tier) implementado**,
+ver `docs/decisoes/0026-cadeia-de-tier-upgrades.md`: 3 novos upgrades de
+compra única por eixo (clique/CPS), em Kanto e Johto, terminando num tier
+que escala com Pokémon capturados no roster em vez de ficar mais um
+multiplicador linear.
+
+**Ainda não feito, alinhado que fica pra outra sessão:**
+- Padrão 3 (sinergia): upgrade que exige N de outro upgrade + um tipo
+  específico no time ativo.
+- Padrão 4 (marco global): multiplicador em tudo, desbloqueado por
+  `save.badges.length`.
+- Custos/efeitos dos 6 upgrades novos são chute redondo, sem simulação —
+  mesmo aviso de sempre pro Sprint 25.
 
 ## Ideias de feature / polish (não priorizadas ainda)
 

@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:gen1": "tsx build-gen1.ts"
+    "build:gen1": "tsx build-gen1.ts",
+    "build:gen2": "tsx build-gen2.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

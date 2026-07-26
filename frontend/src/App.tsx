@@ -25,6 +25,8 @@ import type { SpeciesEntry } from './content/gen1/types'
 import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/economy/candyShop'
+import { frenzyMultiplier, isFrenzyActive, triggerFrenzy } from './systems/economy/goldenEncounter'
+import { GOLDEN_VISIBLE_MS, rollGoldenIntervalMs } from './content/goldenEncounter'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
@@ -53,6 +55,9 @@ import { HomeScreen } from './ui/screens/HomeScreen'
 import { LoginScreen } from './ui/screens/LoginScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
+import { ClickUpgradesGrid } from './ui/components/ClickUpgradesGrid'
+import { UpgradeScene } from './ui/components/UpgradeScene'
+import { GoldenEncounter } from './ui/components/GoldenEncounter'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
 import { RebirthShopScreen } from './ui/screens/RebirthShopScreen'
@@ -92,6 +97,9 @@ function App() {
   const [wildEncounter, setWildEncounter] = useState<WildEncounter | null>(null)
   const wildEncounterRef = useRef(wildEncounter)
   wildEncounterRef.current = wildEncounter
+  const [goldenEncounter, setGoldenEncounter] = useState<{ speciesId: number; left: number; top: number } | null>(null)
+  const goldenEncounterRef = useRef(goldenEncounter)
+  goldenEncounterRef.current = goldenEncounter
   const [activeGymId, setActiveGymId] = useState<string | null>(null)
   const [challengingEliteFour, setChallengingEliteFour] = useState(false)
   // Menu principal pós-login (referência Pokelike) — só relevante enquanto
@@ -237,7 +245,11 @@ function App() {
       if (regionId) {
         const region = currentRegion(saveRef.current)
         const regionDef = REGIONS[regionId]
-        const cps = totalCps(regionDef, region, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
+        const cps = totalCps(
+          regionDef,
+          region,
+          economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current) * frenzyMultiplier(region, Date.now()),
+        )
         if (cps > 0) {
           const gain = (cps * deltaMs) / 1000
           setSave((current) => {
@@ -324,6 +336,41 @@ function App() {
     return () => clearTimeout(id)
   }, [wildEncounter, view])
 
+  // Golden Encounter (decisão 0030) — evento de bônus surpresa tipo "golden
+  // cookie": intervalo ALEATÓRIO de propósito (rollGoldenIntervalMs), não
+  // fixo como o wildEncounter acima — reforço de recompensa variável é o
+  // que faz o evento surpreender de verdade. Pokémon aleatório (1-251,
+  // qualquer sprite já existente), posição aleatória dentro do game-area.
+  useEffect(() => {
+    const loop = new GameLoop()
+    let msUntilGolden = rollGoldenIntervalMs()
+
+    const unsubscribe = loop.subscribe((deltaMs) => {
+      if (!saveRef.current.currentRegionId || goldenEncounterRef.current) return
+      msUntilGolden -= deltaMs
+      if (msUntilGolden <= 0) {
+        msUntilGolden = rollGoldenIntervalMs()
+        setGoldenEncounter({
+          speciesId: 1 + Math.floor(Math.random() * 251),
+          left: 10 + Math.random() * 75,
+          top: 10 + Math.random() * 65,
+        })
+      }
+    })
+    loop.start()
+
+    return () => {
+      unsubscribe()
+      loop.stop()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!goldenEncounter || view !== 'clicker') return
+    const id = setTimeout(() => setGoldenEncounter(null), GOLDEN_VISIBLE_MS)
+    return () => clearTimeout(id)
+  }, [goldenEncounter, view])
+
   // --- Auth (login gate) ---
   function handleGoogleLogin() {
     setAuthPending(true)
@@ -388,7 +435,7 @@ function App() {
 
   function handleClick() {
     if (!activeRegionDef || !regionSave) return
-    const multiplier = economyMultiplier(team, 'clickCandies')
+    const multiplier = economyMultiplier(team, 'clickCandies') * frenzyMultiplier(regionSave, Date.now())
     const gain = clickValue(activeRegionDef, regionSave, multiplier)
     setSave((current) => withRegion(current, applyClick(regionDefFor(current), currentRegion(current), multiplier)))
 
@@ -398,6 +445,14 @@ function App() {
     setTimeout(() => {
       setCandyPops((current) => current.filter((pop) => pop.id !== id))
     }, CANDY_POP_LIFETIME_MS)
+  }
+
+  // Pega o Golden Encounter a tempo: ativa a Frenzia (clique e CPS x7 por
+  // 30s, decisão 0030) e some o Pokémon da tela.
+  function handleCatchGolden() {
+    if (!goldenEncounter) return
+    setSave((current) => withRegion(current, triggerFrenzy(currentRegion(current), Date.now())))
+    setGoldenEncounter(null)
   }
 
   function handleBuyUpgrade(id: string) {
@@ -714,7 +769,7 @@ function App() {
             gym={gymHere}
             hasBadge={gymHere ? hasBadge(regionSave, gymHere.id) : false}
             onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
-            eliteFourAvailable={currentLocation.id === 'victory-road'}
+            eliteFourAvailable={currentLocation.id === activeRegionDef.locations[activeRegionDef.locations.length - 1].id}
             onChallengeEliteFour={handleChallengeEliteFour}
           />
           {wildEncounter && wildEntry && (
@@ -743,6 +798,7 @@ function App() {
             <br />
             Acumulado: {formatBigNumber(regionSave.lifetimeCandies)}
           </div>
+          {isFrenzyActive(regionSave, Date.now()) && <p className="frenzy-banner">🔥 Frenzia! Clique e doces/s x7</p>}
           {clickerEntry && clickerMember && (
             <p>
               {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
@@ -750,15 +806,29 @@ function App() {
             </p>
           )}
           <div className="game-area">
-            <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
-              {clickerEntry && <img src={clickerEntry.sprite.local} alt={clickerEntry.name} />}
-              {candyPops.map((pop) => (
-                <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
-                  +{formatBigNumber(pop.gain)}
-                </span>
-              ))}
-            </button>
-            <UpgradesPanel regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+            <div className="click-stage">
+              <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
+                {clickerEntry && <img src={clickerEntry.sprite.local} alt={clickerEntry.name} />}
+                {candyPops.map((pop) => (
+                  <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
+                    +{formatBigNumber(pop.gain)}
+                  </span>
+                ))}
+              </button>
+            </div>
+            <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
+            <div className="side-column">
+              <ClickUpgradesGrid regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+              <UpgradesPanel regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+            </div>
+            {goldenEncounter && (
+              <GoldenEncounter
+                speciesId={goldenEncounter.speciesId}
+                left={goldenEncounter.left}
+                top={goldenEncounter.top}
+                onCatch={handleCatchGolden}
+              />
+            )}
           </div>
           {bonusBreakdown(team).length > 0 && (
             <ul className="type-bonuses">

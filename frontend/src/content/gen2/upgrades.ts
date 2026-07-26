@@ -1,0 +1,52 @@
+import type { UpgradeDefinition } from '../gen1/upgrades'
+
+// Provisional — same shape and cost curve as content/gen1/upgrades.ts
+// (docs/decisoes/0001-*.md), renamed for Johto flavor. Sprint 6's original
+// 9 are still the plain building pattern; the "cadeia de tier" chains below
+// (decisão 0026) are the first real answer to "Upgrades genéricos demais"
+// (docs/BACKLOG.md) — more patterns from
+// docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md are still to come. Icon art is
+// convention-based (decisão 0028/0031) — see
+// ui/components/UpgradeIcon.tsx, no per-entry field needed.
+export const UPGRADES: UpgradeDefinition[] = [
+  { id: 'sprout-gloves', name: 'Luvas de Broto', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Cheiram a terra molhada.' },
+  { id: 'apricorn-satchel', name: 'Bolsa de Bagas Apricô', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Sempre sobra uma baga no fundo.' },
+  { id: 'pokegear-clicker', name: 'Pokégear de Combate', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'A tela range, mas nunca trava.' },
+  { id: 'legendary-beast-fury', name: 'Fúria das Feras Lendárias', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Um rosnado que atravessa três rotas.' },
+  { id: 'bug-catching-helper', name: 'Ajudante do Concurso de Insetos', kind: 'cps', baseCost: 15, effect: 0.1, unlockAt: 0, flavor: 'Trocaria qualquer prêmio por mais um Caterpie.' },
+  { id: 'goldenrod-post', name: 'Posto de Coleta de Goldenrod', kind: 'cps', baseCost: 180, effect: 1, unlockAt: 100, flavor: 'A fila nunca anda, mas o estoque sempre cresce.' },
+  { id: 'gs-ball-conveyor', name: 'Esteira da GS Ball', kind: 'cps', baseCost: 2_000, effect: 8, unlockAt: 1_500, flavor: 'Ninguém sabe abrir, mas ela rende do mesmo jeito.' },
+  { id: 'radio-tower-factory', name: 'Fábrica da Torre de Rádio', kind: 'cps', baseCost: 22_000, effect: 47, unlockAt: 15_000, flavor: 'Transmite estática e doce em partes iguais.' },
+  { id: 'day-care-training', name: 'Treinamento da Creche', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'Ninguém contou pros ovos que isso não é oficial.' },
+
+  // --- Cadeia "Treinador Lendário" (clique) — mesmo formato/números de
+  // content/gen1/upgrades.ts (decisão 0026), só com sabor de Johto. ---
+  { id: 'kimono-gloves', name: 'Luvas do Clã Kimono', kind: 'click', baseCost: 25_000, effect: 80, unlockAt: 8_000, maxPurchases: 1, flavor: 'Bordadas à mão, socam igual.' },
+  { id: 'lighthouse-talisman', name: 'Talismã do Farol', kind: 'click', baseCost: 120_000, effect: 250, unlockAt: 40_000, maxPurchases: 1, flavor: 'Pisca no mesmo ritmo do Farol de Olivine.' },
+  {
+    id: 'ho-oh-fury',
+    name: 'Fúria do Ho-Oh',
+    kind: 'click',
+    baseCost: 500_000,
+    unlockAt: 120_000,
+    maxPurchases: 1,
+    scalesWith: 'rosterSize',
+    effect: 8, // +8 doces/clique por Pokémon capturado no roster
+    flavor: 'Uma pena dourada que nunca esfria.',
+  },
+
+  // --- Cadeia "Colônia de Doces" (CPS) — mesmo formato, eixo de CPS. ---
+  { id: 'goldenrod-co-op', name: 'Cooperativa de Goldenrod', kind: 'cps', baseCost: 25_000, effect: 12, unlockAt: 8_000, maxPurchases: 1, flavor: 'O leite rende mais que qualquer selo raro.' },
+  { id: 'johto-outpost-network', name: 'Rede de Postos de Johto', kind: 'cps', baseCost: 120_000, effect: 35, unlockAt: 40_000, maxPurchases: 1, flavor: 'Cada posto novo encurta a distância até Kanto.' },
+  {
+    id: 'lugia-factory',
+    name: 'Fábrica do Lugia',
+    kind: 'cps',
+    baseCost: 500_000,
+    unlockAt: 120_000,
+    maxPurchases: 1,
+    scalesWith: 'rosterSize',
+    effect: 1.2, // +1.2 CPS por Pokémon capturado no roster
+    flavor: 'Um redemoinho silencioso, mas produtivo.',
+  },
+]
