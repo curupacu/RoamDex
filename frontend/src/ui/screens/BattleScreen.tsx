@@ -43,6 +43,9 @@ interface BattleScreenProps {
   onLoot?: () => string
   // Only called for encounter.kind === 'gym' — awards the badge.
   onGymVictory?: (gymId: string) => void
+  // Only called for encounter.kind === 'elite-four' — registers the Victory
+  // Road snapshot and flips championBeaten (Sprint 22).
+  onEliteFourVictory?: () => void
   onExit: () => void
 }
 
@@ -70,7 +73,7 @@ function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLe
   return entry ? [{ entry, level: dummyLevel }] : []
 }
 
-export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLoot, onGymVictory, onExit }: BattleScreenProps) {
+export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLoot, onGymVictory, onEliteFourVictory, onExit }: BattleScreenProps) {
   // Frozen at mount: if the parent's state changed for any reason while
   // this screen is still up, the fight in progress must not suddenly show
   // a different opponent than the one createBattle() built stats for below.
@@ -90,6 +93,8 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
   onVictoryRef.current = onVictory
   const onGymVictoryRef = useRef(onGymVictory)
   onGymVictoryRef.current = onGymVictory
+  const onEliteFourVictoryRef = useRef(onEliteFourVictory)
+  onEliteFourVictoryRef.current = onEliteFourVictory
 
   // Grants XP exactly once, right when the battle is won — independent of
   // whatever the player picks next (capture, loot, or just "Continuar").
@@ -101,6 +106,7 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
     const winner = current.playerTeam[current.activeIndex] ?? current.playerTeam[0]
     onVictoryRef.current(winner.speciesId)
     if (frozenEncounter.kind === 'gym') onGymVictoryRef.current?.(frozenEncounter.gym.id)
+    if (frozenEncounter.kind === 'elite-four') onEliteFourVictoryRef.current?.()
   }, [battle.outcome, frozenEncounter])
 
   // A fresh `lastHit` object is produced on every hit (even repeats of the
@@ -254,13 +260,10 @@ export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLo
             </>
           )}
 
-          {/* No save mutation here on purpose — the victory cutscene, Victory
-              Road registration and rebirth button are Sprint 22 (roadmap
-              section 8). This sprint only needs the sequence itself:
-              lose-and-retry or win-and-see-a-screen. */}
           {frozenEncounter.kind === 'elite-four' && (
             <>
               <p>Vitória! Você derrotou a Elite Four e o Campeão!</p>
+              <p>Seu time entrou pra Victory Road. Quando quiser, dá pra fazer rebirth na tela do clicker.</p>
               <button onClick={onExit}>Continuar</button>
             </>
           )}

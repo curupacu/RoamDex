@@ -38,11 +38,11 @@ describe('save', () => {
     expect(migrated.activeTeamIds).toEqual([1])
   })
 
-  it('migrates a v1 save (pre-upgrades) up to v7, backfilling lifetimeCandies and the starter', () => {
+  it('migrates a v1 save (pre-upgrades) up to v8, backfilling lifetimeCandies and the starter', () => {
     const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 250,
       lifetimeCandies: 250,
       lastSavedAt: 123,
@@ -52,14 +52,16 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 
-  it('migrates a v2 save (pre-starter-picker) up to v7, backfilling the placeholder starter', () => {
+  it('migrates a v2 save (pre-starter-picker) up to v8, backfilling the placeholder starter', () => {
     const migrated = migrateSave({ version: 2, candies: 10, lifetimeCandies: 10, lastSavedAt: 5, upgrades: { a: 1 } })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 10,
       lifetimeCandies: 10,
       lastSavedAt: 5,
@@ -69,6 +71,8 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 
@@ -86,7 +90,7 @@ describe('save', () => {
     expect(migrated.activeTeamIds).toEqual([])
   })
 
-  it('migrates a v3 save with a chosen starter up to v7, moving it into the roster', () => {
+  it('migrates a v3 save with a chosen starter up to v8, moving it into the roster', () => {
     const migrated = migrateSave({
       version: 3,
       candies: 42,
@@ -97,7 +101,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 42,
       lifetimeCandies: 42,
       lastSavedAt: 5,
@@ -107,10 +111,12 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 
-  it('migrates a v4 save (pre-XP) up to v7, backfilling xp for every roster member', () => {
+  it('migrates a v4 save (pre-XP) up to v8, backfilling xp for every roster member', () => {
     const migrated = migrateSave({
       version: 4,
       candies: 5,
@@ -122,7 +128,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 5,
       lifetimeCandies: 5,
       lastSavedAt: 5,
@@ -132,10 +138,12 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 
-  it('migrates a v5 save (pre-buffs) up to v7, backfilling an empty buffs map', () => {
+  it('migrates a v5 save (pre-buffs) up to v8, backfilling an empty buffs map', () => {
     const migrated = migrateSave({
       version: 5,
       candies: 5,
@@ -147,7 +155,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 5,
       lifetimeCandies: 5,
       lastSavedAt: 5,
@@ -157,10 +165,12 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 
-  it('migrates a v6 save (pre-locations) up to v7, backfilling Pallet Town and no badges', () => {
+  it('migrates a v6 save (pre-locations) up to v8, backfilling Pallet Town and no badges', () => {
     const migrated = migrateSave({
       version: 6,
       candies: 5,
@@ -173,7 +183,7 @@ describe('save', () => {
     })
 
     expect(migrated).toEqual({
-      version: 7,
+      version: 8,
       candies: 5,
       lifetimeCandies: 5,
       lastSavedAt: 5,
@@ -183,6 +193,38 @@ describe('save', () => {
       buffs: {},
       currentLocationId: 'pallet-town',
       badges: [],
+      championBeaten: false,
+      victoryRoad: [],
+    })
+  })
+
+  it('migrates a v7 save (pre-rebirth) up to v8, backfilling no champion beaten and an empty Victory Road', () => {
+    const migrated = migrateSave({
+      version: 7,
+      candies: 5,
+      lifetimeCandies: 5,
+      lastSavedAt: 5,
+      upgrades: {},
+      roster: [],
+      activeTeamIds: [],
+      buffs: {},
+      currentLocationId: 'victory-road',
+      badges: ['brock'],
+    })
+
+    expect(migrated).toEqual({
+      version: 8,
+      candies: 5,
+      lifetimeCandies: 5,
+      lastSavedAt: 5,
+      upgrades: {},
+      roster: [],
+      activeTeamIds: [],
+      buffs: {},
+      currentLocationId: 'victory-road',
+      badges: ['brock'],
+      championBeaten: false,
+      victoryRoad: [],
     })
   })
 

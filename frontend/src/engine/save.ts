@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 7
+export const CURRENT_SAVE_VERSION = 8
 
 export interface SaveDataV1 {
   version: 1
@@ -102,7 +102,35 @@ export interface SaveDataV7 {
   badges: string[]
 }
 
-export type SaveData = SaveDataV7
+// Snapshot of the team that beat a region's Elite Four + Champion, taken at
+// the moment of that win (roadmap section 1, "Victory Road"). Read-only hall
+// of fame — nothing in the game reads these back into a battle yet (that's
+// Fase 6, raids).
+export interface VictoryRoadEntry {
+  region: string
+  completedAt: number
+  team: { speciesId: number; level: number }[]
+}
+
+export interface SaveDataV8 {
+  version: 8
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  roster: RosterMember[]
+  activeTeamIds: number[]
+  buffs: Record<string, number>
+  currentLocationId: string
+  badges: string[]
+  // Set true the moment the Champion falls, before rebirth resets anything
+  // else — the run keeps going (farm, explore) until the player chooses to
+  // press rebirth (roadmap section 8: "o jogador escolhe quando apertar").
+  championBeaten: boolean
+  victoryRoad: VictoryRoadEntry[]
+}
+
+export type SaveData = SaveDataV8
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -175,6 +203,10 @@ const migrations: Record<number, Migration> = {
     const v6 = old as SaveDataV6
     return { ...v6, version: 7, currentLocationId: 'pallet-town', badges: [] }
   },
+  7: (old): SaveDataV8 => {
+    const v7 = old as SaveDataV7
+    return { ...v7, version: 8, championBeaten: false, victoryRoad: [] }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -197,6 +229,8 @@ export function createDefaultSave(): SaveData {
     buffs: {},
     currentLocationId: 'pallet-town',
     badges: [],
+    championBeaten: false,
+    victoryRoad: [],
   }
 }
 

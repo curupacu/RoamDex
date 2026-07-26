@@ -27,6 +27,7 @@ import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
 import { locationById, nextLocationOf, prevLocationOf, travelTo } from './systems/gyms/locations'
+import { performRebirth, victoryRoadSnapshot } from './systems/rebirth/rebirth'
 import { AdminScreen } from './ui/screens/AdminScreen'
 import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
@@ -36,11 +37,12 @@ import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
 import { TeamScreen } from './ui/screens/TeamScreen'
+import { VictoryRoadScreen } from './ui/screens/VictoryRoadScreen'
 
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -312,6 +314,24 @@ function App() {
     setSave((current) => awardBadge(current, gymId))
   }
 
+  // Runs once, right when the Champion falls: registers the Victory Road
+  // snapshot and flips championBeaten so the Rebirth button shows up on the
+  // clicker screen. Doesn't reset anything — the player can keep farming
+  // this run until they press Rebirth themselves (roadmap section 8).
+  function handleEliteFourVictory() {
+    setSave((current) => {
+      if (current.championBeaten) return current
+      return { ...current, championBeaten: true, victoryRoad: [...current.victoryRoad, victoryRoadSnapshot(current)] }
+    })
+  }
+
+  function handleRebirth() {
+    if (!window.confirm('Rebirth: perde todos os doces e upgrades da run, e seu time volta pro lvl 1 / forma base. Continuar?')) {
+      return
+    }
+    setSave((current) => performRebirth(current, gen1Ref.current ?? []))
+  }
+
   // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
   // no second chance. Doesn't clear wildEncounter itself: BattleScreen
   // still needs it to show the result, onExit clears it once dismissed.
@@ -407,6 +427,9 @@ function App() {
         <button onClick={() => setView('shop')} disabled={view === 'shop'}>
           Loja
         </button>
+        <button onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
+          Victory Road
+        </button>
         <button onClick={() => setView('admin')} disabled={view === 'admin'}>
           Admin
         </button>
@@ -426,6 +449,7 @@ function App() {
       )}
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
       {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
+      {view === 'victoryRoad' && <VictoryRoadScreen gen1={gen1} save={save} />}
       {view === 'shop' && (
         <CandyShopScreen
           gen1={gen1}
@@ -444,12 +468,19 @@ function App() {
           onCapture={handleCaptureWild}
           onLoot={handleLootWild}
           onGymVictory={handleGymVictory}
+          onEliteFourVictory={handleEliteFourVictory}
           onExit={handleExitBattle}
         />
       )}
 
       {view === 'clicker' && (
         <>
+          {save.championBeaten && (
+            <div className="rebirth-banner">
+              <p>Você já venceu o Campeão nesta run. Farme mais um pouco, ou faça rebirth quando quiser.</p>
+              <button onClick={handleRebirth}>Rebirth</button>
+            </div>
+          )}
           <LocationNav
             location={currentLocation}
             prevLocation={prevLocation}
