@@ -10,6 +10,7 @@ interface AdminScreenProps {
   gen1: Gen1Entry[]
   save: SaveData
   onAddCandies: (amount: number) => void
+  onAddInsignias: (amount: number) => void
   onAddToRoster: (speciesId: number, level: number) => void
   onForceEncounter: (speciesId: number, level: number) => void
   onSetActiveLevel: (level: number) => void
@@ -26,6 +27,7 @@ export function AdminScreen({
   gen1,
   save,
   onAddCandies,
+  onAddInsignias,
   onAddToRoster,
   onForceEncounter,
   onSetActiveLevel,
@@ -44,6 +46,12 @@ export function AdminScreen({
       <div className="pokemon-detail">
         <h3>Doces</h3>
         <button onClick={() => onAddCandies(100_000)}>+ 100.000 doces</button>
+      </div>
+
+      <div className="pokemon-detail">
+        <h3>Insígnias (Loja de Rebirth)</h3>
+        <p>Saldo: {save.insignias}</p>
+        <button onClick={() => onAddInsignias(50)}>+ 50 Insígnias</button>
       </div>
 
       <div className="pokemon-detail">

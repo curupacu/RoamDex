@@ -28,6 +28,14 @@ import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type Wil
 import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
 import { locationById, nextLocationOf, prevLocationOf, travelTo } from './systems/gyms/locations'
 import { performRebirth, victoryRoadSnapshot } from './systems/rebirth/rebirth'
+import {
+  buyRebirthUpgrade,
+  cpsMultiplierBonus,
+  hasCaptureRetry,
+  rareWildChanceMultiplierBonus,
+  wildSpawnRateMultiplierBonus,
+  xpGainMultiplierBonus,
+} from './systems/rebirth/rebirthShop'
 import { AdminScreen } from './ui/screens/AdminScreen'
 import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
@@ -36,13 +44,14 @@ import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
+import { RebirthShopScreen } from './ui/screens/RebirthShopScreen'
 import { TeamScreen } from './ui/screens/TeamScreen'
 import { VictoryRoadScreen } from './ui/screens/VictoryRoadScreen'
 
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad' | 'rebirthShop'
 
 function App() {
   const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
@@ -103,7 +112,7 @@ function App() {
     if (!gen1 || offlineAppliedRef.current) return
     offlineAppliedRef.current = true
 
-    const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps'))
+    const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
     const progress = calculateOfflineProgress(saveRef.current, Date.now(), cps)
     if (progress.candiesEarned > 0) {
       setSave((current) => ({
@@ -113,7 +122,8 @@ function App() {
       }))
     }
 
-    const xpPerSecond = totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now())
+    const xpPerSecond =
+      totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now()) * xpGainMultiplierBonus(saveRef.current)
     if (xpPerSecond > 0) {
       const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
       setSave((current) => gainTeamXp(current, gen1, xpGain))
@@ -161,7 +171,7 @@ function App() {
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps'))
+      const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
       if (cps > 0) {
         const gain = (cps * deltaMs) / 1000
         setSave((current) => ({
@@ -171,7 +181,8 @@ function App() {
         }))
       }
 
-      const xpPerSecond = totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now())
+      const xpPerSecond =
+        totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now()) * xpGainMultiplierBonus(saveRef.current)
       if (xpPerSecond > 0) {
         const xpGain = (xpPerSecond * deltaMs) / 1000
         setSave((current) => gainTeamXp(current, gen1Ref.current ?? [], xpGain))
@@ -212,11 +223,11 @@ function App() {
         return
       }
 
-      const spawnRateMultiplier = economyMultiplier(teamRef.current, 'wildSpawnRate')
+      const spawnRateMultiplier = economyMultiplier(teamRef.current, 'wildSpawnRate') * wildSpawnRateMultiplierBonus(saveRef.current)
       msUntilSpawn -= deltaMs * spawnRateMultiplier
       if (msUntilSpawn <= 0) {
         msUntilSpawn = BASE_SPAWN_INTERVAL_MS
-        const rareBonus = economyMultiplier(teamRef.current, 'rareWildChance')
+        const rareBonus = economyMultiplier(teamRef.current, 'rareWildChance') * rareWildChanceMultiplierBonus(saveRef.current)
         const spawned = spawnWildEncounter(location, currentGen1, rareBonus)
         if (spawned) setWildEncounter(spawned)
       }
@@ -276,8 +287,9 @@ function App() {
   // battle was just the "Batalha" tab's fixed test dummy.
   function handleVictory(activeSpeciesId: number) {
     setSave((current) => {
-      const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM)
-      return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS)
+      const xpMultiplier = xpGainMultiplierBonus(current)
+      const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM * xpMultiplier)
+      return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS * xpMultiplier)
     })
   }
 
@@ -325,6 +337,10 @@ function App() {
     })
   }
 
+  function handleBuyRebirthUpgrade(id: string) {
+    setSave((current) => buyRebirthUpgrade(current, id))
+  }
+
   function handleRebirth() {
     if (!window.confirm('Rebirth: perde todos os doces e upgrades da run, e seu time volta pro lvl 1 / forma base. Continuar?')) {
       return
@@ -333,8 +349,10 @@ function App() {
   }
 
   // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
-  // no second chance. Doesn't clear wildEncounter itself: BattleScreen
-  // still needs it to show the result, onExit clears it once dismissed.
+  // no second chance... unless the Rebirth Shop's "Segunda Pokébola" is
+  // owned, which grants exactly one immediate retry on the same encounter.
+  // Doesn't clear wildEncounter itself: BattleScreen still needs it to show
+  // the result, onExit clears it once dismissed.
   function handleCaptureWild(): string {
     const encounter = wildEncounterRef.current
     const entry = encounter ? (gen1Ref.current?.find((candidate) => candidate.id === encounter.speciesId) ?? null) : null
@@ -344,9 +362,17 @@ function App() {
     // it instead of claiming a capture that doesn't actually change anything.
     if (isCaptured(saveRef.current, entry.id)) return `Você já tem um ${entry.name}!`
 
-    const success = rollCapture(entry.captureRate, economyMultiplier(teamRef.current, 'captureChance'))
+    const bonusMultiplier = economyMultiplier(teamRef.current, 'captureChance')
+    let success = rollCapture(entry.captureRate, bonusMultiplier)
+    let usedRetry = false
+    if (!success && hasCaptureRetry(saveRef.current)) {
+      usedRetry = true
+      success = rollCapture(entry.captureRate, bonusMultiplier)
+    }
+
     if (success) setSave((current) => addToRoster(current, entry.id, encounter.level))
-    return success ? `${entry.name} foi capturado!` : `A Pokébola falhou... ${entry.name} fugiu!`
+    if (success) return `${entry.name} foi capturado!${usedRetry ? ' (na segunda tentativa)' : ''}`
+    return `A Pokébola falhou${usedRetry ? ' de novo' : ''}... ${entry.name} fugiu!`
   }
 
   function handleLootWild(): string {
@@ -363,6 +389,10 @@ function App() {
   // --- Admin (temporary, for manual testing — see AdminScreen.tsx) ---
   function handleAdminAddCandies(amount: number) {
     setSave((current) => ({ ...current, candies: current.candies + amount, lifetimeCandies: current.lifetimeCandies + amount }))
+  }
+
+  function handleAdminAddInsignias(amount: number) {
+    setSave((current) => ({ ...current, insignias: current.insignias + amount }))
   }
 
   function handleAdminAddToRoster(speciesId: number, level: number) {
@@ -430,6 +460,9 @@ function App() {
         <button onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
           Victory Road
         </button>
+        <button onClick={() => setView('rebirthShop')} disabled={view === 'rebirthShop'}>
+          Loja de Rebirth
+        </button>
         <button onClick={() => setView('admin')} disabled={view === 'admin'}>
           Admin
         </button>
@@ -440,6 +473,7 @@ function App() {
           gen1={gen1}
           save={save}
           onAddCandies={handleAdminAddCandies}
+          onAddInsignias={handleAdminAddInsignias}
           onAddToRoster={handleAdminAddToRoster}
           onForceEncounter={handleAdminForceEncounter}
           onSetActiveLevel={handleAdminSetActiveLevel}
@@ -450,6 +484,7 @@ function App() {
       {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
       {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
       {view === 'victoryRoad' && <VictoryRoadScreen gen1={gen1} save={save} />}
+      {view === 'rebirthShop' && <RebirthShopScreen save={save} onBuy={handleBuyRebirthUpgrade} />}
       {view === 'shop' && (
         <CandyShopScreen
           gen1={gen1}

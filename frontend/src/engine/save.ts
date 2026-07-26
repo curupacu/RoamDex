@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 8
+export const CURRENT_SAVE_VERSION = 9
 
 export interface SaveDataV1 {
   version: 1
@@ -130,7 +130,28 @@ export interface SaveDataV8 {
   victoryRoad: VictoryRoadEntry[]
 }
 
-export type SaveData = SaveDataV8
+export interface SaveDataV9 {
+  version: 9
+  candies: number
+  lifetimeCandies: number
+  lastSavedAt: number
+  upgrades: Record<string, number>
+  roster: RosterMember[]
+  activeTeamIds: number[]
+  buffs: Record<string, number>
+  currentLocationId: string
+  badges: string[]
+  championBeaten: boolean
+  victoryRoad: VictoryRoadEntry[]
+  // Loja de Rebirth currency (roadmap section 9) — never resets, earned on
+  // rebirth from systems/rebirth/rebirth.ts's insigniasEarned().
+  insignias: number
+  // Rebirth Shop upgrade levels (content/rebirthShop.ts) — permanent, unlike
+  // `upgrades` above which is the run-scoped Sprint 6 shop and resets.
+  rebirthUpgrades: Record<string, number>
+}
+
+export type SaveData = SaveDataV9
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -207,6 +228,10 @@ const migrations: Record<number, Migration> = {
     const v7 = old as SaveDataV7
     return { ...v7, version: 8, championBeaten: false, victoryRoad: [] }
   },
+  8: (old): SaveDataV9 => {
+    const v8 = old as SaveDataV8
+    return { ...v8, version: 9, insignias: 0, rebirthUpgrades: {} }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -231,6 +256,8 @@ export function createDefaultSave(): SaveData {
     badges: [],
     championBeaten: false,
     victoryRoad: [],
+    insignias: 0,
+    rebirthUpgrades: {},
   }
 }
 

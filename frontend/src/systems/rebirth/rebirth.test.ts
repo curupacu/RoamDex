@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Gen1Entry } from '../../content/gen1/types'
 import { makeSave } from '../../engine/save.testUtils'
-import { baseFormId, performRebirth, victoryRoadSnapshot } from './rebirth'
+import { baseFormId, insigniasEarned, performRebirth, victoryRoadSnapshot } from './rebirth'
 
 function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
   return {
@@ -101,6 +101,21 @@ describe('victoryRoadSnapshot', () => {
   })
 })
 
+describe('insigniasEarned', () => {
+  it('awards a flat base plus 1 per badge plus 1 per 100k lifetime candies', () => {
+    const save = makeSave({ badges: ['brock', 'misty'], lifetimeCandies: 900_000 })
+
+    // 10 base + 2 badges + floor(900_000 / 100_000) = 9
+    expect(insigniasEarned(save)).toBe(21)
+  })
+
+  it('never earns a fraction of an Insígnia from partial candy progress', () => {
+    const save = makeSave({ badges: [], lifetimeCandies: 99_999 })
+
+    expect(insigniasEarned(save)).toBe(10)
+  })
+})
+
 describe('performRebirth', () => {
   it('resets run-scoped progress and reverts the roster to base form / level 1', () => {
     const save = makeSave({
@@ -132,6 +147,30 @@ describe('performRebirth', () => {
     ])
     expect(reborn.activeTeamIds).toEqual([])
     expect(reborn.championBeaten).toBe(false)
+    // 10 base + 2 badges + floor(900_000 / 100_000) = 9, on top of the 0 the save started with.
+    expect(reborn.insignias).toBe(21)
+  })
+
+  it('adds newly earned Insígnias on top of whatever was already banked', () => {
+    const save = makeSave({ insignias: 50, badges: [], lifetimeCandies: 0, roster: [], activeTeamIds: [] })
+
+    expect(performRebirth(save, gen1).insignias).toBe(50 + insigniasEarned(save))
+  })
+
+  it('applies Rebirth Shop bonuses: starting candies and a higher starting level', () => {
+    const save = makeSave({
+      roster: [{ speciesId: 3, level: 58, xp: 0 }],
+      activeTeamIds: [3],
+      rebirthUpgrades: { 'first-run-candies': 2, 'muscle-memory': 3 },
+    })
+
+    const reborn = performRebirth(save, gen1)
+
+    // first-run-candies: 300 per level × 2 levels owned.
+    expect(reborn.candies).toBe(600)
+    expect(reborn.lifetimeCandies).toBe(600)
+    // muscle-memory: +1 level per level owned, on top of the base level 1.
+    expect(reborn.roster).toEqual([{ speciesId: 1, level: 4, xp: 0 }])
   })
 
   it('collapses two roster members from the same family into a single base-form entry', () => {

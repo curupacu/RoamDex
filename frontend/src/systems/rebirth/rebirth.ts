@@ -1,10 +1,23 @@
 import { KANTO_LOCATIONS } from '../../content/gen1/locations'
 import type { Gen1Entry } from '../../content/gen1/types'
 import type { SaveData, VictoryRoadEntry } from '../../engine/save'
+import { startingCandiesBonus, startingLevelBonus } from './rebirthShop'
 
 // Only Kanto exists so far (Gen 2 content is Sprint 24) — hardcoded until a
 // second region needs this parameterized.
 const REGION_ID = 'kanto'
+
+// Provisional — Sprint 25 tunes these against real multi-rebirth play data,
+// same treatment as every other economy number in the game. Rewards both
+// axes the roadmap names: "Elite Four vencida" (flat base) + "marcos da
+// run" (badges earned + how far the economy got before pressing rebirth).
+const CHAMPION_BASE_INSIGNIAS = 10
+const INSIGNIAS_PER_BADGE = 1
+const LIFETIME_CANDIES_PER_INSIGNIA = 100_000
+
+export function insigniasEarned(save: SaveData): number {
+  return CHAMPION_BASE_INSIGNIAS + save.badges.length * INSIGNIAS_PER_BADGE + Math.floor(save.lifetimeCandies / LIFETIME_CANDIES_PER_INSIGNIA)
+}
 
 // Walks a species' own evolutionChain back to its 'initial' step, same
 // lookup as systems/gyms/champion.ts's starterRootId but for any species,
@@ -37,6 +50,7 @@ export function victoryRoadSnapshot(save: SaveData): VictoryRoadEntry {
 // true (set by the Elite Four win, which also appended the Victory Road
 // entry) — this only performs the reset itself.
 export function performRebirth(save: SaveData, gen1: Gen1Entry[]): SaveData {
+  const startingLevel = 1 + startingLevelBonus(save)
   const resetRoster: SaveData['roster'] = []
   for (const member of save.roster) {
     const speciesId = baseFormId(gen1, member.speciesId)
@@ -45,14 +59,19 @@ export function performRebirth(save: SaveData, gen1: Gen1Entry[]): SaveData {
     // the same base-form id here, so dedupe instead of clobbering the
     // roster's one-entry-per-species invariant.
     if (!resetRoster.some((entry) => entry.speciesId === speciesId)) {
-      resetRoster.push({ speciesId, level: 1, xp: 0 })
+      resetRoster.push({ speciesId, level: startingLevel, xp: 0 })
     }
   }
 
+  // Starting candies from the Rebirth Shop count as earned, same as any
+  // other candy source (click/CPS/loot all bump both fields together) — so
+  // they immediately count toward this run's first gym gate too.
+  const startingCandies = startingCandiesBonus(save)
+
   return {
     ...save,
-    candies: 0,
-    lifetimeCandies: 0,
+    candies: startingCandies,
+    lifetimeCandies: startingCandies,
     upgrades: {},
     buffs: {},
     badges: [],
@@ -63,5 +82,6 @@ export function performRebirth(save: SaveData, gen1: Gen1Entry[]): SaveData {
     // over automatically.
     activeTeamIds: [],
     championBeaten: false,
+    insignias: save.insignias + insigniasEarned(save),
   }
 }
