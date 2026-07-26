@@ -89,10 +89,11 @@ global) e ideias iniciais de como mapear pro que o RoamDex já tem.
   fórmula.
 - **Pokébolas diferentes** com bônus de captura diferentes (Great Ball,
   Ultra Ball etc.) — hoje só existe "jogar Pokébola", sem escolha.
-- **Fundo muda conforme o lugar** (rota vs caverna vs cidade etc.) — já tem
-  sugestões catalogadas por área em `docs/ROTAS-KANTO.md`; hoje o jogo usa
-  um fundo único fixo (decisão deliberada do Sprint 20, ver
-  `docs/decisoes/0017-*.md`) — isso vira a próxima etapa dessa frente.
+- ~~**Fundo muda conforme o lugar** (rota vs caverna vs cidade etc.)~~
+  **Feito em 2026-07-26.** Cada uma das 39 localizações de Kanto agora
+  declara seu próprio `background` (`content/gen1/locations.ts`); o CSS
+  troca via custom property quando `currentLocation` muda. Ver
+  `docs/decisoes/0024-*.md`.
 - **Mecânica de batalha nova, tipo "dano compartilhado periódico"**: ideia
   solta do dono do projeto — a cada ~3s os dois Pokémon (jogador e inimigo)
   levam uns 20 de dano cada, ou algo parecido. Precisa de bastante desenho

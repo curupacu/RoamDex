@@ -16,6 +16,10 @@ export interface LocationDefinition {
   // 0 for the run's starting location. Provisional — Sprint 25
   // ("Balanceamento") tunes these against real play data.
   unlockAt: number
+  // Filename under /backgrounds/ (frontend/public/backgrounds/) — swapped
+  // in as the page background whenever the player is standing here (see
+  // App.tsx's --bg-image effect). docs/decisoes/0024-fundos-por-local.md.
+  background: string
   // Empty for towns/gyms, which have no wild grass.
   encounters: LocationEncounter[]
 }
@@ -35,9 +39,10 @@ export interface LocationDefinition {
 //   across floors, level range is the min–max across floors. This keeps
 //   each dungeon a single stop on the line instead of sub-areas.
 export const KANTO_LOCATIONS: LocationDefinition[] = [
-  { id: 'pallet-town', name: 'Pallet Town', unlockAt: 0, encounters: [] },
+  { id: 'pallet-town', name: 'Pallet Town', unlockAt: 0, background: 'flowers.jpg', encounters: [] },
   {
     id: 'route-1',
+    background: 'tall-grass.png',
     name: 'Rota 1',
     unlockAt: 0,
     encounters: [
@@ -47,6 +52,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-2',
+    background: 'tall-grass.png',
     name: 'Rota 2',
     unlockAt: 200,
     encounters: [
@@ -57,6 +63,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'viridian-forest',
+    background: 'tall-grass-night.png',
     name: 'Floresta de Viridian',
     unlockAt: 600,
     encounters: [
@@ -67,11 +74,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 25, weight: 5, minLevel: 3, maxLevel: 5 }, // Pikachu
     ],
   },
-  { id: 'pewter-city', name: 'Pewter City', unlockAt: 1_500, encounters: [] }, // gym: Brock
+  { id: 'pewter-city', name: 'Pewter City', unlockAt: 1_500, background: 'mountain.png', encounters: [] }, // gym: Brock
 
   // --- Trecho 2: Pewter → Cerulean (Misty) ---
   {
     id: 'route-3',
+    background: 'mountain-2.png',
     name: 'Rota 3',
     unlockAt: 3_000,
     encounters: [
@@ -82,6 +90,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'mt-moon',
+    background: 'cave.png',
     name: 'Monte Moon',
     unlockAt: 6_000,
     encounters: [
@@ -93,6 +102,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-4',
+    background: 'tall-grass.png',
     name: 'Rota 4',
     unlockAt: 10_000,
     encounters: [
@@ -101,11 +111,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 23, weight: 25, minLevel: 6, maxLevel: 12 }, // Ekans
     ],
   },
-  { id: 'cerulean-city', name: 'Cerulean City', unlockAt: 15_000, encounters: [] }, // gym: Misty
+  { id: 'cerulean-city', name: 'Cerulean City', unlockAt: 15_000, background: 'lake.png', encounters: [] }, // gym: Misty
 
   // --- Trecho 3: Cerulean → Vermilion (Lt. Surge) ---
   {
     id: 'route-24',
+    background: 'flowers.jpg',
     name: 'Rota 24',
     unlockAt: 20_000,
     encounters: [
@@ -118,6 +129,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-25',
+    background: 'flowers.jpg',
     name: 'Rota 25',
     unlockAt: 25_000,
     encounters: [
@@ -132,6 +144,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-5',
+    background: 'tall-grass.png',
     name: 'Rota 5',
     unlockAt: 32_000,
     encounters: [
@@ -142,6 +155,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-6',
+    background: 'tall-grass.png',
     name: 'Rota 6',
     unlockAt: 40_000,
     encounters: [
@@ -150,11 +164,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 56, weight: 25, minLevel: 10, maxLevel: 16 }, // Mankey
     ],
   },
-  { id: 'vermilion-city', name: 'Vermilion City', unlockAt: 50_000, encounters: [] }, // gym: Lt. Surge
+  { id: 'vermilion-city', name: 'Vermilion City', unlockAt: 50_000, background: 'ocean.png', encounters: [] }, // gym: Lt. Surge
 
   // --- Trecho 4: Vermilion → Celadon (Erika) ---
   {
     id: 'route-11',
+    background: 'path.png',
     name: 'Rota 11',
     unlockAt: 60_000,
     encounters: [
@@ -165,6 +180,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'diglett-cave',
+    background: 'cave-2.png',
     name: "Caverna do Diglett",
     unlockAt: 72_000,
     encounters: [
@@ -174,6 +190,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-9',
+    background: 'tall-grass.png',
     name: 'Rota 9',
     unlockAt: 85_000,
     encounters: [
@@ -184,6 +201,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'rock-tunnel',
+    background: 'cave-night.png',
     name: 'Túnel da Rocha',
     unlockAt: 100_000,
     encounters: [
@@ -195,6 +213,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-10',
+    background: 'tall-grass.png',
     name: 'Rota 10',
     unlockAt: 115_000,
     encounters: [
@@ -205,6 +224,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-7',
+    background: 'tall-grass.png',
     name: 'Rota 7',
     unlockAt: 130_000,
     encounters: [
@@ -216,6 +236,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-8',
+    background: 'tall-grass.png',
     name: 'Rota 8',
     unlockAt: 145_000,
     encounters: [
@@ -225,11 +246,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 58, weight: 20, minLevel: 15, maxLevel: 18 }, // Growlithe
     ],
   },
-  { id: 'celadon-city', name: 'Celadon City', unlockAt: 165_000, encounters: [] }, // gym: Erika
+  { id: 'celadon-city', name: 'Celadon City', unlockAt: 165_000, background: 'path.png', encounters: [] }, // gym: Erika
 
   // --- Trecho 5: Celadon → Fuchsia (Koga) ---
   {
     id: 'route-16',
+    background: 'tall-grass.png',
     name: 'Rota 16',
     unlockAt: 185_000,
     encounters: [
@@ -241,6 +263,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-17',
+    background: 'path-2.png',
     name: 'Rota 17 (Cycling Road)',
     unlockAt: 205_000,
     encounters: [
@@ -252,6 +275,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-18',
+    background: 'tall-grass.png',
     name: 'Rota 18',
     unlockAt: 225_000,
     encounters: [
@@ -261,11 +285,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 84, weight: 25, minLevel: 24, maxLevel: 28 }, // Doduo
     ],
   },
-  { id: 'fuchsia-city', name: 'Fuchsia City', unlockAt: 245_000, encounters: [] }, // gym: Koga
+  { id: 'fuchsia-city', name: 'Fuchsia City', unlockAt: 245_000, background: 'path-2.png', encounters: [] }, // gym: Koga
 
   // --- Trecho 6: Fuchsia → Saffron (Sabrina) ---
   {
     id: 'route-15',
+    background: 'tall-grass-night.png',
     name: 'Rota 15',
     unlockAt: 265_000,
     encounters: [
@@ -279,6 +304,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-14',
+    background: 'tall-grass-night.png',
     name: 'Rota 14',
     unlockAt: 285_000,
     encounters: [
@@ -292,6 +318,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-13',
+    background: 'tall-grass-night.png',
     name: 'Rota 13',
     unlockAt: 305_000,
     encounters: [
@@ -304,6 +331,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-12',
+    background: 'tall-grass-night.png',
     name: 'Rota 12',
     unlockAt: 325_000,
     encounters: [
@@ -313,23 +341,26 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 48, weight: 20, minLevel: 24, maxLevel: 26 }, // Venonat
     ],
   },
-  { id: 'saffron-city', name: 'Saffron City', unlockAt: 345_000, encounters: [] }, // gym: Sabrina
+  { id: 'saffron-city', name: 'Saffron City', unlockAt: 345_000, background: 'path-night.png', encounters: [] }, // gym: Sabrina
 
   // --- Trecho 7: Saffron → Cinnabar (Blaine) ---
   {
     id: 'route-19',
+    background: 'ocean.png',
     name: 'Rota 19',
     unlockAt: 365_000,
     encounters: [{ speciesId: 72, weight: 100, minLevel: 5, maxLevel: 40 }], // Tentacool (Surf)
   },
   {
     id: 'route-20',
+    background: 'ocean-night.png',
     name: 'Rota 20',
     unlockAt: 385_000,
     encounters: [{ speciesId: 72, weight: 100, minLevel: 5, maxLevel: 40 }], // Tentacool (Surf)
   },
   {
     id: 'seafoam-islands',
+    background: 'underwater.png',
     name: 'Ilhas Seafoam',
     unlockAt: 405_000,
     encounters: [
@@ -347,11 +378,12 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 80, weight: 5, minLevel: 37, maxLevel: 39 }, // Slowbro
     ],
   },
-  { id: 'cinnabar-island', name: 'Cinnabar Island', unlockAt: 425_000, encounters: [] }, // gym: Blaine
+  { id: 'cinnabar-island', name: 'Cinnabar Island', unlockAt: 425_000, background: 'desert.png', encounters: [] }, // gym: Blaine
 
   // --- Trecho 8: volta a Viridian (Giovanni) → Victory Road ---
   {
     id: 'route-21',
+    background: 'beach.png',
     name: 'Rota 21',
     unlockAt: 445_000,
     encounters: [
@@ -365,6 +397,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-22',
+    background: 'route-grass.webp',
     name: 'Rota 22',
     unlockAt: 465_000,
     encounters: [
@@ -376,6 +409,7 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
   },
   {
     id: 'route-23',
+    background: 'mountain.png',
     name: 'Rota 23',
     unlockAt: 485_000,
     encounters: [
@@ -386,9 +420,10 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 132, weight: 35, minLevel: 33, maxLevel: 43 }, // Ditto
     ],
   },
-  { id: 'viridian-city', name: 'Viridian City', unlockAt: 505_000, encounters: [] }, // gym: Giovanni (8ª insígnia)
+  { id: 'viridian-city', name: 'Viridian City', unlockAt: 505_000, background: 'path.png', encounters: [] }, // gym: Giovanni (8ª insígnia)
   {
     id: 'victory-road',
+    background: 'mountain-night.png',
     name: 'Victory Road',
     unlockAt: 525_000,
     encounters: [
