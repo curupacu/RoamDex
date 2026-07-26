@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
-import { makeSave } from '../../engine/save.testUtils'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import { makeRegionSave } from '../../engine/save.testUtils'
 import { addToRoster } from './roster'
 import { applyXpGain, gainMemberXp, gainTeamXp, resolveEvolution, resolveEvolutionSafely, xpForNextLevel } from './leveling'
 
-function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
+function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
     id: 1,
     name: 'bulbasaur',
@@ -59,26 +59,26 @@ describe('resolveEvolution', () => {
 
 describe('resolveEvolutionSafely', () => {
   it('evolves normally when nothing else in the roster has that species', () => {
-    const save = addToRoster(makeSave(), 1, 15)
+    const save = addToRoster(makeRegionSave(), 1, 15)
     expect(resolveEvolutionSafely(save, [makeEntry()], 1, 16)).toBe(2)
   })
 
   it('skips the evolution if another roster member already has that species', () => {
-    let save = addToRoster(makeSave(), 1, 15) // bulbasaur, about to hit lvl 16 -> ivysaur
+    let save = addToRoster(makeRegionSave(), 1, 15) // bulbasaur, about to hit lvl 16 -> ivysaur
     save = addToRoster(save, 2, 20) // already have an ivysaur caught separately
 
     expect(resolveEvolutionSafely(save, [makeEntry()], 1, 16)).toBe(1)
   })
 
   it('does not treat the member itself as a collision', () => {
-    const save = addToRoster(makeSave(), 1, 15)
+    const save = addToRoster(makeRegionSave(), 1, 15)
     expect(resolveEvolutionSafely(save, [makeEntry()], 1, 15)).toBe(1)
   })
 })
 
 describe('gainMemberXp (evolution collision)', () => {
   it('gains the level but keeps the original species when evolution would collide', () => {
-    let save = addToRoster(makeSave(), 1, 15)
+    let save = addToRoster(makeRegionSave(), 1, 15)
     save = addToRoster(save, 2, 20)
     const gen1 = [makeEntry()]
 
@@ -93,7 +93,7 @@ describe('gainMemberXp (evolution collision)', () => {
 
 describe('gainTeamXp', () => {
   it('applies xp only to active team members', () => {
-    let save = addToRoster(makeSave(), 1, 5)
+    let save = addToRoster(makeRegionSave(), 1, 5)
     save = addToRoster(save, 999, 5) // captured but not active (team already has room, so mark it benched below)
     save = { ...save, activeTeamIds: [1] }
 
@@ -105,7 +105,7 @@ describe('gainTeamXp', () => {
   })
 
   it('evolves a member and keeps it in activeTeamIds under its new speciesId', () => {
-    const save = addToRoster(makeSave(), 1, 15)
+    const save = addToRoster(makeRegionSave(), 1, 15)
     const gen1 = [makeEntry()]
 
     const result = gainTeamXp(save, gen1, xpForNextLevel(15) + 1)
@@ -115,7 +115,7 @@ describe('gainTeamXp', () => {
   })
 
   it('is a no-op with zero or negative amount', () => {
-    const save = addToRoster(makeSave(), 1, 5)
+    const save = addToRoster(makeRegionSave(), 1, 5)
     expect(gainTeamXp(save, [makeEntry()], 0)).toEqual(save)
   })
 })

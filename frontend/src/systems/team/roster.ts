@@ -1,20 +1,20 @@
-import type { RosterMember, SaveData } from '../../engine/save'
+import type { RegionSave, RosterMember } from '../../engine/save'
 
 export const MAX_TEAM_SIZE = 6
 
-export function isCaptured(save: SaveData, speciesId: number): boolean {
+export function isCaptured(save: RegionSave, speciesId: number): boolean {
   return save.roster.some((member) => member.speciesId === speciesId)
 }
 
-export function rosterMember(save: SaveData, speciesId: number): RosterMember | null {
+export function rosterMember(save: RegionSave, speciesId: number): RosterMember | null {
   return save.roster.find((member) => member.speciesId === speciesId) ?? null
 }
 
-export function isInActiveTeam(save: SaveData, speciesId: number): boolean {
+export function isInActiveTeam(save: RegionSave, speciesId: number): boolean {
   return save.activeTeamIds.includes(speciesId)
 }
 
-export function addToRoster(save: SaveData, speciesId: number, level: number): SaveData {
+export function addToRoster(save: RegionSave, speciesId: number, level: number): RegionSave {
   if (isCaptured(save, speciesId)) return save
 
   const roster = [...save.roster, { speciesId, level, xp: 0 }]
@@ -27,7 +27,7 @@ export function addToRoster(save: SaveData, speciesId: number, level: number): S
 // No-op if speciesId isn't captured, or adding it would exceed MAX_TEAM_SIZE
 // — the caller (UI) decides what to do about a full team, this just refuses
 // to silently swap someone out.
-export function toggleActiveTeamMember(save: SaveData, speciesId: number): SaveData {
+export function toggleActiveTeamMember(save: RegionSave, speciesId: number): RegionSave {
   if (!isCaptured(save, speciesId)) return save
 
   if (isInActiveTeam(save, speciesId)) {

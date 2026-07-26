@@ -21,11 +21,20 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text-light);
-  background-image: linear-gradient(rgba(10, 10, 20, 0.55), rgba(10, 10, 20, 0.55)), url('/backgrounds/forest.jpg');
+  /* --bg-image is set per-location by App.tsx (docs/decisoes/0024-fundos-por-local.md)
+     — the url() here is just the fallback for screens with no active location
+     (login, seleção de região, tela de novo jogo). */
+  --bg-image: url('/backgrounds/forest.jpg');
+  background-image: linear-gradient(rgba(10, 10, 20, 0.32), rgba(10, 10, 20, 0.32)), var(--bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  /* Os fundos são pixel art pequena (240×112) esticada pra tela cheia —
+     sem isso, o navegador suaviza o upscale e vira uma mancha borrada em
+     vez de pixel grande e nítido (mesmo tratamento que os sprites já
+     usam, ver .pokedex-entry img etc.). */
+  image-rendering: pixelated;
 }
 
 body::before {
@@ -876,4 +885,113 @@ button:disabled {
   width: 40px;
   height: 40px;
   image-rendering: pixelated;
+}
+
+.login-panel {
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.login-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.login-email-form input {
+  font-family: inherit;
+  color: var(--text-light);
+  background: #10101a;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.login-mode-toggle {
+  border: none;
+  box-shadow: none;
+  background: none;
+  color: var(--text-dim);
+  text-decoration: underline;
+}
+
+.login-error {
+  color: var(--panel-border-strong);
+  font-size: 0.6rem;
+}
+
+.login-guest {
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.mode-card {
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  padding: 1rem 0.75rem;
+  text-align: center;
+}
+
+.mode-card--locked {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.mode-card-locked {
+  color: var(--text-dim);
+  font-size: 0.6rem;
+}
+
+.region-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.region-card {
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.region-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  font-size: 0.55rem;
+  line-height: 1.8;
+}
+
+.region-card--locked {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.region-card-locked {
+  color: var(--text-dim);
+  font-size: 0.6rem;
+}
+
+.region-select-hint {
+  margin-top: 1rem;
+  color: var(--text-dim);
+  font-size: 0.6rem;
 }

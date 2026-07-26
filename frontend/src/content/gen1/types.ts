@@ -16,7 +16,7 @@ export interface EvolutionStep {
   minLevel: number | null
 }
 
-export interface Gen1Entry {
+export interface SpeciesEntry {
   id: number
   name: string
   types: TypeName[]

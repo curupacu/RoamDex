@@ -6,13 +6,25 @@
 
 # PARTE 1 — ROADMAP DE DESIGN (o jogo explicado)
 
-## 1. O loop macro: geração = rebirth
+## 1. O loop macro: regiões como save-slots paralelos
+
+> **Atualizado (decisão 0022):** o design original desta seção descrevia
+> rebirth como avanço linear (uma geração de cada vez, sem voltar). Isso
+> mudou — regiões agora são jogáveis em paralelo, cada uma com seu próprio
+> save; rebirth é por-região e opcional, não um portão pra "próxima
+> geração". O texto abaixo reflete o comportamento atual.
 
 ```
-Escolhe inicial (1 de 3 da geração)
+Login (Google / email+senha / continuar sem conta)
         │
         ▼
-┌─── LOOP DA REGIÃO ────────────────────────────────┐
+   Tela de Regiões — cards por região, cadeado se bloqueada
+        │ (escolhe uma região desbloqueada)
+        ▼
+Escolhe inicial (1 de 3 daquela região, só na primeira vez)
+        │
+        ▼
+┌─── LOOP DA REGIÃO (isolado: Pokédex e time só dela) ┐
 │  Clica → ganha doces → compra upgrades            │
 │  Selvagem aparece → batalha ou ignora             │
 │  Venceu → captura OU loot                         │
@@ -26,28 +38,34 @@ Escolhe inicial (1 de 3 da geração)
          Desafia a ELITE 4 da região
                    │ (venceu)
                    ▼
-              REBIRTH ★
-   • Perde: todos os doces e upgrades da run
-   • Mantém: todos os Pokémon, MAS em lvl 1 e forma base
-   • Registra: time campeão na VICTORY ROAD
-   • Desbloqueia: próxima geração + Loja de Rebirth
-                   ▼
-     Nova geração, novos 3 iniciais, recomeça
-     (pode usar veteranos resetados, novos, ou misturar)
+   Desbloqueia a PRÓXIMA REGIÃO na hora (na tela de Regiões)
+   + registra o time campeão na VICTORY ROAD (global)
+                   │
+                   ▼ (opcional, quando o jogador quiser)
+              REBIRTH — só desta região ★
+   • Perde: doces e upgrades da run DESTA região
+   • Mantém: os Pokémon DESTA região, MAS em lvl 1 e forma base
+   • Não força avançar — dá pra rejogar a mesma região do zero
+     quantas vezes quiser, ou voltar pra tela de Regiões e jogar
+     outra sem mexer nesta
 ```
 
-### Regras exatas do rebirth
+### Regras exatas do rebirth (escopo: uma região por vez)
 | O quê | O que acontece |
 |---|---|
-| Doces | Zerados |
-| Upgrades da run (clique, geradores) | Zerados |
-| Upgrades da Loja de Rebirth | **Permanentes** — nunca resetam |
-| Pokémon capturados | Mantidos, todos voltam a **lvl 1** e **forma base** (Venusaur→Bulbasaur, Gengar→Gastly; quem não evolui só reseta o nível) |
-| Pokédex (registro de já vistos/capturados) | Permanente — é coleção, não poder |
-| Victory Road | Ganha uma entrada nova: snapshot do time que venceu a Elite 4 (espécies, formas e níveis no momento da vitória) |
-| Time ativo | Reescolhido do zero — pode misturar gerações livremente |
+| Doces da região | Zerados |
+| Upgrades da run daquela região (clique, geradores) | Zerados |
+| Upgrades da Loja de Rebirth | **Permanentes e globais** — valem em toda região, nunca resetam |
+| Pokémon capturados naquela região | Mantidos, todos voltam a **lvl 1** e **forma base** (Venusaur→Bulbasaur, Gengar→Gastly; quem não evolui só reseta o nível) — **só os desta região**, as outras não são tocadas |
+| Pokédex daquela região (registro de já vistos/capturados) | Permanente dentro da região — é coleção, não poder |
+| Victory Road | Global: ganha uma entrada nova por vitória de Elite 4, de qualquer região (espécies, formas e níveis no momento da vitória) |
+| Time ativo daquela região | Reescolhido do zero — **não mistura com outras regiões**, cada uma tem seu próprio time |
+| Regiões desbloqueadas | Não muda — unlock já aconteceu ao vencer a Elite 4, independente do rebirth |
 
-**Victory Road** é, por enquanto, um "hall da fama" somente-leitura. A estrutura de dados guarda o snapshot completo do time por região vencida, preparada para os planos futuros (não implementamos nada além do registro + tela de visualização).
+**Victory Road** é, por enquanto, um "hall da fama" somente-leitura, global
+(não por-região). A estrutura de dados guarda o snapshot completo do time
+por região vencida, preparada para os planos futuros (não implementamos
+nada além do registro + tela de visualização).
 
 ## 2. Iniciais
 No começo de **cada** geração o jogador escolhe 1 dos 3 iniciais daquela geração (Gen 1: Bulbasaur/Charmander/Squirtle; Gen 2: Chikorita/Cyndaquil/Totodile; e assim vai). O inicial vem em lvl 5 pra run não começar do zero absoluto.
@@ -145,7 +163,7 @@ O jogo é feito pra sair e voltar mil vezes, então o save não pode viver só n
 | Camada | Escolha | Papel |
 |---|---|---|
 | Save local | localStorage (local-first) | O jogo SEMPRE funciona, até offline; salva a cada 10s |
-| Conta | **Firebase Auth** — login anônimo automático, upgrade opcional pra Google | Zero fricção pra começar; login Google leva o save entre aparelhos |
+| Conta | **Firebase Auth** — tela de login no boot (Google, email+senha ou continuar sem conta); decisão 0022 | Escolha explícita antes de jogar (referência PokéRogue); sessão persiste, então só aparece uma vez |
 | Save na nuvem | **Firebase Firestore** | Sync do save (1 documento por jogador); última gravação vence + backup das 3 últimas versões contra corrupção |
 | Hospedagem | **Vercel** conectado ao repositório GitHub | Deploy automático a cada push; preview por branch |
 

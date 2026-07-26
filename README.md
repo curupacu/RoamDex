@@ -1,8 +1,10 @@
 # PokéIdle
 
 Jogo idle/clicker de navegador inspirado em Cookie Clicker e PokéClicker.
-Regiões como rebirth, batalhas estilo Pokémon GO com QTE por tipo, ginásios,
-Elite 4, Victory Road e (futuramente) raids.
+Login (Google/email/anônimo) → seleção de região → regiões jogáveis em
+paralelo, cada uma com seu próprio save e rebirth opcional; batalhas estilo
+Pokémon GO com QTE por tipo, ginásios, Elite 4, Victory Road e (futuramente)
+raids.
 
 > Projeto fan-made, sem fins lucrativos. Pokémon é propriedade da
 > Nintendo/Game Freak/The Pokémon Company. Dados via [PokeAPI](https://pokeapi.co).
@@ -20,7 +22,8 @@ pokeidle/
 ├── frontend/
 │   ├── public/
 │   │   ├── data/          # JSONs gerados por geração (gen1.json...)
-│   │   └── sprites/       # sprites de fallback local
+│   │   ├── sprites/       # sprites de fallback local
+│   │   └── backgrounds/   # fundos por localização (ver content/gen1/locations.ts)
 │   └── src/
 │       ├── engine/        # game loop, save/migrações, offline, números grandes
 │       ├── systems/       # lógica de jogo (1 pasta por sistema)
@@ -29,12 +32,14 @@ pokeidle/
 │       │   ├── battle/    # motor de batalha + qte/ (os 18 minigames)
 │       │   ├── team/      # time ativo, XP, evolução, bônus de tipo
 │       │   ├── gyms/      # ginásios + elite 4
-│       │   ├── rebirth/   # rebirth, victory road, loja de rebirth
+│       │   ├── rebirth/   # rebirth (por região), victory road, loja de rebirth
 │       │   └── raids/     # fase 6 (reservado)
-│       ├── content/       # DADOS, não lógica (gen1/, gen2/: ginásios, e4, upgrades)
+│       ├── content/       # DADOS, não lógica
+│       │   ├── regions.ts # registro de regiões (RegionDefinition) — só Kanto de verdade hoje
+│       │   └── gen1/      # conteúdo de Kanto: ginásios, e4, upgrades, locations
 │       ├── stores/        # zustand stores
-│       ├── services/      # firebase (auth + sync do save)
-│       ├── ui/            # screens/, components/, styles/
+│       ├── services/      # firebase (auth: Google/email/anônimo + sync do save)
+│       ├── ui/            # screens/ (login, seleção de região, clicker...), components/, styles/
 │       └── utils/
 ├── backend/
 │   ├── firestore/         # rules e indexes do Firestore

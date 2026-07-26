@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { ENEMY_ATTACK_INTERVAL_MS, TELEGRAPH_WINDOW_MS, TEST_OPPONENT_LEVEL, TEST_OPPONENT_SPECIES_ID } from '../../content/battle'
-import { ELITE_FOUR } from '../../content/gen1/eliteFour'
 import type { GymDefinition, GymTeamMember } from '../../content/gen1/gyms'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import type { RegionDefinition } from '../../content/regions'
 import { moveNameForStage } from '../../content/moves'
 import { GameLoop } from '../../engine/gameLoop'
-import type { SaveData } from '../../engine/save'
+import type { RegionSave } from '../../engine/save'
 import { eliteFourSequence } from '../../systems/gyms/champion'
 import {
   applyEnemyAttack,
@@ -33,8 +33,9 @@ export type BattleEncounter =
   | { kind: 'dummy' }
 
 interface BattleScreenProps {
-  gen1: Gen1Entry[]
-  save: SaveData
+  gen1: SpeciesEntry[]
+  regionDef: RegionDefinition
+  region: RegionSave
   encounter: BattleEncounter
   onVictory: (activeSpeciesId: number) => void
   // Only called for encounter.kind === 'wild' — roll capture or loot, apply
@@ -49,7 +50,7 @@ interface BattleScreenProps {
   onExit: () => void
 }
 
-function rosterFromTeam(team: GymTeamMember[], gen1: Gen1Entry[], trainerName?: string): EnemyRosterEntry[] {
+function rosterFromTeam(team: GymTeamMember[], gen1: SpeciesEntry[], trainerName?: string): EnemyRosterEntry[] {
   return team
     .map(({ speciesId, level }, index): EnemyRosterEntry | null => {
       const entry = gen1.find((candidate) => candidate.id === speciesId)
@@ -58,7 +59,13 @@ function rosterFromTeam(team: GymTeamMember[], gen1: Gen1Entry[], trainerName?: 
     .filter((member): member is EnemyRosterEntry => member !== null)
 }
 
-function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLevel: number, save: SaveData): EnemyRosterEntry[] {
+function buildEnemyRoster(
+  encounter: BattleEncounter,
+  gen1: SpeciesEntry[],
+  dummyLevel: number,
+  regionDef: RegionDefinition,
+  region: RegionSave,
+): EnemyRosterEntry[] {
   if (encounter.kind === 'wild') {
     const entry = gen1.find((candidate) => candidate.id === encounter.speciesId)
     return entry ? [{ entry, level: encounter.level }] : []
@@ -67,22 +74,22 @@ function buildEnemyRoster(encounter: BattleEncounter, gen1: Gen1Entry[], dummyLe
     return rosterFromTeam(encounter.gym.team, gen1)
   }
   if (encounter.kind === 'elite-four') {
-    return eliteFourSequence(ELITE_FOUR, save, gen1).flatMap(({ name, team }) => rosterFromTeam(team, gen1, name))
+    return eliteFourSequence(regionDef, region, gen1).flatMap(({ name, team }) => rosterFromTeam(team, gen1, name))
   }
   const entry = gen1.find((candidate) => candidate.id === TEST_OPPONENT_SPECIES_ID)
   return entry ? [{ entry, level: dummyLevel }] : []
 }
 
-export function BattleScreen({ gen1, save, encounter, onVictory, onCapture, onLoot, onGymVictory, onEliteFourVictory, onExit }: BattleScreenProps) {
+export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, onCapture, onLoot, onGymVictory, onEliteFourVictory, onExit }: BattleScreenProps) {
   // Frozen at mount: if the parent's state changed for any reason while
   // this screen is still up, the fight in progress must not suddenly show
   // a different opponent than the one createBattle() built stats for below.
   const [frozenEncounter] = useState(encounter)
   // The fixed test dummy matches the player's own level (see git history)
   // so it's actually testable instead of an instant one-shot.
-  const dummyLevel = save.roster.find((member) => member.speciesId === save.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
-  const [enemyRoster] = useState(() => buildEnemyRoster(frozenEncounter, gen1, dummyLevel, save))
-  const [battle, setBattle] = useState<BattleState>(() => createBattle(gen1, save.roster, save.activeTeamIds, enemyRoster))
+  const dummyLevel = region.roster.find((member) => member.speciesId === region.activeTeamIds[0])?.level ?? TEST_OPPONENT_LEVEL
+  const [enemyRoster] = useState(() => buildEnemyRoster(frozenEncounter, gen1, dummyLevel, regionDef, region))
+  const [battle, setBattle] = useState<BattleState>(() => createBattle(gen1, region.roster, region.activeTeamIds, enemyRoster))
   const battleRef = useRef(battle)
   battleRef.current = battle
   const [telegraph, setTelegraph] = useState(false)

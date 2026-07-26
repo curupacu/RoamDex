@@ -1,3 +1,4 @@
+import { onAuthStateChanged } from 'firebase/auth'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { GameLoop } from './engine/gameLoop'
 import { formatBigNumber } from './engine/numberFormat'
@@ -7,12 +8,20 @@ import {
   shouldShowOfflineBanner,
   type OfflineProgress,
 } from './engine/offlineProgress'
-import { loadSave, writeSave, type SaveData } from './engine/save'
-import { ensureSignedIn } from './services/auth'
+import {
+  currentRegion,
+  emptyRegionSave,
+  loadSave,
+  withRegion,
+  writeSave,
+  type RegionId,
+  type SaveData,
+} from './engine/save'
+import { signInAsGuest, signInWithEmail, signInWithGoogle, signUpWithEmail } from './services/auth'
+import { auth } from './services/firebase'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
-import { GYMS } from './content/gen1/gyms'
-import { STARTER_LEVEL } from './content/gen1/starters'
-import type { Gen1Entry } from './content/gen1/types'
+import { REGIONS, type RegionDefinition } from './content/regions'
+import type { SpeciesEntry } from './content/gen1/types'
 import { BONUS_KIND_LABELS } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/economy/candyShop'
@@ -27,7 +36,7 @@ import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
 import { locationById, nextLocationOf, prevLocationOf, travelTo } from './systems/gyms/locations'
-import { performRebirth, victoryRoadSnapshot } from './systems/rebirth/rebirth'
+import { performRebirth, unlockNextRegion, victoryRoadSnapshot } from './systems/rebirth/rebirth'
 import {
   buyRebirthUpgrade,
   cpsMultiplierBonus,
@@ -40,11 +49,14 @@ import { AdminScreen } from './ui/screens/AdminScreen'
 import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { LocationNav } from './ui/components/LocationNav'
+import { HomeScreen } from './ui/screens/HomeScreen'
+import { LoginScreen } from './ui/screens/LoginScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
 import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
 import { RebirthShopScreen } from './ui/screens/RebirthShopScreen'
+import { RegionSelectScreen } from './ui/screens/RegionSelectScreen'
 import { TeamScreen } from './ui/screens/TeamScreen'
 import { VictoryRoadScreen } from './ui/screens/VictoryRoadScreen'
 
@@ -52,15 +64,26 @@ const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
 type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad' | 'rebirthShop'
+type AuthStatus = 'loading' | 'signed-out' | 'signed-in'
+
+// Only called from handlers reachable after the region gates below have
+// confirmed currentRegionId is set — same "guaranteed by the render tree,
+// not provable by the type system" pattern gen1Ref already relies on.
+function regionDefFor(save: SaveData): RegionDefinition {
+  return REGIONS[save.currentRegionId as RegionId]
+}
 
 function App() {
-  const [gen1, setGen1] = useState<Gen1Entry[] | null>(null)
+  const [gen1, setGen1] = useState<SpeciesEntry[] | null>(null)
   const gen1Ref = useRef(gen1)
   gen1Ref.current = gen1
   const [save, setSave] = useState<SaveData>(() => loadSave())
   const saveRef = useRef(save)
   saveRef.current = save
   const uidRef = useRef<string | null>(null)
+  const [authStatus, setAuthStatus] = useState<AuthStatus>('loading')
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [authPending, setAuthPending] = useState(false)
   const [candyPops, setCandyPops] = useState<{ id: number; x: number; gain: number }[]>([])
   const nextPopId = useRef(0)
   const [offlineSummary, setOfflineSummary] = useState<OfflineProgress | null>(null)
@@ -71,30 +94,37 @@ function App() {
   wildEncounterRef.current = wildEncounter
   const [activeGymId, setActiveGymId] = useState<string | null>(null)
   const [challengingEliteFour, setChallengingEliteFour] = useState(false)
+  // Menu principal pós-login (referência Pokelike) — só relevante enquanto
+  // currentRegionId é null; não é salvo, sempre volta pro Menu depois de um
+  // login novo ou de "Regiões" no nav.
+  const [hubView, setHubView] = useState<'home' | 'regions'>('home')
+
+  const activeRegionDef = save.currentRegionId ? REGIONS[save.currentRegionId] : null
+  const regionSave = save.currentRegionId ? save.regions[save.currentRegionId] : undefined
 
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
-  const clickerEntry = gen1?.find((entry) => entry.id === save.activeTeamIds[0]) ?? null
-  const clickerMember = clickerEntry ? rosterMember(save, clickerEntry.id) : null
+  const clickerEntry = gen1?.find((entry) => entry.id === regionSave?.activeTeamIds[0]) ?? null
+  const clickerMember = clickerEntry && regionSave ? rosterMember(regionSave, clickerEntry.id) : null
   const wildEntry = wildEncounter ? (gen1?.find((entry) => entry.id === wildEncounter.speciesId) ?? null) : null
-  const team: TeamMember[] = save.activeTeamIds
+  const team: TeamMember[] = (regionSave?.activeTeamIds ?? [])
     .map((id) => gen1?.find((entry) => entry.id === id))
-    .filter((entry): entry is Gen1Entry => entry !== undefined)
+    .filter((entry): entry is SpeciesEntry => entry !== undefined)
     .map((entry) => ({ types: entry.types }))
   const teamRef = useRef(team)
   teamRef.current = team
 
   // Sprint 20's route/gym "trilha" (roadmap section 8) — where the player
-  // currently is in Kanto, and what's adjacent to travel to.
-  const currentLocation = locationById(save.currentLocationId)
-  const prevLocation = prevLocationOf(save.currentLocationId)
-  const nextLocation = nextLocationOf(save.currentLocationId)
-  const gymHere = gymForLocation(save.currentLocationId)
+  // currently is in the region, and what's adjacent to travel to.
+  const currentLocation = activeRegionDef && regionSave ? locationById(activeRegionDef, regionSave.currentLocationId) : null
+  const prevLocation = activeRegionDef && regionSave ? prevLocationOf(activeRegionDef, regionSave.currentLocationId) : null
+  const nextLocation = activeRegionDef && regionSave ? nextLocationOf(activeRegionDef, regionSave.currentLocationId) : null
+  const gymHere = activeRegionDef && regionSave ? gymForLocation(activeRegionDef.gyms, regionSave.currentLocationId) : null
 
   // Which fight BattleScreen is showing: an explicit gym or Elite Four
   // challenge wins over a pending wild encounter (none of these should
   // normally coexist), which wins over the Sprint 13 fixed test dummy
   // (Admin-only fallback).
-  const activeGym = activeGymId ? (GYMS.find((gym) => gym.id === activeGymId) ?? null) : null
+  const activeGym = activeGymId ? (activeRegionDef?.gyms.find((gym) => gym.id === activeGymId) ?? null) : null
   const battleEncounter: BattleEncounter | null =
     view !== 'battle'
       ? null
@@ -106,58 +136,90 @@ function App() {
             ? { kind: 'wild', speciesId: wildEncounter.speciesId, level: wildEncounter.level }
             : { kind: 'dummy' }
 
+  // Fundo muda por local (docs/decisoes/0024-fundos-por-local.md) — cada
+  // LocationDefinition declara seu próprio arquivo (public/backgrounds/);
+  // este efeito só troca a custom property que index.css já lê, sem
+  // duplicar a lógica de fallback (login/seleção de região mantêm o
+  // padrão de forest.jpg do CSS, já que não há location ativa ali).
+  useEffect(() => {
+    if (!currentLocation) return
+    document.body.style.setProperty('--bg-image', `url(/backgrounds/${currentLocation.background})`)
+  }, [currentLocation])
+
   // Runs once gen1 has loaded (so the team's type bonuses are known),
   // against the save as read from disk before any other effect touches it.
   useEffect(() => {
     if (!gen1 || offlineAppliedRef.current) return
     offlineAppliedRef.current = true
 
-    const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
+    const region = currentRegion(saveRef.current)
+    const regionDef = regionDefFor(saveRef.current)
+    const cps = totalCps(regionDef, region, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
     const progress = calculateOfflineProgress(saveRef.current, Date.now(), cps)
     if (progress.candiesEarned > 0) {
-      setSave((current) => ({
-        ...current,
-        candies: current.candies + progress.candiesEarned,
-        lifetimeCandies: current.lifetimeCandies + progress.candiesEarned,
-      }))
+      setSave((current) => {
+        const currentRegionSave = currentRegion(current)
+        return withRegion(current, {
+          ...currentRegionSave,
+          candies: currentRegionSave.candies + progress.candiesEarned,
+          lifetimeCandies: currentRegionSave.lifetimeCandies + progress.candiesEarned,
+        })
+      })
     }
 
     const xpPerSecond =
-      totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+      totalXpPerSecond(regionDef, region) * xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
     if (xpPerSecond > 0) {
       const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
-      setSave((current) => gainTeamXp(current, gen1, xpGain))
+      setSave((current) => withRegion(current, gainTeamXp(currentRegion(current), gen1, xpGain)))
     }
 
     if (shouldShowOfflineBanner(progress)) setOfflineSummary(progress)
   }, [gen1])
 
+  // Fetches the CURRENT region's species data — re-runs whenever the player
+  // switches region (region-select screen), never PokeAPI at runtime
+  // (CLAUDE.md rule 1), always the build-time JSON for that region.
   useEffect(() => {
-    fetch('/data/gen1.json')
-      .then((res) => res.json() as Promise<Gen1Entry[]>)
+    if (!save.currentRegionId) return
+    setGen1(null)
+    fetch(REGIONS[save.currentRegionId].dataUrl)
+      .then((res) => res.json() as Promise<SpeciesEntry[]>)
       .then(setGen1)
-  }, [])
+  }, [save.currentRegionId])
 
-  // Cloud sync runs in the background and never blocks the game loop —
-  // if it fails (offline, missing config), the game keeps running 100% local.
+  // Login gate (referência PokéRogue): no mais anônimo automático no mount —
+  // o jogador escolhe Google / email / "continuar sem conta" na LoginScreen
+  // abaixo. O Firebase persiste a escolha, então quem já entrou uma vez
+  // resolve direto pra 'signed-in' aqui sem ver essa tela de novo.
   useEffect(() => {
-    ensureSignedIn()
-      .then(async (user) => {
-        uidRef.current = user.uid
-        const cloud = await fetchCloudSave(user.uid)
-        const resolution = resolveSync(saveRef.current, cloud)
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        uidRef.current = null
+        setAuthStatus('signed-out')
+        return
+      }
+      uidRef.current = user.uid
+      setAuthStatus('signed-in')
 
-        if (resolution.kind === 'use-cloud') {
-          setSave(resolution.cloud)
-        } else if (resolution.kind === 'conflict') {
-          const useCloud = window.confirm(
-            'Seu save local e o da nuvem divergem bastante. Clique OK para usar o save da nuvem, ' +
-              'ou Cancelar para manter o save deste aparelho.',
-          )
-          if (useCloud) setSave(resolution.cloud)
-        }
-      })
-      .catch((error) => console.warn('cloud sync unavailable, staying local-first:', error))
+      // Cloud sync runs in the background and never blocks the game loop —
+      // if it fails (offline, missing config), the game keeps running 100% local.
+      fetchCloudSave(user.uid)
+        .then((cloud) => {
+          const resolution = resolveSync(saveRef.current, cloud)
+          if (resolution.kind === 'use-cloud') {
+            setSave(resolution.cloud)
+          } else if (resolution.kind === 'conflict') {
+            const useCloud = window.confirm(
+              'Seu save local e o da nuvem divergem bastante. Clique OK para usar o save da nuvem, ' +
+                'ou Cancelar para manter o save deste aparelho.',
+            )
+            if (useCloud) setSave(resolution.cloud)
+          }
+        })
+        .catch((error) => console.warn('cloud sync unavailable, staying local-first:', error))
+    })
+    return unsubscribe
   }, [])
 
   useEffect(() => {
@@ -171,21 +233,29 @@ function App() {
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
-      const cps = totalCps(saveRef.current, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
-      if (cps > 0) {
-        const gain = (cps * deltaMs) / 1000
-        setSave((current) => ({
-          ...current,
-          candies: current.candies + gain,
-          lifetimeCandies: current.lifetimeCandies + gain,
-        }))
-      }
+      const regionId = saveRef.current.currentRegionId
+      if (regionId) {
+        const region = currentRegion(saveRef.current)
+        const regionDef = REGIONS[regionId]
+        const cps = totalCps(regionDef, region, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
+        if (cps > 0) {
+          const gain = (cps * deltaMs) / 1000
+          setSave((current) => {
+            const currentRegionSave = currentRegion(current)
+            return withRegion(current, {
+              ...currentRegionSave,
+              candies: currentRegionSave.candies + gain,
+              lifetimeCandies: currentRegionSave.lifetimeCandies + gain,
+            })
+          })
+        }
 
-      const xpPerSecond =
-        totalXpPerSecond(saveRef.current) * xpMultiplierFromBuffs(saveRef.current, Date.now()) * xpGainMultiplierBonus(saveRef.current)
-      if (xpPerSecond > 0) {
-        const xpGain = (xpPerSecond * deltaMs) / 1000
-        setSave((current) => gainTeamXp(current, gen1Ref.current ?? [], xpGain))
+        const xpPerSecond =
+          totalXpPerSecond(regionDef, region) * xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+        if (xpPerSecond > 0) {
+          const xpGain = (xpPerSecond * deltaMs) / 1000
+          setSave((current) => withRegion(current, gainTeamXp(currentRegion(current), gen1Ref.current ?? [], xpGain)))
+        }
       }
 
       msSinceSave += deltaMs
@@ -207,8 +277,8 @@ function App() {
   }, [])
 
   // "Durante o clicker, a cada X tempo... aparece um selvagem" (roadmap
-  // section 5), now drawn from the CURRENT LOCATION's own pool (Sprint 20 —
-  // see docs/ROTAS-KANTO.md) instead of a global pool; towns/gyms have no
+  // section 5), drawn from the CURRENT LOCATION's own pool (Sprint 20 — see
+  // docs/ROTAS-KANTO.md) instead of a global pool; towns/gyms have no
   // encounters at all. Voador's wildSpawnRate bonus shortens the interval;
   // Inseto's rareWildChance biases which species spawns. Only one encounter
   // at a time; a second timer auto-dismisses it if ignored too long.
@@ -217,9 +287,13 @@ function App() {
     let msUntilSpawn = BASE_SPAWN_INTERVAL_MS
 
     const unsubscribe = loop.subscribe((deltaMs) => {
+      const regionId = saveRef.current.currentRegionId
       const currentGen1 = gen1Ref.current
-      const location = locationById(saveRef.current.currentLocationId)
-      if (wildEncounterRef.current || saveRef.current.roster.length === 0 || !currentGen1?.length || location.encounters.length === 0) {
+      if (!regionId || !currentGen1?.length) return
+
+      const region = currentRegion(saveRef.current)
+      const location = locationById(REGIONS[regionId], region.currentLocationId)
+      if (wildEncounterRef.current || region.roster.length === 0 || location.encounters.length === 0) {
         return
       }
 
@@ -250,18 +324,73 @@ function App() {
     return () => clearTimeout(id)
   }, [wildEncounter, view])
 
+  // --- Auth (login gate) ---
+  function handleGoogleLogin() {
+    setAuthPending(true)
+    setAuthError(null)
+    signInWithGoogle()
+      .catch((error) => setAuthError(error instanceof Error ? error.message : String(error)))
+      .finally(() => setAuthPending(false))
+  }
+
+  function handleEmailSignUp(email: string, password: string) {
+    setAuthPending(true)
+    setAuthError(null)
+    signUpWithEmail(email, password)
+      .catch((error) => setAuthError(error instanceof Error ? error.message : String(error)))
+      .finally(() => setAuthPending(false))
+  }
+
+  function handleEmailSignIn(email: string, password: string) {
+    setAuthPending(true)
+    setAuthError(null)
+    signInWithEmail(email, password)
+      .catch((error) => setAuthError(error instanceof Error ? error.message : String(error)))
+      .finally(() => setAuthPending(false))
+  }
+
+  function handleGuestLogin() {
+    setAuthPending(true)
+    setAuthError(null)
+    signInAsGuest()
+      .catch((error) => setAuthError(error instanceof Error ? error.message : String(error)))
+      .finally(() => setAuthPending(false))
+  }
+
+  // --- Region hub ---
+  function handleSelectRegion(regionId: RegionId) {
+    setSave((current) => {
+      if (current.regions[regionId]) return { ...current, currentRegionId: regionId }
+      const def = REGIONS[regionId]
+      return {
+        ...current,
+        currentRegionId: regionId,
+        regions: { ...current.regions, [regionId]: emptyRegionSave(regionId, def.locations[0].id) },
+      }
+    })
+  }
+
+  function handleGoToRegionSelect() {
+    setHubView('regions')
+    setSave((current) => ({ ...current, currentRegionId: null }))
+  }
+
   function handleChooseStarter(speciesId: number) {
-    setSave((current) => addToRoster(current, speciesId, STARTER_LEVEL))
+    setSave((current) => {
+      const def = regionDefFor(current)
+      return withRegion(current, addToRoster(currentRegion(current), speciesId, def.starterLevel))
+    })
   }
 
   function handleToggleTeamMember(speciesId: number) {
-    setSave((current) => toggleActiveTeamMember(current, speciesId))
+    setSave((current) => withRegion(current, toggleActiveTeamMember(currentRegion(current), speciesId)))
   }
 
   function handleClick() {
+    if (!activeRegionDef || !regionSave) return
     const multiplier = economyMultiplier(team, 'clickCandies')
-    const gain = clickValue(saveRef.current, multiplier)
-    setSave((current) => applyClick(current, multiplier))
+    const gain = clickValue(activeRegionDef, regionSave, multiplier)
+    setSave((current) => withRegion(current, applyClick(regionDefFor(current), currentRegion(current), multiplier)))
 
     const id = nextPopId.current++
     const x = Math.random() * 40 - 20
@@ -272,15 +401,15 @@ function App() {
   }
 
   function handleBuyUpgrade(id: string) {
-    setSave((current) => buyUpgrade(current, id, upgradeCostMultiplier(team)))
+    setSave((current) => withRegion(current, buyUpgrade(regionDefFor(current), currentRegion(current), id, upgradeCostMultiplier(team))))
   }
 
   function handleBuyRareCandy(speciesId: number) {
-    setSave((current) => buyRareCandy(current, gen1Ref.current ?? [], speciesId))
+    setSave((current) => withRegion(current, buyRareCandy(currentRegion(current), gen1Ref.current ?? [], speciesId)))
   }
 
   function handleBuyXpBoost() {
-    setSave((current) => buyXpBoost(current, Date.now()))
+    setSave((current) => withRegion(current, buyXpBoost(currentRegion(current), Date.now())))
   }
 
   // Grants XP right away, whether the player then captures, loots, or the
@@ -288,8 +417,9 @@ function App() {
   function handleVictory(activeSpeciesId: number) {
     setSave((current) => {
       const xpMultiplier = xpGainMultiplierBonus(current)
-      const withTeamXp = gainTeamXp(current, gen1Ref.current ?? [], BATTLE_XP_TEAM * xpMultiplier)
-      return gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS * xpMultiplier)
+      const withTeamXp = gainTeamXp(currentRegion(current), gen1Ref.current ?? [], BATTLE_XP_TEAM * xpMultiplier)
+      const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS * xpMultiplier)
+      return withRegion(current, withMemberXp)
     })
   }
 
@@ -309,7 +439,7 @@ function App() {
   }
 
   function handleTravel(locationId: string) {
-    setSave((current) => travelTo(current, locationId))
+    setSave((current) => withRegion(current, travelTo(regionDefFor(current), currentRegion(current), locationId)))
   }
 
   function handleChallengeGym(gymId: string) {
@@ -323,17 +453,20 @@ function App() {
   }
 
   function handleGymVictory(gymId: string) {
-    setSave((current) => awardBadge(current, gymId))
+    setSave((current) => withRegion(current, awardBadge(currentRegion(current), gymId)))
   }
 
   // Runs once, right when the Champion falls: registers the Victory Road
-  // snapshot and flips championBeaten so the Rebirth button shows up on the
-  // clicker screen. Doesn't reset anything — the player can keep farming
-  // this run until they press Rebirth themselves (roadmap section 8).
+  // snapshot, flips championBeaten (só nessa região) so o botão de Rebirth
+  // aparece na tela do clicker, e libera a próxima região — unlock e
+  // rebirth são escolhas independentes do jogador (docs/decisoes/00NN-*.md).
   function handleEliteFourVictory() {
     setSave((current) => {
-      if (current.championBeaten) return current
-      return { ...current, championBeaten: true, victoryRoad: [...current.victoryRoad, victoryRoadSnapshot(current)] }
+      const region = currentRegion(current)
+      if (region.championBeaten) return current
+      const withBadge = withRegion(current, { ...region, championBeaten: true })
+      const withVictory = { ...withBadge, victoryRoad: [...withBadge.victoryRoad, victoryRoadSnapshot(region)] }
+      return unlockNextRegion(withVictory, region.regionId)
     })
   }
 
@@ -345,7 +478,7 @@ function App() {
     if (!window.confirm('Rebirth: perde todos os doces e upgrades da run, e seu time volta pro lvl 1 / forma base. Continuar?')) {
       return
     }
-    setSave((current) => performRebirth(current, gen1Ref.current ?? []))
+    setSave((current) => performRebirth(regionDefFor(current), current, gen1Ref.current ?? []))
   }
 
   // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
@@ -358,9 +491,10 @@ function App() {
     const entry = encounter ? (gen1Ref.current?.find((candidate) => candidate.id === encounter.speciesId) ?? null) : null
     if (!encounter || !entry) return ''
 
+    const region = currentRegion(saveRef.current)
     // The roster can't hold two of the same species yet — be honest about
     // it instead of claiming a capture that doesn't actually change anything.
-    if (isCaptured(saveRef.current, entry.id)) return `Você já tem um ${entry.name}!`
+    if (isCaptured(region, entry.id)) return `Você já tem um ${entry.name}!`
 
     const bonusMultiplier = economyMultiplier(teamRef.current, 'captureChance')
     let success = rollCapture(entry.captureRate, bonusMultiplier)
@@ -370,7 +504,7 @@ function App() {
       success = rollCapture(entry.captureRate, bonusMultiplier)
     }
 
-    if (success) setSave((current) => addToRoster(current, entry.id, encounter.level))
+    if (success) setSave((current) => withRegion(current, addToRoster(currentRegion(current), entry.id, encounter.level)))
     if (success) return `${entry.name} foi capturado!${usedRetry ? ' (na segunda tentativa)' : ''}`
     return `A Pokébola falhou${usedRetry ? ' de novo' : ''}... ${entry.name} fugiu!`
   }
@@ -379,8 +513,8 @@ function App() {
     const encounter = wildEncounterRef.current
     if (!encounter) return ''
 
-    const result = rollLoot(saveRef.current, encounter.level)
-    setSave((current) => applyLoot(current, result))
+    const result = rollLoot(regionDefFor(saveRef.current), currentRegion(saveRef.current), encounter.level)
+    setSave((current) => withRegion(current, applyLoot(currentRegion(current), result)))
     return result.kind === 'candies'
       ? `Você achou ${formatBigNumber(result.amount)} doces!`
       : `Você achou uma cópia grátis de ${result.upgradeName}!`
@@ -388,7 +522,10 @@ function App() {
 
   // --- Admin (temporary, for manual testing — see AdminScreen.tsx) ---
   function handleAdminAddCandies(amount: number) {
-    setSave((current) => ({ ...current, candies: current.candies + amount, lifetimeCandies: current.lifetimeCandies + amount }))
+    setSave((current) => {
+      const region = currentRegion(current)
+      return withRegion(current, { ...region, candies: region.candies + amount, lifetimeCandies: region.lifetimeCandies + amount })
+    })
   }
 
   function handleAdminAddInsignias(amount: number) {
@@ -396,7 +533,7 @@ function App() {
   }
 
   function handleAdminAddToRoster(speciesId: number, level: number) {
-    setSave((current) => addToRoster(current, speciesId, level))
+    setSave((current) => withRegion(current, addToRoster(currentRegion(current), speciesId, level)))
   }
 
   function handleAdminForceEncounter(speciesId: number, level: number) {
@@ -406,21 +543,66 @@ function App() {
   }
 
   function handleAdminUnlockEliteFour() {
-    setSave((current) => ({
-      ...current,
-      lifetimeCandies: Math.max(current.lifetimeCandies, locationById('victory-road').unlockAt),
-      badges: GYMS.map((gym) => gym.id),
-      currentLocationId: 'victory-road',
-    }))
+    setSave((current) => {
+      const def = regionDefFor(current)
+      const region = currentRegion(current)
+      return withRegion(current, {
+        ...region,
+        lifetimeCandies: Math.max(region.lifetimeCandies, locationById(def, 'victory-road').unlockAt),
+        badges: def.gyms.map((gym) => gym.id),
+        currentLocationId: 'victory-road',
+      })
+    })
   }
 
   function handleAdminSetActiveLevel(level: number) {
-    const activeId = saveRef.current.activeTeamIds[0]
+    const activeId = currentRegion(saveRef.current).activeTeamIds[0]
     if (!activeId) return
-    setSave((current) => ({
-      ...current,
-      roster: current.roster.map((member) => (member.speciesId === activeId ? { ...member, level, xp: 0 } : member)),
-    }))
+    setSave((current) => {
+      const region = currentRegion(current)
+      return withRegion(current, {
+        ...region,
+        roster: region.roster.map((member) => (member.speciesId === activeId ? { ...member, level, xp: 0 } : member)),
+      })
+    })
+  }
+
+  if (authStatus === 'loading') {
+    return (
+      <main>
+        <h1>PokéIdle</h1>
+        <p>Carregando...</p>
+      </main>
+    )
+  }
+
+  if (authStatus === 'signed-out') {
+    return (
+      <main>
+        <h1>PokéIdle</h1>
+        <LoginScreen
+          onGoogle={handleGoogleLogin}
+          onEmailSignUp={handleEmailSignUp}
+          onEmailSignIn={handleEmailSignIn}
+          onGuest={handleGuestLogin}
+          error={authError}
+          pending={authPending}
+        />
+      </main>
+    )
+  }
+
+  if (!activeRegionDef) {
+    return (
+      <main>
+        <h1>PokéIdle</h1>
+        {hubView === 'home' ? (
+          <HomeScreen onPlayHistory={() => setHubView('regions')} />
+        ) : (
+          <RegionSelectScreen save={save} onSelect={handleSelectRegion} />
+        )}
+      </main>
+    )
   }
 
   if (!gen1) {
@@ -432,11 +614,11 @@ function App() {
     )
   }
 
-  if (save.roster.length === 0) {
+  if (!regionSave || regionSave.roster.length === 0) {
     return (
       <main>
         <h1>PokéIdle</h1>
-        <NewGameScreen gen1={gen1} onChoose={handleChooseStarter} />
+        <NewGameScreen regionDef={activeRegionDef} gen1={gen1} onChoose={handleChooseStarter} />
       </main>
     )
   }
@@ -457,12 +639,17 @@ function App() {
         <button onClick={() => setView('shop')} disabled={view === 'shop'}>
           Loja
         </button>
-        <button onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
-          Victory Road
-        </button>
-        <button onClick={() => setView('rebirthShop')} disabled={view === 'rebirthShop'}>
-          Loja de Rebirth
-        </button>
+        {save.victoryRoad.length > 0 && (
+          <button onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
+            Victory Road
+          </button>
+        )}
+        {save.hasRebirthed && (
+          <button onClick={() => setView('rebirthShop')} disabled={view === 'rebirthShop'}>
+            Loja de Rebirth
+          </button>
+        )}
+        <button onClick={handleGoToRegionSelect}>Regiões</button>
         <button onClick={() => setView('admin')} disabled={view === 'admin'}>
           Admin
         </button>
@@ -471,7 +658,8 @@ function App() {
       {view === 'admin' && (
         <AdminScreen
           gen1={gen1}
-          save={save}
+          region={regionSave}
+          insignias={save.insignias}
           onAddCandies={handleAdminAddCandies}
           onAddInsignias={handleAdminAddInsignias}
           onAddToRoster={handleAdminAddToRoster}
@@ -481,14 +669,14 @@ function App() {
           onUnlockEliteFour={handleAdminUnlockEliteFour}
         />
       )}
-      {view === 'team' && <TeamScreen gen1={gen1} save={save} onToggle={handleToggleTeamMember} />}
-      {view === 'pokedex' && <PokedexScreen gen1={gen1} save={save} />}
+      {view === 'team' && <TeamScreen gen1={gen1} region={regionSave} onToggle={handleToggleTeamMember} />}
+      {view === 'pokedex' && <PokedexScreen gen1={gen1} region={regionSave} />}
       {view === 'victoryRoad' && <VictoryRoadScreen gen1={gen1} save={save} />}
       {view === 'rebirthShop' && <RebirthShopScreen save={save} onBuy={handleBuyRebirthUpgrade} />}
       {view === 'shop' && (
         <CandyShopScreen
           gen1={gen1}
-          save={save}
+          region={regionSave}
           now={Date.now()}
           onBuyRareCandy={handleBuyRareCandy}
           onBuyXpBoost={handleBuyXpBoost}
@@ -497,7 +685,8 @@ function App() {
       {view === 'battle' && battleEncounter && (
         <BattleScreen
           gen1={gen1}
-          save={save}
+          regionDef={activeRegionDef}
+          region={regionSave}
           encounter={battleEncounter}
           onVictory={handleVictory}
           onCapture={handleCaptureWild}
@@ -508,9 +697,9 @@ function App() {
         />
       )}
 
-      {view === 'clicker' && (
+      {view === 'clicker' && currentLocation && (
         <>
-          {save.championBeaten && (
+          {regionSave.championBeaten && (
             <div className="rebirth-banner">
               <p>Você já venceu o Campeão nesta run. Farme mais um pouco, ou faça rebirth quando quiser.</p>
               <button onClick={handleRebirth}>Rebirth</button>
@@ -520,10 +709,10 @@ function App() {
             location={currentLocation}
             prevLocation={prevLocation}
             nextLocation={nextLocation}
-            lifetimeCandies={save.lifetimeCandies}
+            lifetimeCandies={regionSave.lifetimeCandies}
             onTravel={handleTravel}
             gym={gymHere}
-            hasBadge={gymHere ? hasBadge(save, gymHere.id) : false}
+            hasBadge={gymHere ? hasBadge(regionSave, gymHere.id) : false}
             onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
             eliteFourAvailable={currentLocation.id === 'victory-road'}
             onChallengeEliteFour={handleChallengeEliteFour}
@@ -550,9 +739,9 @@ function App() {
             </div>
           )}
           <div className="candy-counter">
-            Saldo: {formatBigNumber(save.candies)}
+            Saldo: {formatBigNumber(regionSave.candies)}
             <br />
-            Acumulado: {formatBigNumber(save.lifetimeCandies)}
+            Acumulado: {formatBigNumber(regionSave.lifetimeCandies)}
           </div>
           {clickerEntry && clickerMember && (
             <p>
@@ -569,7 +758,7 @@ function App() {
                 </span>
               ))}
             </button>
-            <UpgradesPanel save={save} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+            <UpgradesPanel regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
           </div>
           {bonusBreakdown(team).length > 0 && (
             <ul className="type-bonuses">

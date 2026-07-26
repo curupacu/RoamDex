@@ -1,5 +1,5 @@
-import { UPGRADES } from '../../content/gen1/upgrades'
-import type { SaveData } from '../../engine/save'
+import type { RegionSave } from '../../engine/save'
+import type { RegionDefinition } from '../../content/regions'
 
 // Provisional — Sprint 25 ("Balanceamento") tunes these.
 const BASE_LOOT_CANDIES = 20
@@ -15,8 +15,8 @@ export type LootResult =
 // there's no item system yet (reserved for its own future sprint per
 // roadmap section 13), and a loot outcome that does nothing would just
 // read as a bug. See docs/decisoes/0013-*.md.
-export function rollLoot(save: SaveData, enemyLevel: number): LootResult {
-  const unlockedUpgrades = UPGRADES.filter((def) => save.lifetimeCandies >= def.unlockAt)
+export function rollLoot(region: RegionDefinition, save: RegionSave, enemyLevel: number): LootResult {
+  const unlockedUpgrades = region.upgrades.filter((def) => save.lifetimeCandies >= def.unlockAt)
 
   if (unlockedUpgrades.length > 0 && Math.random() < UPGRADE_LOOT_CHANCE) {
     const def = unlockedUpgrades[Math.floor(Math.random() * unlockedUpgrades.length)]
@@ -26,7 +26,7 @@ export function rollLoot(save: SaveData, enemyLevel: number): LootResult {
   return { kind: 'candies', amount: BASE_LOOT_CANDIES + enemyLevel * LOOT_CANDIES_PER_LEVEL }
 }
 
-export function applyLoot(save: SaveData, result: LootResult): SaveData {
+export function applyLoot(save: RegionSave, result: LootResult): RegionSave {
   if (result.kind === 'candies') {
     return {
       ...save,

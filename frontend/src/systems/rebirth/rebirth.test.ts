@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
-import { makeSave } from '../../engine/save.testUtils'
-import { baseFormId, insigniasEarned, performRebirth, victoryRoadSnapshot } from './rebirth'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import { REGIONS } from '../../content/regions'
+import { currentRegion, type RegionId } from '../../engine/save'
+import { makeRegionSave, makeSaveWithRegion } from '../../engine/save.testUtils'
+import { baseFormId, insigniasEarned, performRebirth, unlockNextRegion, victoryRoadSnapshot } from './rebirth'
 
-function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
+const kanto = REGIONS.kanto
+
+function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
     id: 1,
     name: 'bulbasaur',
@@ -77,7 +81,7 @@ describe('baseFormId', () => {
 
 describe('victoryRoadSnapshot', () => {
   it('captures species and level of the active team at the moment of victory', () => {
-    const save = makeSave({
+    const region = makeRegionSave({
       roster: [
         { speciesId: 3, level: 58, xp: 0 },
         { speciesId: 12, level: 40, xp: 0 },
@@ -85,7 +89,7 @@ describe('victoryRoadSnapshot', () => {
       activeTeamIds: [3, 12],
     })
 
-    const snapshot = victoryRoadSnapshot(save)
+    const snapshot = victoryRoadSnapshot(region)
 
     expect(snapshot.region).toBe('kanto')
     expect(snapshot.team).toEqual([
@@ -95,30 +99,37 @@ describe('victoryRoadSnapshot', () => {
   })
 
   it('skips an active id that has no matching roster member', () => {
-    const save = makeSave({ roster: [{ speciesId: 3, level: 58, xp: 0 }], activeTeamIds: [3, 999] })
+    const region = makeRegionSave({ roster: [{ speciesId: 3, level: 58, xp: 0 }], activeTeamIds: [3, 999] })
 
-    expect(victoryRoadSnapshot(save).team).toEqual([{ speciesId: 3, level: 58 }])
+    expect(victoryRoadSnapshot(region).team).toEqual([{ speciesId: 3, level: 58 }])
   })
 })
 
 describe('insigniasEarned', () => {
   it('awards a flat base plus 1 per badge plus 1 per 100k lifetime candies', () => {
-    const save = makeSave({ badges: ['brock', 'misty'], lifetimeCandies: 900_000 })
+    const region = makeRegionSave({ badges: ['brock', 'misty'], lifetimeCandies: 900_000 })
 
     // 10 base + 2 badges + floor(900_000 / 100_000) = 9
-    expect(insigniasEarned(save)).toBe(21)
+    expect(insigniasEarned(region)).toBe(21)
   })
 
   it('never earns a fraction of an Insígnia from partial candy progress', () => {
-    const save = makeSave({ badges: [], lifetimeCandies: 99_999 })
+    const region = makeRegionSave({ badges: [], lifetimeCandies: 99_999 })
 
-    expect(insigniasEarned(save)).toBe(10)
+    expect(insigniasEarned(region)).toBe(10)
+  })
+})
+
+describe('unlockNextRegion', () => {
+  it('is a no-op past the last defined region', () => {
+    const save = makeSaveWithRegion()
+    expect(unlockNextRegion(save, 'kanto' as RegionId)).toEqual(save)
   })
 })
 
 describe('performRebirth', () => {
   it('resets run-scoped progress and reverts the roster to base form / level 1', () => {
-    const save = makeSave({
+    const save = makeSaveWithRegion({
       candies: 5000,
       lifetimeCandies: 900_000,
       upgrades: { 'click-1': 10 },
@@ -133,48 +144,53 @@ describe('performRebirth', () => {
       championBeaten: true,
     })
 
-    const reborn = performRebirth(save, gen1)
+    const reborn = performRebirth(kanto, save, gen1)
+    const region = currentRegion(reborn)
 
-    expect(reborn.candies).toBe(0)
-    expect(reborn.lifetimeCandies).toBe(0)
-    expect(reborn.upgrades).toEqual({})
-    expect(reborn.buffs).toEqual({})
-    expect(reborn.badges).toEqual([])
-    expect(reborn.currentLocationId).toBe('pallet-town')
-    expect(reborn.roster).toEqual([
+    expect(region.candies).toBe(0)
+    expect(region.lifetimeCandies).toBe(0)
+    expect(region.upgrades).toEqual({})
+    expect(region.buffs).toEqual({})
+    expect(region.badges).toEqual([])
+    expect(region.currentLocationId).toBe('pallet-town')
+    expect(region.roster).toEqual([
       { speciesId: 1, level: 1, xp: 0 },
       { speciesId: 10, level: 1, xp: 0 },
     ])
-    expect(reborn.activeTeamIds).toEqual([])
-    expect(reborn.championBeaten).toBe(false)
+    expect(region.activeTeamIds).toEqual([])
+    expect(region.championBeaten).toBe(false)
     // 10 base + 2 badges + floor(900_000 / 100_000) = 9, on top of the 0 the save started with.
     expect(reborn.insignias).toBe(21)
   })
 
   it('adds newly earned Insígnias on top of whatever was already banked', () => {
-    const save = makeSave({ insignias: 50, badges: [], lifetimeCandies: 0, roster: [], activeTeamIds: [] })
+    const save = makeSaveWithRegion({ badges: [], lifetimeCandies: 0, roster: [], activeTeamIds: [] })
+    const withInsignias = { ...save, insignias: 50 }
 
-    expect(performRebirth(save, gen1).insignias).toBe(50 + insigniasEarned(save))
+    expect(performRebirth(kanto, withInsignias, gen1).insignias).toBe(50 + insigniasEarned(currentRegion(withInsignias)))
   })
 
   it('applies Rebirth Shop bonuses: starting candies and a higher starting level', () => {
-    const save = makeSave({
-      roster: [{ speciesId: 3, level: 58, xp: 0 }],
-      activeTeamIds: [3],
+    const save = {
+      ...makeSaveWithRegion({
+        roster: [{ speciesId: 3, level: 58, xp: 0 }],
+        activeTeamIds: [3],
+      }),
       rebirthUpgrades: { 'first-run-candies': 2, 'muscle-memory': 3 },
-    })
+    }
 
-    const reborn = performRebirth(save, gen1)
+    const reborn = performRebirth(kanto, save, gen1)
+    const region = currentRegion(reborn)
 
     // first-run-candies: 300 per level × 2 levels owned.
-    expect(reborn.candies).toBe(600)
-    expect(reborn.lifetimeCandies).toBe(600)
+    expect(region.candies).toBe(600)
+    expect(region.lifetimeCandies).toBe(600)
     // muscle-memory: +1 level per level owned, on top of the base level 1.
-    expect(reborn.roster).toEqual([{ speciesId: 1, level: 4, xp: 0 }])
+    expect(region.roster).toEqual([{ speciesId: 1, level: 4, xp: 0 }])
   })
 
   it('collapses two roster members from the same family into a single base-form entry', () => {
-    const save = makeSave({
+    const save = makeSaveWithRegion({
       roster: [
         { speciesId: 1, level: 12, xp: 0 },
         { speciesId: 3, level: 58, xp: 0 },
@@ -182,19 +198,21 @@ describe('performRebirth', () => {
       activeTeamIds: [1, 3],
     })
 
-    const reborn = performRebirth(save, gen1)
+    const reborn = performRebirth(kanto, save, gen1)
 
-    expect(reborn.roster).toEqual([{ speciesId: 1, level: 1, xp: 0 }])
+    expect(currentRegion(reborn).roster).toEqual([{ speciesId: 1, level: 1, xp: 0 }])
   })
 
   it('preserves fields the roadmap says persist through rebirth, like victoryRoad and version', () => {
-    const save = makeSave({
-      roster: [{ speciesId: 1, level: 5, xp: 0 }],
-      activeTeamIds: [1],
+    const save = {
+      ...makeSaveWithRegion({
+        roster: [{ speciesId: 1, level: 5, xp: 0 }],
+        activeTeamIds: [1],
+      }),
       victoryRoad: [{ region: 'kanto', completedAt: 123, team: [{ speciesId: 3, level: 58 }] }],
-    })
+    }
 
-    const reborn = performRebirth(save, gen1)
+    const reborn = performRebirth(kanto, save, gen1)
 
     expect(reborn.victoryRoad).toEqual(save.victoryRoad)
     expect(reborn.version).toBe(save.version)

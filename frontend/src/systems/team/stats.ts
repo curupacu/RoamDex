@@ -1,4 +1,4 @@
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 
 // Provisional growth rate — Sprint 25 ("Balanceamento") does the real tuning
 // with simulation data. Bumped from 0.03 after playtest: at 3%/level, a
@@ -20,7 +20,7 @@ export interface DerivedStats {
 // sp_attack), DEF = média(defense, sp_defense) — then scaled by level,
 // since the base formula alone wouldn't grow with the level Sprint 11
 // just introduced.
-export function deriveStats(entry: Gen1Entry, level: number): DerivedStats {
+export function deriveStats(entry: SpeciesEntry, level: number): DerivedStats {
   const growth = 1 + (level - 1) * STAT_GROWTH_PER_LEVEL
   return {
     hp: Math.round(entry.stats.hp * growth),

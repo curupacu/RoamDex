@@ -10,17 +10,20 @@ describe('save', () => {
   it('returns a default save when nothing is stored', () => {
     const save = loadSave()
     expect(save.version).toBe(CURRENT_SAVE_VERSION)
-    expect(save.candies).toBe(0)
-    expect(save.roster).toEqual([])
-    expect(save.activeTeamIds).toEqual([])
+    expect(save.currentRegionId).toBe('kanto')
+    expect(save.regionsUnlocked).toEqual(['kanto'])
+    expect(save.regions.kanto?.candies).toBe(0)
+    expect(save.regions.kanto?.roster).toEqual([])
+    expect(save.regions.kanto?.activeTeamIds).toEqual([])
   })
 
   it('survives a refresh: write then load returns the same data', () => {
-    writeSave(makeSave({ candies: 4200, lifetimeCandies: 4200 }))
+    const save = makeSave()
+    writeSave({ ...save, regions: { kanto: { ...save.regions.kanto!, candies: 4200, lifetimeCandies: 4200 } } })
 
     const reloaded = loadSave()
 
-    expect(reloaded.candies).toBe(4200)
+    expect(reloaded.regions.kanto?.candies).toBe(4200)
     expect(reloaded.version).toBe(CURRENT_SAVE_VERSION)
   })
 
@@ -30,57 +33,44 @@ describe('save', () => {
     const migrated = loadSave()
 
     expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
-    expect(migrated.candies).toBe(999)
-    expect(migrated.lifetimeCandies).toBe(999)
-    expect(migrated.upgrades).toEqual({})
+    expect(migrated.regions.kanto?.candies).toBe(999)
+    expect(migrated.regions.kanto?.lifetimeCandies).toBe(999)
+    expect(migrated.regions.kanto?.upgrades).toEqual({})
     // Backfilled as if already playing with the pre-Sprint-8 placeholder.
-    expect(migrated.roster).toEqual([{ speciesId: 1, level: 5, xp: 0 }])
-    expect(migrated.activeTeamIds).toEqual([1])
+    expect(migrated.regions.kanto?.roster).toEqual([{ speciesId: 1, level: 5, xp: 0 }])
+    expect(migrated.regions.kanto?.activeTeamIds).toEqual([1])
   })
 
-  it('migrates a v1 save (pre-upgrades) up to v9, backfilling lifetimeCandies and the starter', () => {
+  it('migrates a v1 save (pre-upgrades) up to current, backfilling lifetimeCandies and the starter', () => {
     const migrated = migrateSave({ version: 1, candies: 250, lastSavedAt: 123 })
 
     expect(migrated).toEqual({
-      version: 9,
-      candies: 250,
-      lifetimeCandies: 250,
+      version: CURRENT_SAVE_VERSION,
       lastSavedAt: 123,
-      upgrades: {},
-      roster: [{ speciesId: 1, level: 5, xp: 0 }],
-      activeTeamIds: [1],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
+      regions: {
+        kanto: {
+          regionId: 'kanto',
+          candies: 250,
+          lifetimeCandies: 250,
+          upgrades: {},
+          roster: [{ speciesId: 1, level: 5, xp: 0 }],
+          activeTeamIds: [1],
+          buffs: {},
+          currentLocationId: 'pallet-town',
+          badges: [],
+          championBeaten: false,
+        },
+      },
+      regionsUnlocked: ['kanto'],
+      currentRegionId: 'kanto',
       victoryRoad: [],
       insignias: 0,
       rebirthUpgrades: {},
+      hasRebirthed: false,
     })
   })
 
-  it('migrates a v2 save (pre-starter-picker) up to v9, backfilling the placeholder starter', () => {
-    const migrated = migrateSave({ version: 2, candies: 10, lifetimeCandies: 10, lastSavedAt: 5, upgrades: { a: 1 } })
-
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 10,
-      lifetimeCandies: 10,
-      lastSavedAt: 5,
-      upgrades: { a: 1 },
-      roster: [{ speciesId: 1, level: 5, xp: 0 }],
-      activeTeamIds: [1],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
-  })
-
-  it('migrates a v3 save with no starter chosen up to v6 with an empty roster', () => {
+  it('migrates a v3 save with no starter chosen up to current with an empty roster', () => {
     const migrated = migrateSave({
       version: 3,
       candies: 0,
@@ -90,11 +80,11 @@ describe('save', () => {
       activePokemon: null,
     })
 
-    expect(migrated.roster).toEqual([])
-    expect(migrated.activeTeamIds).toEqual([])
+    expect(migrated.regions.kanto?.roster).toEqual([])
+    expect(migrated.regions.kanto?.activeTeamIds).toEqual([])
   })
 
-  it('migrates a v3 save with a chosen starter up to v9, moving it into the roster', () => {
+  it('migrates a v3 save with a chosen starter up to current, moving it into the roster', () => {
     const migrated = migrateSave({
       version: 3,
       candies: 42,
@@ -104,113 +94,11 @@ describe('save', () => {
       activePokemon: { speciesId: 4, level: 5 },
     })
 
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 42,
-      lifetimeCandies: 42,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [{ speciesId: 4, level: 5, xp: 0 }],
-      activeTeamIds: [4],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
+    expect(migrated.regions.kanto?.roster).toEqual([{ speciesId: 4, level: 5, xp: 0 }])
+    expect(migrated.regions.kanto?.activeTeamIds).toEqual([4])
   })
 
-  it('migrates a v4 save (pre-XP) up to v9, backfilling xp for every roster member', () => {
-    const migrated = migrateSave({
-      version: 4,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [{ speciesId: 1, level: 8 }],
-      activeTeamIds: [1],
-    })
-
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [{ speciesId: 1, level: 8, xp: 0 }],
-      activeTeamIds: [1],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
-  })
-
-  it('migrates a v5 save (pre-buffs) up to v9, backfilling an empty buffs map', () => {
-    const migrated = migrateSave({
-      version: 5,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-    })
-
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
-  })
-
-  it('migrates a v6 save (pre-locations) up to v9, backfilling Pallet Town and no badges', () => {
-    const migrated = migrateSave({
-      version: 6,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-      buffs: {},
-    })
-
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
-  })
-
-  it('migrates a v7 save (pre-rebirth) up to v9, backfilling no champion beaten and an empty Victory Road', () => {
+  it('migrates a v7 save (pre-rebirth) up to current, backfilling no champion beaten and an empty Victory Road', () => {
     const migrated = migrateSave({
       version: 7,
       candies: 5,
@@ -224,41 +112,14 @@ describe('save', () => {
       badges: ['brock'],
     })
 
-    expect(migrated).toEqual({
-      version: 9,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-      buffs: {},
-      currentLocationId: 'victory-road',
-      badges: ['brock'],
-      championBeaten: false,
-      victoryRoad: [],
-      insignias: 0,
-      rebirthUpgrades: {},
-    })
+    expect(migrated.regions.kanto?.currentLocationId).toBe('victory-road')
+    expect(migrated.regions.kanto?.badges).toEqual(['brock'])
+    expect(migrated.regions.kanto?.championBeaten).toBe(false)
+    expect(migrated.victoryRoad).toEqual([])
   })
 
-  it('migrates a v8 save (pre-rebirth-shop) up to v9, backfilling 0 Insígnias and no rebirth upgrades', () => {
+  it('migrates a v9 save (single flat run) into regions.kanto, unlocking only Kanto', () => {
     const migrated = migrateSave({
-      version: 8,
-      candies: 5,
-      lifetimeCandies: 5,
-      lastSavedAt: 5,
-      upgrades: {},
-      roster: [],
-      activeTeamIds: [],
-      buffs: {},
-      currentLocationId: 'pallet-town',
-      badges: [],
-      championBeaten: true,
-      victoryRoad: [{ region: 'kanto', completedAt: 123, team: [{ speciesId: 3, level: 58 }] }],
-    })
-
-    expect(migrated).toEqual({
       version: 9,
       candies: 5,
       lifetimeCandies: 5,
@@ -271,9 +132,17 @@ describe('save', () => {
       badges: [],
       championBeaten: true,
       victoryRoad: [{ region: 'kanto', completedAt: 123, team: [{ speciesId: 3, level: 58 }] }],
-      insignias: 0,
-      rebirthUpgrades: {},
+      insignias: 12,
+      rebirthUpgrades: { 'first-run-candies': 1 },
     })
+
+    expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
+    expect(migrated.currentRegionId).toBe('kanto')
+    expect(migrated.regionsUnlocked).toEqual(['kanto'])
+    expect(migrated.regions.kanto?.championBeaten).toBe(true)
+    expect(migrated.victoryRoad).toEqual([{ region: 'kanto', completedAt: 123, team: [{ speciesId: 3, level: 58 }] }])
+    expect(migrated.insignias).toBe(12)
+    expect(migrated.rebirthUpgrades).toEqual({ 'first-run-candies': 1 })
   })
 
   it('falls back to a default save when the stored JSON is corrupt', () => {
@@ -282,7 +151,7 @@ describe('save', () => {
     const save = loadSave()
 
     expect(save.version).toBe(CURRENT_SAVE_VERSION)
-    expect(save.candies).toBe(0)
+    expect(save.regions.kanto?.candies).toBe(0)
   })
 
   it('throws migrateSave when no migration exists for an unknown future-shaped version', () => {

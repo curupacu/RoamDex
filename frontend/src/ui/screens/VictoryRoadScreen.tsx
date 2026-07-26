@@ -1,8 +1,8 @@
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import type { SaveData } from '../../engine/save'
 
 interface VictoryRoadScreenProps {
-  gen1: Gen1Entry[]
+  gen1: SpeciesEntry[]
   save: SaveData
 }
 

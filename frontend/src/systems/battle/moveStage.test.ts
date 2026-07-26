@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { moveStage } from './moveStage'
 
-function makeEntry(id: number, evolutionChain: Gen1Entry['evolutionChain']): Gen1Entry {
+function makeEntry(id: number, evolutionChain: SpeciesEntry['evolutionChain']): SpeciesEntry {
   return {
     id,
     name: 'test',
@@ -14,7 +14,7 @@ function makeEntry(id: number, evolutionChain: Gen1Entry['evolutionChain']): Gen
   }
 }
 
-const bulbasaurChain: Gen1Entry['evolutionChain'] = [
+const bulbasaurChain: SpeciesEntry['evolutionChain'] = [
   { id: 1, species: 'bulbasaur', trigger: 'initial', minLevel: null },
   { id: 2, species: 'ivysaur', trigger: 'level-up', minLevel: 16 },
   { id: 3, species: 'venusaur', trigger: 'level-up', minLevel: 32 },

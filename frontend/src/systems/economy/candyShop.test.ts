@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { XP_BOOST_COST, XP_BOOST_DURATION_MS, XP_BOOST_ID, XP_BOOST_MULTIPLIER } from '../../content/shop'
-import { makeSave } from '../../engine/save.testUtils'
+import { makeRegionSave } from '../../engine/save.testUtils'
 import { addToRoster } from '../team/roster'
 import { buyRareCandy, buyXpBoost, isBuffActive, rareCandyCost, xpMultiplierFromBuffs } from './candyShop'
 
-function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
+function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
     id: 1,
     name: 'bulbasaur',
@@ -23,7 +23,7 @@ function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
 
 describe('buyRareCandy', () => {
   it('levels up the target by 1 and deducts the cost', () => {
-    const save = { ...addToRoster(makeSave(), 1, 5), candies: rareCandyCost(5) }
+    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5) }
 
     const result = buyRareCandy(save, [makeEntry()], 1)
 
@@ -32,7 +32,7 @@ describe('buyRareCandy', () => {
   })
 
   it('evolves the target if the new level crosses a threshold', () => {
-    const save = { ...addToRoster(makeSave(), 1, 15), candies: rareCandyCost(15) }
+    const save = { ...addToRoster(makeRegionSave(), 1, 15), candies: rareCandyCost(15) }
 
     const result = buyRareCandy(save, [makeEntry()], 1)
 
@@ -41,17 +41,17 @@ describe('buyRareCandy', () => {
   })
 
   it('is a no-op when the player cannot afford it', () => {
-    const save = { ...addToRoster(makeSave(), 1, 5), candies: rareCandyCost(5) - 1 }
+    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5) - 1 }
     expect(buyRareCandy(save, [makeEntry()], 1)).toEqual(save)
   })
 
   it('is a no-op for a species not in the roster', () => {
-    const save = { ...makeSave(), candies: 1_000_000 }
+    const save = { ...makeRegionSave(), candies: 1_000_000 }
     expect(buyRareCandy(save, [makeEntry()], 1)).toEqual(save)
   })
 
   it('still levels up but skips the species change when evolution would collide with another roster member', () => {
-    let save = addToRoster(makeSave(), 1, 15)
+    let save = addToRoster(makeRegionSave(), 1, 15)
     save = addToRoster(save, 2, 20) // already have an ivysaur caught separately
     save = { ...save, candies: rareCandyCost(15) }
 
@@ -65,7 +65,7 @@ describe('buyRareCandy', () => {
 
 describe('buyXpBoost / isBuffActive / xpMultiplierFromBuffs', () => {
   it('activates the buff for XP_BOOST_DURATION_MS from now', () => {
-    const save = { ...makeSave(), candies: XP_BOOST_COST }
+    const save = { ...makeRegionSave(), candies: XP_BOOST_COST }
     const now = 1_000
     const result = buyXpBoost(save, now)
 
@@ -77,7 +77,7 @@ describe('buyXpBoost / isBuffActive / xpMultiplierFromBuffs', () => {
   })
 
   it('extends from the current expiry instead of resetting when bought again while active', () => {
-    const save = { ...makeSave(), candies: XP_BOOST_COST * 2 }
+    const save = { ...makeRegionSave(), candies: XP_BOOST_COST * 2 }
     const now = 1_000
     const afterFirst = buyXpBoost(save, now)
     const afterSecond = buyXpBoost(afterFirst, now + 100)
@@ -86,11 +86,11 @@ describe('buyXpBoost / isBuffActive / xpMultiplierFromBuffs', () => {
   })
 
   it('is a no-op when the player cannot afford it', () => {
-    const save = { ...makeSave(), candies: XP_BOOST_COST - 1 }
+    const save = { ...makeRegionSave(), candies: XP_BOOST_COST - 1 }
     expect(buyXpBoost(save, 0)).toEqual(save)
   })
 
   it('defaults to a 1x multiplier with no active buff', () => {
-    expect(xpMultiplierFromBuffs(makeSave(), 0)).toBe(1)
+    expect(xpMultiplierFromBuffs(makeRegionSave(), 0)).toBe(1)
   })
 })

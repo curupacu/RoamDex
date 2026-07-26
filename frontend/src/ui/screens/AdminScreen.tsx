@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import type { Gen1Entry } from '../../content/gen1/types'
-import type { SaveData } from '../../engine/save'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import type { RegionSave } from '../../engine/save'
 
 // Temporary dev-only screen for manual testing (add Pokémon of any type
 // without waiting for real capture, force a wild encounter instantly,
 // pad candies, jump levels). Not part of any roadmap sprint — remove
 // once there's a real way to reach this content in-game.
 interface AdminScreenProps {
-  gen1: Gen1Entry[]
-  save: SaveData
+  gen1: SpeciesEntry[]
+  region: RegionSave
+  insignias: number
   onAddCandies: (amount: number) => void
   onAddInsignias: (amount: number) => void
   onAddToRoster: (speciesId: number, level: number) => void
@@ -25,7 +26,8 @@ interface AdminScreenProps {
 
 export function AdminScreen({
   gen1,
-  save,
+  region,
+  insignias,
   onAddCandies,
   onAddInsignias,
   onAddToRoster,
@@ -50,7 +52,7 @@ export function AdminScreen({
 
       <div className="pokemon-detail">
         <h3>Insígnias (Loja de Rebirth)</h3>
-        <p>Saldo: {save.insignias}</p>
+        <p>Saldo: {insignias}</p>
         <button onClick={() => onAddInsignias(50)}>+ 50 Insígnias</button>
       </div>
 
@@ -90,10 +92,10 @@ export function AdminScreen({
       <div className="pokemon-detail">
         <h3>Roster atual</h3>
         <ul>
-          {save.roster.map((member) => (
+          {region.roster.map((member) => (
             <li key={member.speciesId}>
               #{member.speciesId} Nv.{member.level} ({Math.floor(member.xp)} XP)
-              {save.activeTeamIds.includes(member.speciesId) ? ' — no time' : ' — no banco'}
+              {region.activeTeamIds.includes(member.speciesId) ? ' — no time' : ' — no banco'}
             </li>
           ))}
         </ul>

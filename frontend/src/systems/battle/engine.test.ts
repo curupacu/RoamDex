@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { TYPES } from '../../content/types'
 import type { RosterMember } from '../../engine/save'
 import {
@@ -16,7 +16,7 @@ import {
   type BattleState,
 } from './engine'
 
-function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
+function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
     id: 1,
     name: 'bulbasaur',
@@ -77,7 +77,7 @@ describe('applyPlayerTap', () => {
     // All 18 real types have a QTE as of Sprint 17 — this fabricated type
     // exercises the fallback path in case content/moves.ts ever has a gap
     // (e.g. a future 19th type not wired up yet).
-    const gen1 = [makeEntry({ types: ['unconfigured-type' as Gen1Entry['types'][number]] })]
+    const gen1 = [makeEntry({ types: ['unconfigured-type' as SpeciesEntry['types'][number]] })]
     let battle = createBattle(
       gen1,
       [makeMember(1)],
@@ -218,7 +218,7 @@ describe('applyEnemyAttack', () => {
 })
 
 describe('multi-Pokémon enemy team (gym battles)', () => {
-  function weakEntry(id: number): Gen1Entry {
+  function weakEntry(id: number): SpeciesEntry {
     return makeEntry({ id, stats: { hp: 1, attack: 1, defense: 0, 'special-attack': 1, 'special-defense': 0, speed: 1 } })
   }
 
@@ -285,7 +285,7 @@ describe('multi-Pokémon enemy team (gym battles)', () => {
 })
 
 describe('trainer sequence (Elite Four)', () => {
-  function weakEntry(id: number): Gen1Entry {
+  function weakEntry(id: number): SpeciesEntry {
     return makeEntry({ id, stats: { hp: 1, attack: 1, defense: 0, 'special-attack': 1, 'special-defense': 0, speed: 1 } })
   }
 

@@ -1,15 +1,16 @@
-import { STARTER_IDS } from '../../content/gen1/starters'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import type { RegionDefinition } from '../../content/regions'
 import { TypeBadge } from '../components/TypeBadge'
 
 interface NewGameScreenProps {
-  gen1: Gen1Entry[]
+  regionDef: RegionDefinition
+  gen1: SpeciesEntry[]
   onChoose: (speciesId: number) => void
 }
 
-export function NewGameScreen({ gen1, onChoose }: NewGameScreenProps) {
-  const starters = STARTER_IDS.map((id) => gen1.find((entry) => entry.id === id)).filter(
-    (entry): entry is Gen1Entry => entry !== undefined,
+export function NewGameScreen({ regionDef, gen1, onChoose }: NewGameScreenProps) {
+  const starters = regionDef.starterIds.map((id) => gen1.find((entry) => entry.id === id)).filter(
+    (entry): entry is SpeciesEntry => entry !== undefined,
   )
 
   return (

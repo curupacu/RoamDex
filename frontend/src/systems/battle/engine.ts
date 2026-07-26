@@ -1,5 +1,5 @@
 import { MOVES } from '../../content/moves'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { typeEffectiveness } from '../../content/typeEffectiveness'
 import type { TypeName } from '../../content/types'
 import type { RosterMember } from '../../engine/save'
@@ -66,7 +66,7 @@ export interface BattleHit {
 // One member of the roster a battle is fought against — a wild encounter's
 // roster is always length 1, a gym leader's/trainer's can be several.
 export interface EnemyRosterEntry {
-  entry: Gen1Entry
+  entry: SpeciesEntry
   level: number
   // Set only on the FIRST entry of each trainer within a multi-trainer
   // sequence (Elite Four) — its presence marks a trainerBoundaries index
@@ -104,7 +104,7 @@ export function hasQte(type: TypeName): boolean {
   return MOVES[type] !== undefined
 }
 
-function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
+function makeUnit(entry: SpeciesEntry, level: number): BattleUnit {
   const stats = deriveStats(entry, level)
   return {
     speciesId: entry.id,
@@ -126,7 +126,7 @@ function makeUnit(entry: Gen1Entry, level: number): BattleUnit {
 // between-battle 50% heal is a thing, per the roadmap) — it's one
 // continuous fight, same as the real games.
 export function createBattle(
-  gen1: Gen1Entry[],
+  gen1: SpeciesEntry[],
   roster: RosterMember[],
   activeTeamIds: number[],
   enemyRoster: EnemyRosterEntry[],

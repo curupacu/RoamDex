@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { makeSave } from '../../engine/save.testUtils'
+import { makeRegionSave } from '../../engine/save.testUtils'
 import { buyUpgrade, isUnlocked, ownedCount, totalClickBonus, totalCps, upgradeCost } from './upgrades'
 import { UPGRADES } from '../../content/gen1/upgrades'
+import { REGIONS } from '../../content/regions'
+
+const kanto = REGIONS.kanto
 
 describe('upgradeCost', () => {
   it('scales the base cost by 1.15^owned, rounded up', () => {
@@ -15,17 +18,17 @@ describe('upgradeCost', () => {
 describe('isUnlocked', () => {
   it('is locked below the unlock threshold and unlocked at/above it', () => {
     const def = UPGRADES.find((u) => u.unlockAt > 0)!
-    expect(isUnlocked(def, makeSave({ lifetimeCandies: def.unlockAt - 1 }))).toBe(false)
-    expect(isUnlocked(def, makeSave({ lifetimeCandies: def.unlockAt }))).toBe(true)
+    expect(isUnlocked(def, makeRegionSave({ lifetimeCandies: def.unlockAt - 1 }))).toBe(false)
+    expect(isUnlocked(def, makeRegionSave({ lifetimeCandies: def.unlockAt }))).toBe(true)
   })
 })
 
 describe('buyUpgrade', () => {
   it('deducts the cost and increments the owned count when affordable', () => {
     const def = UPGRADES[0]
-    const save = makeSave({ candies: def.baseCost })
+    const save = makeRegionSave({ candies: def.baseCost })
 
-    const result = buyUpgrade(save, def.id)
+    const result = buyUpgrade(kanto, save, def.id)
 
     expect(result.candies).toBe(0)
     expect(ownedCount(result, def.id)).toBe(1)
@@ -35,16 +38,16 @@ describe('buyUpgrade', () => {
 
   it('is a no-op when the player cannot afford it', () => {
     const def = UPGRADES[0]
-    const save = makeSave({ candies: def.baseCost - 1 })
+    const save = makeRegionSave({ candies: def.baseCost - 1 })
 
-    const result = buyUpgrade(save, def.id)
+    const result = buyUpgrade(kanto, save, def.id)
 
     expect(result).toEqual(save)
   })
 
   it('is a no-op for an unknown upgrade id', () => {
-    const save = makeSave({ candies: 1_000_000 })
-    expect(buyUpgrade(save, 'does-not-exist')).toEqual(save)
+    const save = makeRegionSave({ candies: 1_000_000 })
+    expect(buyUpgrade(kanto, save, 'does-not-exist')).toEqual(save)
   })
 })
 
@@ -52,9 +55,9 @@ describe('totalClickBonus / totalCps', () => {
   it('sums effect × owned across upgrades of each kind', () => {
     const clickDef = UPGRADES.find((u) => u.kind === 'click')!
     const cpsDef = UPGRADES.find((u) => u.kind === 'cps')!
-    const save = makeSave({ upgrades: { [clickDef.id]: 3, [cpsDef.id]: 2 } })
+    const save = makeRegionSave({ upgrades: { [clickDef.id]: 3, [cpsDef.id]: 2 } })
 
-    expect(totalClickBonus(save)).toBe(clickDef.effect * 3)
-    expect(totalCps(save)).toBe(cpsDef.effect * 2)
+    expect(totalClickBonus(kanto, save)).toBe(clickDef.effect * 3)
+    expect(totalCps(kanto, save)).toBe(cpsDef.effect * 2)
   })
 })

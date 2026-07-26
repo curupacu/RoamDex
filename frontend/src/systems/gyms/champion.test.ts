@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { CHAMPION_TEAM_BY_STARTER } from '../../content/gen1/eliteFour'
-import type { Gen1Entry } from '../../content/gen1/types'
-import { makeSave } from '../../engine/save.testUtils'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import { REGIONS } from '../../content/regions'
+import { makeRegionSave } from '../../engine/save.testUtils'
 import { championTeam } from './champion'
 
-function makeEntry(overrides: Partial<Gen1Entry> = {}): Gen1Entry {
+const kanto = REGIONS.kanto
+
+function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
     id: 1,
     name: 'bulbasaur',
@@ -49,33 +52,33 @@ const nonStarter = makeEntry({
 describe('championTeam', () => {
   it("picks the champion's Bulbasaur-pick team when the base starter is in the roster", () => {
     const gen1 = [...bulbasaurLine, nonStarter]
-    const save = makeSave({ roster: [{ speciesId: 1, level: 5, xp: 0 }] })
+    const save = makeRegionSave({ roster: [{ speciesId: 1, level: 5, xp: 0 }] })
 
-    expect(championTeam(save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
+    expect(championTeam(kanto, save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
   })
 
   it('resolves through an evolved form (Venusaur) back to its Bulbasaur root', () => {
     const gen1 = [...bulbasaurLine, nonStarter]
-    const save = makeSave({ roster: [{ speciesId: 3, level: 36, xp: 0 }] })
+    const save = makeRegionSave({ roster: [{ speciesId: 3, level: 36, xp: 0 }] })
 
-    expect(championTeam(save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
+    expect(championTeam(kanto, save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
   })
 
   it('picks the Charmander-pick team when that starter is in the roster, even if benched', () => {
     const gen1 = [...charmanderLine, nonStarter]
     // Not in activeTeamIds — champion selection must still find it in roster.
-    const save = makeSave({ roster: [{ speciesId: 4, level: 20, xp: 0 }], activeTeamIds: [] })
+    const save = makeRegionSave({ roster: [{ speciesId: 4, level: 20, xp: 0 }], activeTeamIds: [] })
 
-    expect(championTeam(save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[4])
+    expect(championTeam(kanto, save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[4])
   })
 
   it('ignores non-starter roster members entirely', () => {
     const gen1 = [...bulbasaurLine, nonStarter]
-    const save = makeSave({ roster: [{ speciesId: 19, level: 8, xp: 0 }] })
+    const save = makeRegionSave({ roster: [{ speciesId: 19, level: 8, xp: 0 }] })
 
     // No starter in roster at all (shouldn't happen post new-game) — falls
     // back to the default starter's team defensively, same spirit as
     // locationById's unknown-id fallback.
-    expect(championTeam(save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
+    expect(championTeam(kanto, save, gen1)).toBe(CHAMPION_TEAM_BY_STARTER[1])
   })
 })

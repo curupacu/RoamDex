@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { LocationDefinition } from '../../content/gen1/locations'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { spawnWildEncounter } from './wildEncounter'
 
-function makeEntry(id: number, captureRate = 45): Gen1Entry {
+function makeEntry(id: number, captureRate = 45): SpeciesEntry {
   return {
     id,
     name: `species-${id}`,
@@ -16,7 +16,7 @@ function makeEntry(id: number, captureRate = 45): Gen1Entry {
 }
 
 function makeLocation(overrides: Partial<LocationDefinition> = {}): LocationDefinition {
-  return { id: 'test-route', name: 'Test Route', unlockAt: 0, encounters: [], ...overrides }
+  return { id: 'test-route', name: 'Test Route', unlockAt: 0, background: 'tall-grass.png', encounters: [], ...overrides }
 }
 
 describe('spawnWildEncounter', () => {

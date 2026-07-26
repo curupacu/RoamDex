@@ -1,5 +1,5 @@
 import type { LocationDefinition } from '../../content/gen1/locations'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { rarityTier, type RarityTier } from './rarityTier'
 
 // Provisional — Sprint 25 tunes these against real play data. Tuned down
@@ -46,7 +46,7 @@ function rollLevel(minLevel: number, maxLevel: number): number {
 // null for a location with no wild encounters at all (towns, gyms).
 export function spawnWildEncounter(
   location: LocationDefinition,
-  gen1: Gen1Entry[],
+  gen1: SpeciesEntry[],
   rareBonusMultiplier: number,
 ): WildEncounter | null {
   if (location.encounters.length === 0) return null

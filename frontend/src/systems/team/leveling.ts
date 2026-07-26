@@ -1,5 +1,5 @@
-import type { Gen1Entry } from '../../content/gen1/types'
-import type { RosterMember, SaveData } from '../../engine/save'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import type { RegionSave, RosterMember } from '../../engine/save'
 
 // Provisional curve — Sprint 25 ("Balanceamento") tunes this against
 // simulation data, same treatment as the Sprint 6 upgrade costs.
@@ -29,7 +29,7 @@ export function applyXpGain(member: RosterMember, amount: number): RosterMember 
 // Every stage in a species' evolutionChain lists the full chain (roadmap
 // data: Ivysaur's entry has the same 3 steps as Bulbasaur's), so this
 // works no matter which stage `entry` currently is.
-export function resolveEvolution(entry: Gen1Entry, level: number): number {
+export function resolveEvolution(entry: SpeciesEntry, level: number): number {
   let speciesId = entry.id
   for (const step of entry.evolutionChain) {
     if (step.trigger === 'level-up' && step.minLevel !== null && level >= step.minLevel) {
@@ -46,7 +46,7 @@ export function resolveEvolution(entry: Gen1Entry, level: number): number {
 // form in the roster separately. If evolving would collide with a
 // *different* existing member, skip the species change (level/xp still
 // apply) instead of silently creating two roster entries with the same id.
-export function resolveEvolutionSafely(save: SaveData, gen1: Gen1Entry[], speciesId: number, level: number): number {
+export function resolveEvolutionSafely(save: RegionSave, gen1: SpeciesEntry[], speciesId: number, level: number): number {
   const entry = gen1.find((candidate) => candidate.id === speciesId)
   if (!entry) return speciesId
 
@@ -60,7 +60,7 @@ export function resolveEvolutionSafely(save: SaveData, gen1: Gen1Entry[], specie
 // Grants XP to a single roster member (by current speciesId), evolving it
 // if the new level crosses a threshold. Shared by the idle "Treinamento"
 // upgrade, Rare Candy, and battle XP rewards (Sprint 13).
-export function gainMemberXp(save: SaveData, gen1: Gen1Entry[], speciesId: number, amount: number): SaveData {
+export function gainMemberXp(save: RegionSave, gen1: SpeciesEntry[], speciesId: number, amount: number): RegionSave {
   if (amount <= 0) return save
   const member = save.roster.find((candidate) => candidate.speciesId === speciesId)
   if (!member) return save
@@ -80,7 +80,7 @@ export function gainMemberXp(save: SaveData, gen1: Gen1Entry[], speciesId: numbe
 // active team member equally. Each call threads through gainMemberXp via
 // reduce, so resolveEvolutionSafely always checks against the up-to-date
 // roster — including evolutions already applied earlier in the same call.
-export function gainTeamXp(save: SaveData, gen1: Gen1Entry[], amount: number): SaveData {
+export function gainTeamXp(save: RegionSave, gen1: SpeciesEntry[], amount: number): RegionSave {
   if (amount <= 0 || save.activeTeamIds.length === 0) return save
 
   return save.activeTeamIds.reduce((current, speciesId) => gainMemberXp(current, gen1, speciesId, amount), save)

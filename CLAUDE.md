@@ -20,6 +20,19 @@ que o dono do projeto reportou no playtest e ainda não foram triados/codados.
 4. **Game loop por timestamp**, nunca por frame/intervalo confiável. Progresso
    offline é calculado por diferença de timestamp.
 5. TypeScript estrito. Sem `any` sem justificativa em comentário.
+6. **Regiões são save-slots paralelos, não geração linear** (decisão 0022).
+   `SaveData.regions[regionId]` guarda tudo por-run (roster, candies,
+   badges...) isolado por região; só `insignias`/`rebirthUpgrades`/
+   `victoryRoad` são globais. Uma região nova é uma entrada em
+   `content/regions.ts` (`RegionDefinition`) — nunca hardcode de
+   `content/gen1/*` direto em `systems/`/`ui/` (mesmo espírito da regra 2).
+
+## Fluxo do app (App.tsx)
+`onAuthStateChanged` (login: Google/email/anônimo) → `!activeRegionDef`
+(Menu → Seleção de região) → `!gen1` (carregando espécies da região atual)
+→ `roster vazio` (escolher inicial) → jogo. Cada gate é um early-return em
+`App.tsx`; não pular etapa nem assumir que `save.currentRegionId` está
+sempre preenchido.
 
 ## Convenções
 - Idioma da UI e dos textos de jogo: português (BR). Código e commits: inglês.

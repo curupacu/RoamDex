@@ -1,25 +1,25 @@
-import type { Gen1Entry } from '../../content/gen1/types'
-import type { SaveData } from '../../engine/save'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import type { RegionSave } from '../../engine/save'
 import { isInActiveTeam, MAX_TEAM_SIZE } from '../../systems/team/roster'
 import { TypeBadge } from '../components/TypeBadge'
 
 interface TeamScreenProps {
-  gen1: Gen1Entry[]
-  save: SaveData
+  gen1: SpeciesEntry[]
+  region: RegionSave
   onToggle: (speciesId: number) => void
 }
 
-export function TeamScreen({ gen1, save, onToggle }: TeamScreenProps) {
+export function TeamScreen({ gen1, region, onToggle }: TeamScreenProps) {
   return (
     <div className="team-screen">
       <h2>
-        Time ({save.activeTeamIds.length}/{MAX_TEAM_SIZE})
+        Time ({region.activeTeamIds.length}/{MAX_TEAM_SIZE})
       </h2>
       <ul className="roster-list">
-        {save.roster.map((member) => {
+        {region.roster.map((member) => {
           const entry = gen1.find((candidate) => candidate.id === member.speciesId)
           if (!entry) return null
-          const active = isInActiveTeam(save, member.speciesId)
+          const active = isInActiveTeam(region, member.speciesId)
 
           return (
             <li key={member.speciesId}>

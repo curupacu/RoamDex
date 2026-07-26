@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { deriveStats } from './stats'
 
-const bulbasaur: Gen1Entry = {
+const bulbasaur: SpeciesEntry = {
   id: 1,
   name: 'bulbasaur',
   types: ['grass', 'poison'],

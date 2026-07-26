@@ -1,33 +1,33 @@
 import { useState } from 'react'
-import type { Gen1Entry } from '../../content/gen1/types'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { TYPES, type TypeName } from '../../content/types'
-import type { SaveData } from '../../engine/save'
+import type { RegionSave } from '../../engine/save'
 import { isCaptured, rosterMember } from '../../systems/team/roster'
 import { deriveStats } from '../../systems/team/stats'
 import { TypeBadge } from '../components/TypeBadge'
 
 interface PokedexScreenProps {
-  gen1: Gen1Entry[]
-  save: SaveData
+  gen1: SpeciesEntry[]
+  region: RegionSave
 }
 
 type CapturedFilter = 'all' | 'captured' | 'not-captured'
 
-export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
+export function PokedexScreen({ gen1, region }: PokedexScreenProps) {
   const [typeFilter, setTypeFilter] = useState<TypeName | 'all'>('all')
   const [capturedFilter, setCapturedFilter] = useState<CapturedFilter>('all')
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
   const filtered = gen1.filter((entry) => {
     if (typeFilter !== 'all' && !entry.types.includes(typeFilter)) return false
-    const captured = isCaptured(save, entry.id)
+    const captured = isCaptured(region, entry.id)
     if (capturedFilter === 'captured' && !captured) return false
     if (capturedFilter === 'not-captured' && captured) return false
     return true
   })
 
   const selected = selectedId !== null ? (gen1.find((entry) => entry.id === selectedId) ?? null) : null
-  const selectedMember = selected ? rosterMember(save, selected.id) : null
+  const selectedMember = selected ? rosterMember(region, selected.id) : null
   const selectedStats = selected && selectedMember ? deriveStats(selected, selectedMember.level) : null
 
   return (
@@ -51,7 +51,7 @@ export function PokedexScreen({ gen1, save }: PokedexScreenProps) {
 
       <div className="pokedex-grid">
         {filtered.map((entry) => {
-          const captured = isCaptured(save, entry.id)
+          const captured = isCaptured(region, entry.id)
           return (
             <button
               key={entry.id}
