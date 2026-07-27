@@ -75,6 +75,13 @@ type CapturePhase = 'idle' | 'throwing' | 'shaking'
 const CAPTURE_THROW_MS = 500
 const CAPTURE_SHAKE_MS = 1500
 
+// Animação de início de batalha (decisão 0037) — um flash rápido na tela +
+// os dois lados entrando deslizados (inimigo da direita, seu ativo da
+// esquerda), só pra dar impacto no corte instantâneo clicker->batalha.
+// Curta de propósito: uma luta acontece o tempo todo num idle clicker, uma
+// intro longa toda vez viraria irritação em vez de graça.
+const BATTLE_INTRO_MS = 550
+
 function buildEnemyRoster(
   encounter: BattleEncounter,
   gen1: SpeciesEntry[],
@@ -125,6 +132,7 @@ export function BattleScreen({
   const [postVictoryMessage, setPostVictoryMessage] = useState<string | null>(null)
   const [showBallMenu, setShowBallMenu] = useState(false)
   const [capturePhase, setCapturePhase] = useState<CapturePhase>('idle')
+  const [introPlaying, setIntroPlaying] = useState(true)
   const captureTimeoutsRef = useRef<number[]>([])
   const victoryHandledRef = useRef(false)
   const onVictoryRef = useRef(onVictory)
@@ -215,6 +223,11 @@ export function BattleScreen({
     }
   }, [])
 
+  useEffect(() => {
+    const id = window.setTimeout(() => setIntroPlaying(false), BATTLE_INTRO_MS)
+    return () => window.clearTimeout(id)
+  }, [])
+
   // Clears any pending capture-animation timers if the screen unmounts
   // mid-sequence (e.g. the player somehow navigates away before it finishes).
   // `timeouts` below is the SAME array object captureTimeoutsRef.current
@@ -262,9 +275,10 @@ export function BattleScreen({
       {/* Always mounted (min-height reserved in CSS) — unmounting this when
           hitMessage clears would shift everything below it up, including a
           QTE hold button, right out from under the player's finger. */}
+      {introPlaying && <div className="battle-start-flash" />}
       <p className="battle-hit-message">{hitMessage}</p>
       <div
-        className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}${capturePhase === 'shaking' ? ' battle-enemy--capturing' : ''}`}
+        className={`battle-enemy${introPlaying ? ' battle-enemy--intro' : ''}${telegraph ? ' battle-enemy--telegraph' : ''}${capturePhase === 'shaking' ? ' battle-enemy--capturing' : ''}`}
       >
         <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>
@@ -289,7 +303,11 @@ export function BattleScreen({
 
       {battle.outcome === 'ongoing' && active && activeEntry && !battle.awaitingQte && (
         <>
-          <button className="battle-tap-area" onClick={() => setBattle((current) => applyPlayerTap(current))}>
+          <button
+            className={`battle-tap-area${introPlaying ? ' battle-tap-area--intro' : ''}`}
+            onClick={() => setBattle((current) => applyPlayerTap(current))}
+            disabled={introPlaying}
+          >
             <img src={activeEntry.sprite.local} alt={active.name} />
           </button>
           <p>

@@ -1158,6 +1158,62 @@ button:disabled {
   min-height: 1.2em;
 }
 
+/* Início de batalha (decisão 0037) — flash rápido + os dois lados
+   deslizando pra dentro (inimigo da direita, seu ativo da esquerda),
+   ambos controlados por BattleScreen.tsx's `introPlaying`. */
+.battle-screen {
+  position: relative;
+}
+
+.battle-start-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: battle-start-flash-anim 0.5s ease-out forwards;
+}
+
+@keyframes battle-start-flash-anim {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.battle-enemy--intro {
+  animation: battle-enemy-intro 0.5s ease-out;
+}
+
+@keyframes battle-enemy-intro {
+  from {
+    transform: translateX(160px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.battle-tap-area--intro {
+  animation: battle-player-intro 0.5s ease-out;
+}
+
+@keyframes battle-player-intro {
+  from {
+    transform: translateX(-160px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .battle-enemy {
   position: relative;
   margin-bottom: 1.5rem;

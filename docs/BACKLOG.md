@@ -115,9 +115,9 @@ medição.
 
 ## Ideias de feature / polish (não priorizadas ainda)
 
-- **Animações**: de evolução ✅ (`docs/decisoes/0036-*.md`, 2026-07-27) e de
-  captura (arremesso + balanço da bola, já em `BattleScreen.tsx`) feitas.
-  Ainda falta: início de batalha (hoje instantâneo/estático).
+- **Animações**: de evolução ✅ (`docs/decisoes/0036-*.md`), de captura
+  (arremesso + balanço da bola) e de início de batalha ✅
+  (`docs/decisoes/0037-*.md`, 2026-07-27) — as três feitas.
 - **Time do treinador do ginásio visível durante a luta**: pokébolas
   pequenas no canto mostrando quantos Pokémon ele tem e quantos já
   caíram (como nos jogos oficiais), + sprite do treinador (verificar se a
