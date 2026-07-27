@@ -400,11 +400,21 @@ export const KANTO_LOCATIONS: LocationDefinition[] = [
     background: 'route-grass.webp',
     name: 'Rota 22',
     unlockAt: 465_000,
+    // Sprint 25 ("Balanceamento"): os níveis 2-4 abaixo são os originais
+    // de Bulbapedia (Pokémon Red) — corretos pro jogo de origem, onde a
+    // Rota 22 é acessível bem cedo (saída de Viridian pra Vitory Road),
+    // mas aqui ela entra BEM depois na trilha linear (465k de 525k,
+    // penúltima parada antes do Giovanni). Simulação (tests/simulations/
+    // progression.sim.test.ts) achou isso criando um "buraco de nível" —
+    // preso aqui pra treinar (rota anterior a um ginásio ainda não
+    // vencido), o jogador nunca ganha XP suficiente pra continuar. Níveis
+    // ajustados pra ficarem entre a Rota 21 (21-32) e a Rota 23 (26-43),
+    // mantendo as mesmas espécies pesquisadas.
     encounters: [
-      { speciesId: 19, weight: 45, minLevel: 2, maxLevel: 4 }, // Rattata
-      { speciesId: 21, weight: 10, minLevel: 3, maxLevel: 5 }, // Spearow
-      { speciesId: 29, weight: 5, minLevel: 3, maxLevel: 4 }, // Nidoran♀
-      { speciesId: 32, weight: 40, minLevel: 2, maxLevel: 4 }, // Nidoran♂
+      { speciesId: 19, weight: 45, minLevel: 24, maxLevel: 28 }, // Rattata
+      { speciesId: 21, weight: 10, minLevel: 25, maxLevel: 29 }, // Spearow
+      { speciesId: 29, weight: 5, minLevel: 25, maxLevel: 28 }, // Nidoran♀
+      { speciesId: 32, weight: 40, minLevel: 24, maxLevel: 28 }, // Nidoran♂
     ],
   },
   {

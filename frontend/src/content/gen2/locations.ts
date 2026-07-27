@@ -450,11 +450,20 @@ export const JOHTO_LOCATIONS: LocationDefinition[] = [
     background: 'mountain-2.png',
     name: 'Rota 46',
     unlockAt: 490_000,
+    // Sprint 25 ("Balanceamento"): níveis 2-3 abaixo são os originais de
+    // Bulbapedia (Pokémon Gold) — corretos lá, onde a Rota 46 é uma
+    // "volta" que conecta perto de Violet City (bem no início do jogo),
+    // mas aqui ela é a ÚLTIMA parada antes de Blackthorn/Clair (nível
+    // médio ~38). Mesmo problema encontrado na Rota 22 de Kanto
+    // (tests/simulations/progression.sim.test.ts): preso aqui treinando
+    // pro ginásio ainda não vencido, o jogador nunca ganha XP suficiente.
+    // Níveis ajustados pra ficarem entre o Caminho de Gelo/Rota 45
+    // (~21-27) e Clair, mantendo as mesmas espécies pesquisadas.
     encounters: [
-      { speciesId: 21, weight: 35, minLevel: 2, maxLevel: 3 }, // Spearow
-      { speciesId: 74, weight: 40, minLevel: 2, maxLevel: 3 }, // Geodude
-      { speciesId: 19, weight: 20, minLevel: 2, maxLevel: 2 }, // Rattata
-      { speciesId: 39, weight: 5, minLevel: 3, maxLevel: 5 }, // Jigglypuff
+      { speciesId: 21, weight: 35, minLevel: 26, maxLevel: 30 }, // Spearow
+      { speciesId: 74, weight: 40, minLevel: 26, maxLevel: 30 }, // Geodude
+      { speciesId: 19, weight: 20, minLevel: 26, maxLevel: 28 }, // Rattata
+      { speciesId: 39, weight: 5, minLevel: 27, maxLevel: 31 }, // Jigglypuff
     ],
   },
   { id: 'blackthorn-city', name: 'Blackthorn City', unlockAt: 520_000, background: 'snow.png', encounters: [] }, // gym: Clair

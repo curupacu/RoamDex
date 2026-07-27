@@ -14,17 +14,25 @@ inicial com Metapod/Graveler era comportamento correto — ambos aparecem
 selvagens de verdade nessas rotas em Gold, sem bug). Ainda em aberto, sem
 dado de playtest suficiente pra fechar de vez:
 
-1. `LEVEL_BUMP = 25` do Elite Four/Campeão de Johto é um chute (decisão
-   0025) — precisa da mesma calibração que Kanto levou duas rodadas pra
-   acertar (chegar até lá e ver se a Elite Four/Lance oferecem desafio
-   real).
-2. A curva de `unlockAt` das 39 localizações (0 → 650.000) também é só
-   escalada da curva de Kanto, não simulada — vale confirmar se o ritmo de
-   doces por ginásio está bom.
+1. `LEVEL_BUMP` do Elite Four/Campeão de Johto — revisado via simulação em
+   2026-07-27 (`docs/decisoes/0034-*.md`): baixado de 25 pra 18, mas o
+   Elite Four de Johto ainda pede bem mais folga de nível que o de Kanto
+   pra vencer (times com evoluções exclusivas de Gen II, tipo Crobat/
+   Steelix, têm stats base mais altos que qualquer "equivalente" de Gen I
+   na mesma posição). Baixar só o número não resolveu — continua
+   precisando de uma comparação Pokémon-por-Pokémon de verdade.
+2. A curva de `unlockAt` das 39 localizações — simulação (2026-07-27,
+   `docs/decisoes/0034-*.md`) achou que o doce nunca é o gargalo real em
+   NENHUMA das duas regiões (quem trava é o nível/insígnia do ginásio), e
+   por isso não mexeu nela. Considerado não-problema por enquanto.
 3. Algumas tabelas de encontro selvagem de Johto (rotas com muita divisão
    manhã/dia/noite, e a tabela de Victory Road) passaram por normalização
    manual mais pesada na pesquisa — `docs/ROTAS-JOHTO.md` já marca quais
    merecem conferência contra a fonte antes de tratar como definitivas.
+   Duas rotas que travavam de vez o avanço (Rota 22 de Kanto e Rota 46 de
+   Johto, níveis baixos demais pra posição delas na trilha linear) foram
+   corrigidas em 2026-07-27 (`docs/decisoes/0034-*.md`) — o resto da
+   normalização pesada continua sem conferência.
 
 ## Bugs encontrados no playtest — corrigidos em 2026-07-25
 
@@ -116,7 +124,13 @@ multiplicador linear.
 - **Catch rate precisa de ajuste** — mecanismo atual
   (`systems/capture/capture.ts`, usa `captureRate` cru da API +
   `captureChance` do time) não está satisfazendo no playtest; rever a
-  fórmula.
+  fórmula. Revisado via simulação em 2026-07-27 (`docs/decisoes/0034-*.md`):
+  os números crus pareceram razoáveis (comum ~95%, raríssimo ~10% com a
+  melhor bola) — não mudou a fórmula. Suspeita é que a queixa original era
+  mais sobre falta de feedback (não dava pra ver a chance antes de
+  arriscar) do que a matemática em si; o HUD de captura do sistema de
+  Pokébolas (sessão anterior) já mostra a % de cada bola antes do
+  arremesso, vale reavaliar essa queixa depois de testar com isso.
 - **Pokébolas diferentes** com bônus de captura diferentes (Great Ball,
   Ultra Ball etc.) — hoje só existe "jogar Pokébola", sem escolha.
 - ~~**Fundo muda conforme o lugar** (rota vs caverna vs cidade etc.)~~

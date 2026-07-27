@@ -38,7 +38,9 @@ interface BattleScreenProps {
   regionDef: RegionDefinition
   region: RegionSave
   encounter: BattleEncounter
-  onVictory: (activeSpeciesId: number) => void
+  // enemyLevel = nível médio de todo o time inimigo que caiu (content/
+  // battle.ts's battleXpForVictory escala o XP concedido por isso).
+  onVictory: (activeSpeciesId: number, enemyLevel: number) => void
   // Only meaningful for encounter.kind === 'wild' — one row per ball (name,
   // owned count or null for infinite, catch chance for THIS species) to
   // show in the ball-choice HUD before the player commits to a throw.
@@ -140,7 +142,10 @@ export function BattleScreen({
     victoryHandledRef.current = true
     const current = battleRef.current
     const winner = current.playerTeam[current.activeIndex] ?? current.playerTeam[0]
-    onVictoryRef.current(winner.speciesId)
+    const enemyLevel = Math.round(
+      current.enemyTeam.reduce((sum, unit) => sum + unit.level, 0) / current.enemyTeam.length,
+    )
+    onVictoryRef.current(winner.speciesId, enemyLevel)
     if (frozenEncounter.kind === 'gym') onGymVictoryRef.current?.(frozenEncounter.gym.id)
     if (frozenEncounter.kind === 'elite-four') onEliteFourVictoryRef.current?.()
   }, [battle.outcome, frozenEncounter])

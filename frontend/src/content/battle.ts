@@ -19,6 +19,28 @@ export const TELEGRAPH_WINDOW_MS = 500
 
 // "XP vem de batalhas (todo o time ganha; o ativo ganha mais)" — roadmap
 // section 7. The active slot gets TEAM + ACTIVE_BONUS, everyone else gets
-// just TEAM.
-export const BATTLE_XP_TEAM = 15
-export const BATTLE_XP_ACTIVE_BONUS = 15
+// just TEAM. Provisional — Sprint 25 ("Balanceamento").
+//
+// Escala com o nível do time inimigo (mesmo espírito de
+// systems/capture/loot.ts's `BASE_LOOT_CANDIES + enemyLevel *
+// LOOT_CANDIES_PER_LEVEL`) — achado nas simulações de
+// tests/simulations/: com XP fixo, batalhar (a fonte PRINCIPAL de XP
+// segundo o roadmap) mal fazia cócegas na curva de XP real
+// (xpForNextLevel escala ~nível^1.8) — levaria dezenas de horas só de
+// batalha pra alcançar o nível da Elite Four. Escalando por nível, lutar
+// contra selvagens/ginásios mais fortes conforme a run avança rende XP
+// proporcionalmente maior, acompanhando a mesma curva.
+export const BATTLE_XP_PER_ENEMY_LEVEL = 2
+export const BATTLE_XP_ACTIVE_BONUS_PER_ENEMY_LEVEL = 2
+
+// enemyLevel = nível médio do time inimigo inteiro que acabou de cair
+// (BattleScreen.tsx computa isso a partir do battle.enemyTeam) — pra
+// ginásios/Elite Four (times de vários Pokémon), isso já rende mais XP
+// que um selvagem comum sem precisar reestruturar pra "XP por Pokémon
+// derrotado dentro da luta".
+export function battleXpForVictory(enemyLevel: number): { team: number; activeBonus: number } {
+  return {
+    team: enemyLevel * BATTLE_XP_PER_ENEMY_LEVEL,
+    activeBonus: enemyLevel * BATTLE_XP_ACTIVE_BONUS_PER_ENEMY_LEVEL,
+  }
+}

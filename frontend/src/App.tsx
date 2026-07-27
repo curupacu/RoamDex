@@ -30,7 +30,7 @@ import { GOLDEN_VISIBLE_MS, rollGoldenIntervalMs } from './content/goldenEncount
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
 import { buyUpgrade, contributionsByKind, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { recordManyUpgradeEarnings } from './systems/economy/upgradeEarnings'
-import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
+import { battleXpForVictory } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, isCaptured, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { rollCapture } from './systems/capture/capture'
@@ -506,12 +506,14 @@ function App() {
   }
 
   // Grants XP right away, whether the player then captures, loots, or the
-  // battle was just the "Batalha" tab's fixed test dummy.
-  function handleVictory(activeSpeciesId: number) {
+  // battle was just the "Batalha" tab's fixed test dummy. XP scales with
+  // the enemy team's level (content/battle.ts's battleXpForVictory).
+  function handleVictory(activeSpeciesId: number, enemyLevel: number) {
     setSave((current) => {
       const xpMultiplier = xpGainMultiplierBonus(current)
-      const withTeamXp = gainTeamXp(currentRegion(current), gen1Ref.current ?? [], BATTLE_XP_TEAM * xpMultiplier)
-      const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, BATTLE_XP_ACTIVE_BONUS * xpMultiplier)
+      const { team, activeBonus } = battleXpForVictory(enemyLevel)
+      const withTeamXp = gainTeamXp(currentRegion(current), gen1Ref.current ?? [], team * xpMultiplier)
+      const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, activeBonus * xpMultiplier)
       return withRegion(current, withMemberXp)
     })
   }

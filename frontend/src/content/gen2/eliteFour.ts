@@ -2,19 +2,21 @@ import type { GymTeamMember } from '../gen1/gyms'
 import type { EliteFourMember } from '../gen1/eliteFour'
 import { STARTER_IDS } from './starters'
 
-// Provisional, same spirit as content/gen1/eliteFour.ts's own LEVEL_BUMP
-// (docs/decisoes/0019-*.md) — no Johto playtest data exists yet to tune
-// this against. Johto's own Bulbapedia reference levels (Will 40-42 up to
-// Lance 44-50, docs/ROTAS-JOHTO.md) are noticeably lower than Kanto's
-// pre-bump Elite Four (Lorelei 53-56 up to Lance 56-62) even though this
-// region is meant to be just as full a standalone run — the gap tracks
-// Gen II's own in-game pacing (Johto's story caps out lower than Kanto's
-// post-game). Bump picked to land Johto's final range (~65-78) a bit above
-// Kanto's tuned range (~65-77), matching a second region played on top of
-// Rebirth Shop bonuses from a first Kanto clear. Needs a real playtest pass
-// to confirm, same as Kanto's own two rounds of adjustment
-// (docs/BACKLOG.md).
-const LEVEL_BUMP = 25
+// Sprint 25 ("Balanceamento"): simulação de batalha (tests/simulations/
+// battle.sim.test.ts, e4debug.sim.test.ts) achou que o Elite Four de Johto
+// precisava de +20 níveis de folga acima do próprio nível médio do time
+// (time dos 3 iniciais evoluídos) pra vencer — contra só +8 do Kanto já
+// calibrado por playtest real (docs/decisoes/0019-*.md, LEVEL_BUMP=12).
+// Baixar o bump sozinho não resolveu essa folga RELATIVA (testado: 25→15
+// ainda pedia +20) — o motivo provável é a composição do time em si
+// (Crobat/Steelix/Forretress são evoluções exclusivas da Gen II, com
+// stats base mais altos que qualquer equivalente de Gen I na mesma
+// "posição"), não só o nível. Baixado mesmo assim pra reduzir o piso
+// absoluto (ajuda um pouco, e não atrapalha) — mas isso continua
+// precisando de uma rodada de balanceamento dedicada, Pokémon por
+// Pokémon, igual as duas rodadas reais que o Kanto já teve
+// (docs/BACKLOG.md). Registrado em docs/decisoes/0033-*.md.
+const LEVEL_BUMP = 18
 
 // Sources: docs/ROTAS-JOHTO.md lines 834-898 (Bulbapedia, Pokémon Gold) —
 // levels below are the original Bulbapedia numbers + LEVEL_BUMP, not

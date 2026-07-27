@@ -166,7 +166,9 @@ function effectivenessTier(multiplier: number): EffectivenessTier {
 
 // "Efetividade de tipos... aplica em ambos os lados" (roadmap section 4):
 // same lookup whether the player or the enemy is attacking.
-function calculateDamage(attacker: BattleUnit, defender: BattleUnit): { amount: number; tier: EffectivenessTier } {
+// Exported for tests/simulations/ (Sprint 25) — reused as-is so the balance
+// simulation never drifts from the actual formula the game plays with.
+export function calculateDamage(attacker: BattleUnit, defender: BattleUnit): { amount: number; tier: EffectivenessTier } {
   const multiplier = typeEffectiveness(attacker.type, defender.type)
   const base = Math.max(1, Math.round((attacker.atk - defender.def * DEF_DAMPING) * DAMAGE_SCALE))
   return { amount: Math.max(1, Math.round(base * multiplier)), tier: effectivenessTier(multiplier) }
