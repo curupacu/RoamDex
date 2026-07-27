@@ -22,13 +22,13 @@ import { auth } from './services/firebase'
 import { fetchCloudSave, pushCloudSave, resolveSync } from './services/cloudSave'
 import { REGIONS, type RegionDefinition } from './content/regions'
 import type { SpeciesEntry } from './content/gen1/types'
-import { BONUS_KIND_LABELS } from './content/types'
+import { BONUS_KIND_LABELS, type TypeName } from './content/types'
 import { applyClick, clickValue } from './systems/economy/click'
 import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/economy/candyShop'
 import { frenzyMultiplier, isFrenzyActive, triggerFrenzy } from './systems/economy/goldenEncounter'
 import { GOLDEN_VISIBLE_MS, rollGoldenIntervalMs } from './content/goldenEncounter'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
-import { buyUpgrade, contributionsByKind, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
+import { buyUpgrade, contributionsByKind, globalMultiplierBonus, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { recordManyUpgradeEarnings } from './systems/economy/upgradeEarnings'
 import { battleXpForVictory } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
@@ -123,6 +123,9 @@ function App() {
     .map((entry) => ({ types: entry.types }))
   const teamRef = useRef(team)
   teamRef.current = team
+  // Padrão 3 (sinergia) — tipos de todo mundo no time ATIVO agora (não o
+  // roster inteiro), checado só na hora de desbloquear (isUnlocked).
+  const activeTypes: TypeName[] = team.flatMap((member) => member.types)
   // Row per ball for BattleScreen's post-victory capture HUD — computed
   // upfront so the player sees each ball's actual chance before throwing it.
   const wildCaptureOptions =
@@ -169,7 +172,8 @@ function App() {
 
     const region = currentRegion(saveRef.current)
     const regionDef = regionDefFor(saveRef.current)
-    const cpsMultiplier = economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current)
+    const cpsMultiplier =
+      economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current) * globalMultiplierBonus(regionDef, region)
     const cps = totalCps(regionDef, region, cpsMultiplier)
     const progress = calculateOfflineProgress(saveRef.current, Date.now(), cps)
     if (progress.candiesEarned > 0) {
@@ -264,7 +268,10 @@ function App() {
         const region = currentRegion(saveRef.current)
         const regionDef = REGIONS[regionId]
         const cpsMultiplier =
-          economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current) * frenzyMultiplier(region, Date.now())
+          economyMultiplier(teamRef.current, 'cps') *
+          cpsMultiplierBonus(saveRef.current) *
+          frenzyMultiplier(region, Date.now()) *
+          globalMultiplierBonus(regionDef, region)
         const cps = totalCps(regionDef, region, cpsMultiplier)
         if (cps > 0) {
           const gain = (cps * deltaMs) / 1000
@@ -467,7 +474,8 @@ function App() {
 
   function handleClick() {
     if (!activeRegionDef || !regionSave) return
-    const multiplier = economyMultiplier(team, 'clickCandies') * frenzyMultiplier(regionSave, Date.now())
+    const multiplier =
+      economyMultiplier(team, 'clickCandies') * frenzyMultiplier(regionSave, Date.now()) * globalMultiplierBonus(activeRegionDef, regionSave)
     const gain = clickValue(activeRegionDef, regionSave, multiplier)
     const clickEarnings = contributionsByKind(activeRegionDef, regionSave, 'click').map(({ id, amount }) => ({
       id,
@@ -874,8 +882,20 @@ function App() {
             </div>
             <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
             <div className="side-column">
-              <ClickUpgradesGrid regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
-              <UpgradesPanel regionDef={activeRegionDef} region={regionSave} onBuy={handleBuyUpgrade} costMultiplier={upgradeCostMultiplier(team)} />
+              <ClickUpgradesGrid
+                regionDef={activeRegionDef}
+                region={regionSave}
+                activeTypes={activeTypes}
+                onBuy={handleBuyUpgrade}
+                costMultiplier={upgradeCostMultiplier(team)}
+              />
+              <UpgradesPanel
+                regionDef={activeRegionDef}
+                region={regionSave}
+                activeTypes={activeTypes}
+                onBuy={handleBuyUpgrade}
+                costMultiplier={upgradeCostMultiplier(team)}
+              />
             </div>
             {goldenEncounter && (
               <GoldenEncounter

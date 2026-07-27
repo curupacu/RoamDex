@@ -1,22 +1,34 @@
 import type { RegionSave } from '../../engine/save'
 import type { UpgradeDefinition } from '../../content/gen1/upgrades'
 import type { RegionDefinition } from '../../content/regions'
+import type { TypeName } from '../../content/types'
 
 export function ownedCount(save: RegionSave, id: string): number {
   return save.upgrades[id] ?? 0
 }
 
-export function isUnlocked(def: UpgradeDefinition, save: RegionSave): boolean {
-  return save.lifetimeCandies >= def.unlockAt
+// activeTypes = tipos (primário + secundário) de todo mundo no time ativo
+// agora — só importa pra upgrades com requiresSynergy (Padrão 3); omitir
+// (lista vazia) é seguro pra qualquer chamador que não precisa checar isso
+// (ex.: simulações de economia que não modelam time).
+export function isUnlocked(def: UpgradeDefinition, save: RegionSave, activeTypes: TypeName[] = []): boolean {
+  if (save.lifetimeCandies < def.unlockAt) return false
+  if (def.requiresBadges !== undefined && save.badges.length < def.requiresBadges) return false
+  if (def.requiresSynergy) {
+    const { upgradeId, count, teamType } = def.requiresSynergy
+    if (ownedCount(save, upgradeId) < count) return false
+    if (!activeTypes.includes(teamType)) return false
+  }
+  return true
 }
 
 // Próximo upgrade ainda bloqueado, o mais barato de destravar (decisão
 // 0030) — usado pra mostrar um "???" na loja/grid em vez de simplesmente
 // sumir da lista, criando expectativa (mesma ideia dos prédios com "???"
 // no Cookie Clicker antes de você ter dinheiro suficiente).
-export function nextLocked(defs: UpgradeDefinition[], save: RegionSave): UpgradeDefinition | undefined {
+export function nextLocked(defs: UpgradeDefinition[], save: RegionSave, activeTypes: TypeName[] = []): UpgradeDefinition | undefined {
   return defs
-    .filter((def) => !isUnlocked(def, save))
+    .filter((def) => !isUnlocked(def, save, activeTypes))
     .sort((a, b) => a.unlockAt - b.unlockAt)[0]
 }
 
@@ -100,4 +112,19 @@ export function totalCps(region: RegionDefinition, save: RegionSave, multiplier 
 
 export function totalXpPerSecond(region: RegionDefinition, save: RegionSave): number {
   return sumEffect(region, save, 'xp')
+}
+
+// Padrão 4 (marco global por insígnias, docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md)
+// — multiplicador (>= 1) somando o `effect` (fração) de todo upgrade
+// 'globalMultiplier' já comprado. Mesma convenção de
+// systems/rebirth/rebirthShop.ts's cpsMultiplierBonus — o chamador
+// multiplica isso em cima do que já tinha (bônus de tipo, rebirth), tanto
+// pra doces/clique quanto pra CPS.
+export function globalMultiplierBonus(region: RegionDefinition, save: RegionSave): number {
+  return (
+    1 +
+    region.upgrades
+      .filter((def) => def.kind === 'globalMultiplier' && ownedCount(save, def.id) > 0)
+      .reduce((total, def) => total + def.effect, 0)
+  )
 }

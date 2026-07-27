@@ -1,28 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
+import type { TypeName } from '../../content/types'
 import { formatBigNumber } from '../../engine/numberFormat'
 import { isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
 import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
 import type { UpgradeDefinition } from '../../content/gen1/upgrades'
+import { lockedHint } from './lockedHint'
 import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
 
 interface UpgradesPanelProps {
   regionDef: RegionDefinition
   region: RegionSave
+  activeTypes?: TypeName[]
   onBuy: (id: string) => void
   costMultiplier?: number
 }
 
-// "Store" list — the CPS/XP generators (docs/decisoes/0028-*.md). Click
-// upgrades live in the separate ClickUpgradesGrid corner instead, same
+// "Store" list — the CPS/XP generators (docs/decisoes/0028-*.md), plus the
+// Padrão 3/4 upgrades (sinergia/marco global) which aren't 'click' either.
+// Click upgrades live in the separate ClickUpgradesGrid corner instead, same
 // split the reference screenshot the project owner brought shows (buildings
 // list vs. a compact icon row).
-export function UpgradesPanel({ regionDef, region, onBuy, costMultiplier = 1 }: UpgradesPanelProps) {
+export function UpgradesPanel({ regionDef, region, activeTypes = [], onBuy, costMultiplier = 1 }: UpgradesPanelProps) {
   const storeDefs = regionDef.upgrades.filter((def) => def.kind !== 'click')
-  const visible = storeDefs.filter((def) => isUnlocked(def, region))
-  const upcoming = nextLocked(storeDefs, region)
+  const visible = storeDefs.filter((def) => isUnlocked(def, region, activeTypes))
+  const upcoming = nextLocked(storeDefs, region, activeTypes)
   if (visible.length === 0 && !upcoming) return null
 
   return (
@@ -40,7 +44,9 @@ export function UpgradesPanel({ regionDef, region, onBuy, costMultiplier = 1 }: 
               </span>
               <span className="upgrade-info">
                 <strong>???</strong>
-                <span className="upgrade-cost">Desbloqueia com {formatBigNumber(upcoming.unlockAt)} doces acumulados</span>
+                <span className="upgrade-cost">
+                  {lockedHint(upcoming, regionDef, region).replace(/^./, (c) => c.toUpperCase())}
+                </span>
               </span>
             </button>
           </li>
@@ -73,7 +79,9 @@ function UpgradeRow({
       ? `+${def.effect} doces/s por Pokémon capturado`
       : def.kind === 'cps'
         ? `+${def.effect} doces/s`
-        : `+${def.effect} XP/s pro time`
+        : def.kind === 'globalMultiplier'
+          ? `+${(def.effect * 100).toFixed(0)}% em doces/clique e doces/s, permanente`
+          : `+${def.effect} XP/s pro time`
   const soldOut = def.maxPurchases !== undefined && owned >= def.maxPurchases
 
   // Small idle-life flourish: once owned, this row periodically pops its
@@ -95,6 +103,10 @@ function UpgradeRow({
 
   const affordable = !soldOut && region.candies >= cost
   const earnedUnit = def.kind === 'xp' ? 'XP' : 'doces'
+  // globalMultiplier (Padrão 4) não passa por contributionsByKind — nunca
+  // acumula "já rendeu" próprio, é um multiplicador em cima do resto.
+  const earnedLabel =
+    def.kind === 'globalMultiplier' ? undefined : `Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${earnedUnit}`
 
   return (
     <li>
@@ -102,7 +114,7 @@ function UpgradeRow({
         name={def.name}
         effectLabel={soldOut ? `${effectLabel} (comprado)` : effectLabel}
         flavor={def.flavor}
-        earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${earnedUnit}`}
+        earnedLabel={earnedLabel}
       >
         <button className="upgrade-row" onClick={() => onBuy(def.id)} disabled={soldOut || !affordable}>
           <span className="upgrade-icon">

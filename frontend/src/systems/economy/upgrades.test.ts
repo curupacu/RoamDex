@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { makeRegionSave } from '../../engine/save.testUtils'
-import { buyUpgrade, isUnlocked, nextLocked, ownedCount, totalClickBonus, totalCps, upgradeCost } from './upgrades'
+import { buyUpgrade, globalMultiplierBonus, isUnlocked, nextLocked, ownedCount, totalClickBonus, totalCps, upgradeCost } from './upgrades'
 import { UPGRADES } from '../../content/gen1/upgrades'
 import { REGIONS } from '../../content/regions'
 
@@ -108,5 +108,75 @@ describe('tier-chain upgrades (maxPurchases + scalesWith)', () => {
     const save = makeRegionSave({ roster: [{ speciesId: 1, level: 5, xp: 0 }] })
 
     expect(totalClickBonus(kanto, save)).toBe(0)
+  })
+})
+
+// Padrão 4 (marco global por insígnias): gated by save.badges.length, not
+// by lifetimeCandies — separate from the unlockAt check above.
+describe('requiresBadges (Padrão 4, marco global)', () => {
+  it('stays locked below the badge threshold even with unlockAt satisfied', () => {
+    const def = UPGRADES.find((u) => u.requiresBadges === 4)!
+    const save = makeRegionSave({ lifetimeCandies: def.unlockAt, badges: ['pewter'] })
+
+    expect(isUnlocked(def, save)).toBe(false)
+  })
+
+  it('unlocks once badges.length reaches the threshold', () => {
+    const def = UPGRADES.find((u) => u.requiresBadges === 4)!
+    const save = makeRegionSave({ lifetimeCandies: def.unlockAt, badges: ['a', 'b', 'c', 'd'] })
+
+    expect(isUnlocked(def, save)).toBe(true)
+  })
+})
+
+// Padrão 3 (sinergia entre dois sistemas): gated by N copies of another
+// upgrade already owned AND a matching type on the active team right now.
+describe('requiresSynergy (Padrão 3, sinergia)', () => {
+  it('stays locked without enough copies of the required upgrade', () => {
+    const def = UPGRADES.find((u) => u.requiresSynergy !== undefined)!
+    const { upgradeId, count, teamType } = def.requiresSynergy!
+    const save = makeRegionSave({
+      lifetimeCandies: def.unlockAt,
+      upgrades: { [upgradeId]: count - 1 },
+    })
+
+    expect(isUnlocked(def, save, [teamType])).toBe(false)
+  })
+
+  it('stays locked without the required type on the active team', () => {
+    const def = UPGRADES.find((u) => u.requiresSynergy !== undefined)!
+    const { upgradeId, count } = def.requiresSynergy!
+    const save = makeRegionSave({
+      lifetimeCandies: def.unlockAt,
+      upgrades: { [upgradeId]: count },
+    })
+
+    expect(isUnlocked(def, save, ['fire'])).toBe(false)
+  })
+
+  it('unlocks once both the copy count and the active-team type are satisfied', () => {
+    const def = UPGRADES.find((u) => u.requiresSynergy !== undefined)!
+    const { upgradeId, count, teamType } = def.requiresSynergy!
+    const save = makeRegionSave({
+      lifetimeCandies: def.unlockAt,
+      upgrades: { [upgradeId]: count },
+    })
+
+    expect(isUnlocked(def, save, [teamType])).toBe(true)
+  })
+})
+
+describe('globalMultiplierBonus (Padrão 4)', () => {
+  it('is 1 (no-op) with none owned', () => {
+    const save = makeRegionSave()
+    expect(globalMultiplierBonus(kanto, save)).toBe(1)
+  })
+
+  it('sums the effect of every globalMultiplier upgrade owned', () => {
+    const defs = UPGRADES.filter((u) => u.kind === 'globalMultiplier')
+    const save = makeRegionSave({ upgrades: Object.fromEntries(defs.map((d) => [d.id, 1])) })
+
+    const expected = 1 + defs.reduce((total, d) => total + d.effect, 0)
+    expect(globalMultiplierBonus(kanto, save)).toBeCloseTo(expected)
   })
 })

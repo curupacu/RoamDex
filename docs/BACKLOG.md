@@ -92,25 +92,26 @@ dado de playtest suficiente pra fechar de vez:
   perder" em vez de "parede" ou ainda "fácil demais" — pode precisar de
   outra rodada pra qualquer um dos dois lados.
 
-## Upgrades genéricos demais — 1ª cadeia entregue em 2026-07-26
+## Upgrades genéricos demais — todos os 4 padrões entregues em 2026-07-27
 
 Os upgrades atuais (`content/gen1/upgrades.ts`) eram só "+N doces/clique" e
 "+N CPS" — o dono do projeto queria algo com mais personalidade, estilo
 Cookie Clicker. Pesquisa em
 [`docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md`](PESQUISA-UPGRADES-COOKIE-CLICKER.md)
-(2026-07-25) mapeou 4 padrões — **Padrão 2 (cadeia de tier) implementado**,
-ver `docs/decisoes/0026-cadeia-de-tier-upgrades.md`: 3 novos upgrades de
-compra única por eixo (clique/CPS), em Kanto e Johto, terminando num tier
-que escala com Pokémon capturados no roster em vez de ficar mais um
-multiplicador linear.
+(2026-07-25) mapeou 4 padrões, todos implementados agora:
+- **Padrão 2 (cadeia de tier)**: `docs/decisoes/0026-cadeia-de-tier-upgrades.md`
+  — 3 upgrades de compra única por eixo (clique/CPS), terminando num tier
+  que escala com Pokémon capturados no roster.
+- **Padrão 3 (sinergia) e Padrão 4 (marco global)**:
+  `docs/decisoes/0035-upgrades-sinergia-e-marco-global.md` — upgrade que
+  exige N cópias de outro + um tipo no time ativo, e multiplicador global
+  desbloqueado por `save.badges.length`.
 
-**Ainda não feito, alinhado que fica pra outra sessão:**
-- Padrão 3 (sinergia): upgrade que exige N de outro upgrade + um tipo
-  específico no time ativo.
-- Padrão 4 (marco global): multiplicador em tudo, desbloqueado por
-  `save.badges.length`.
-- Custos/efeitos dos 6 upgrades novos são chute redondo, sem simulação —
-  mesmo aviso de sempre pro Sprint 25.
+Custos/efeitos dos upgrades de Padrão 2/3/4 seguem a mesma faixa de
+grandeza dos tiers vizinhos, sem simulação dedicada (diferente dos achados
+numéricos da 0034, que passaram por `tests/simulations/`) — se algum
+parecer desbalanceado no playtest, é candidato a uma futura rodada de
+medição.
 
 ## Ideias de feature / polish (não priorizadas ainda)
 

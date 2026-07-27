@@ -1,14 +1,17 @@
 import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
+import type { TypeName } from '../../content/types'
 import { formatBigNumber } from '../../engine/numberFormat'
 import { isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
 import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
+import { lockedHint } from './lockedHint'
 import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
 
 interface ClickUpgradesGridProps {
   regionDef: RegionDefinition
   region: RegionSave
+  activeTypes?: TypeName[]
   onBuy: (id: string) => void
   costMultiplier?: number
 }
@@ -18,10 +21,10 @@ interface ClickUpgradesGridProps {
 // reference screenshot the project owner brought (docs/decisoes/0028-*.md).
 // UpgradeCard (hover card) carries name/cost/effect/earned since there's no
 // room for text in a small square.
-export function ClickUpgradesGrid({ regionDef, region, onBuy, costMultiplier = 1 }: ClickUpgradesGridProps) {
+export function ClickUpgradesGrid({ regionDef, region, activeTypes = [], onBuy, costMultiplier = 1 }: ClickUpgradesGridProps) {
   const clickDefs = regionDef.upgrades.filter((def) => def.kind === 'click')
-  const visible = clickDefs.filter((def) => isUnlocked(def, region))
-  const upcoming = nextLocked(clickDefs, region)
+  const visible = clickDefs.filter((def) => isUnlocked(def, region, activeTypes))
+  const upcoming = nextLocked(clickDefs, region, activeTypes)
   if (visible.length === 0 && !upcoming) return null
 
   return (
@@ -55,7 +58,7 @@ export function ClickUpgradesGrid({ regionDef, region, onBuy, costMultiplier = 1
       {upcoming && (
         <button
           className="click-upgrade-square click-upgrade-square--locked"
-          title={`??? — desbloqueia com ${formatBigNumber(upcoming.unlockAt)} doces acumulados`}
+          title={`??? — ${lockedHint(upcoming, regionDef, region)}`}
           disabled
         >
           <span className="click-upgrade-locked-mark">?</span>

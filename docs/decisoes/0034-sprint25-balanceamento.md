@@ -178,6 +178,6 @@ schema novo.
    sem conferência contra a fonte — só as duas rotas que travavam de vez
    (22 e 46) foram corrigidas aqui, o resto do "normalização manual mais
    pesada" continua de pé.
-3. `docs/BACKLOG.md`'s pendências de upgrade (Padrão 3 sinergia, Padrão 4
-   marco global) e o `catch rate` (revisado aqui, sem mudança) continuam
-   como estavam.
+3. ~~`docs/BACKLOG.md`'s pendências de upgrade (Padrão 3 sinergia, Padrão 4
+   marco global)~~ — implementados, ver `docs/decisoes/0035-*.md`. O
+   `catch rate` (revisado aqui, sem mudança) continua como estava.

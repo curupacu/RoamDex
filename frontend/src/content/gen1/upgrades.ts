@@ -1,7 +1,15 @@
+import type { TypeName } from '../types'
+
 export interface UpgradeDefinition {
   id: string
   name: string
-  kind: 'click' | 'cps' | 'xp'
+  // 'globalMultiplier' — Padrão 4 (marco global,
+  // docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md): `effect` é uma fração
+  // (0.1 = +10%) somada em systems/economy/upgrades.ts's
+  // globalMultiplierBonus, aplicada em cima de doces/clique E CPS — não
+  // entra nos somatórios de totalClickBonus/totalCps (esses só somam
+  // 'click'/'cps'), então nunca é contado em dobro.
+  kind: 'click' | 'cps' | 'xp' | 'globalMultiplier'
   baseCost: number
   effect: number
   // Lifetime candies (see SaveDataV2) required before the upgrade shows up.
@@ -19,6 +27,16 @@ export interface UpgradeDefinition {
   // (badge count, etc.) — systems/economy/upgrades.ts's scaleValue() is the
   // one place that has to learn about each one.
   scalesWith?: 'rosterSize'
+  // Padrão 4 (marco global) — além do unlockAt de doces, exige N insígnias
+  // de ginásio (save.badges.length) pra aparecer na loja.
+  requiresBadges?: number
+  // Padrão 3 (sinergia entre dois sistemas, docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md)
+  // — além do unlockAt, exige N cópias de OUTRO upgrade (por id) já
+  // compradas E um Pokémon desse tipo no time ativo agora. Checado só pra
+  // DESBLOQUEAR (aparecer na loja) — uma vez comprado (maxPurchases: 1),
+  // o efeito é permanente mesmo que o time mude depois, igual qualquer
+  // outro upgrade de tier único.
+  requiresSynergy?: { upgradeId: string; count: number; teamType: TypeName }
   // Frase de efeito curta (decisão 0030) — escalando de mundano pra
   // absurdo conforme o tier, mesmo truque do Cookie Clicker (Cursor →
   // Vovó → ... → Torre Mágica) de dar personalidade sem custar arte nova.
@@ -84,5 +102,50 @@ export const UPGRADES: UpgradeDefinition[] = [
     // Sprint 25: era 1.2, mesmo motivo do Fúria do Mewtwo acima.
     effect: 12, // +12 CPS por Pokémon capturado no roster
     flavor: 'Cada trovão vira uma fornada.',
+  },
+
+  // --- Padrão 3 (sinergia entre dois sistemas) — decisão de upgrades,
+  // Sprint pós-25. Exige N cópias de um building específico JÁ comprado
+  // + um Pokémon de um tipo específico no time ativo agora. Tipo Grama
+  // escolhido de propósito: já é o tipo que dá bônus de CPS
+  // (content/types.ts), então esse upgrade "dobra a aposta" no mesmo
+  // tema em vez de inventar uma sinergia sem relação com o resto do jogo. ---
+  {
+    id: 'grass-synergy-conveyor',
+    name: 'Cultivo Simbiótico',
+    kind: 'cps',
+    baseCost: 40_000,
+    unlockAt: 1_500, // mesmo unlockAt da Esteira de Doces — só falta a sinergia
+    maxPurchases: 1,
+    requiresSynergy: { upgradeId: 'candy-conveyor', count: 15, teamType: 'grass' },
+    effect: 60, // +60 CPS, permanente
+    flavor: 'As Esteiras de Doces produzem mais quando um Pokémon de Grama cuida da plantação por perto.',
+  },
+
+  // --- Padrão 4 (multiplicador global por marco) — desbloqueado por
+  // insígnias de ginásio (save.badges.length), não por doces. Efeito
+  // soma com qualquer outro 'globalMultiplier' já comprado
+  // (globalMultiplierBonus), aplicado em cima de doces/clique E CPS. ---
+  {
+    id: 'league-recognition',
+    name: 'Reconhecimento da Liga Pokémon',
+    kind: 'globalMultiplier',
+    baseCost: 300_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBadges: 4,
+    effect: 0.08, // +8% em tudo (doces/clique e CPS)
+    flavor: 'Metade das insígnias de Kanto já abre portas em qualquer cidade.',
+  },
+  {
+    id: 'kanto-legend',
+    name: 'Lenda de Kanto',
+    kind: 'globalMultiplier',
+    baseCost: 1_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBadges: 8,
+    effect: 0.15, // +15% em tudo, soma com o Reconhecimento da Liga
+    flavor: 'As 8 insígnias completas — seu nome já circula antes de você chegar.',
   },
 ]

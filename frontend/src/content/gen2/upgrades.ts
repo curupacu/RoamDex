@@ -52,4 +52,43 @@ export const UPGRADES: UpgradeDefinition[] = [
     effect: 12, // +12 CPS por Pokémon capturado no roster
     flavor: 'Um redemoinho silencioso, mas produtivo.',
   },
+
+  // --- Padrão 3 (sinergia) — mesmo formato de content/gen1/upgrades.ts,
+  // só trocando a Esteira de Doces pela Esteira da GS Ball. ---
+  {
+    id: 'grass-synergy-gs-ball',
+    name: 'Cultivo da Rota de Ilex',
+    kind: 'cps',
+    baseCost: 40_000,
+    unlockAt: 1_500,
+    maxPurchases: 1,
+    requiresSynergy: { upgradeId: 'gs-ball-conveyor', count: 15, teamType: 'grass' },
+    effect: 60, // +60 CPS, permanente
+    flavor: 'As Esteiras da GS Ball rendem mais perto da floresta, com um Pokémon de Grama por perto.',
+  },
+
+  // --- Padrão 4 (multiplicador global por marco) — mesmo formato de
+  // content/gen1/upgrades.ts, gatilho pelas 8 insígnias de Johto. ---
+  {
+    id: 'johto-league-recognition',
+    name: 'Reconhecimento da Liga Johto',
+    kind: 'globalMultiplier',
+    baseCost: 300_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBadges: 4,
+    effect: 0.08, // +8% em tudo (doces/clique e CPS)
+    flavor: 'Metade das insígnias de Johto já rende respeito em qualquer Centro Pokémon.',
+  },
+  {
+    id: 'johto-legend',
+    name: 'Lenda de Johto',
+    kind: 'globalMultiplier',
+    baseCost: 1_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBadges: 8,
+    effect: 0.15, // +15% em tudo, soma com o Reconhecimento da Liga
+    flavor: 'As 8 insígnias completas — até o Rei da Ilha Vale já ouviu falar de você.',
+  },
 ]
