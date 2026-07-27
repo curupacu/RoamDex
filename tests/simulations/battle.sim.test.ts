@@ -62,24 +62,26 @@ describe.each([
     const team = buildEliteFourTeam(regionDef)
     const avgLevel = averageLevel(team)
 
-    // +20 níveis é uma folga generosa (o Kanto já calibrado por playtest
-    // real só precisa de +8) — Johto ainda precisa de algo perto disso
-    // (achado registrado em docs/decisoes/0033-*.md: times da Gen II como
-    // Crobat/Steelix têm stats base mais altos que qualquer equivalente de
-    // Gen I na "mesma posição", então nivelar sozinho não empata a
-    // dificuldade — fica pra uma rodada de balanceamento dedicada,
-    // Pokémon por Pokémon). Esse teste só garante que NENHUMA quantidade
-    // razoável de grind deixa o Elite Four impossível de vencer.
+    // +8 níveis é o número calibrado por playtest real no Kanto
+    // (docs/decisoes/0019-*.md). Johto precisava de +20 até a decisão
+    // 0038: a causa não eram os 4 membros do Elite Four em si (times
+    // razoáveis contra eles mesmo sem folga nenhuma), e sim só o time do
+    // Campeão Lance (3 Dragonite cheios + Charizard + Aerodactyl, sem
+    // cura nenhuma entre si, resistindo a QUALQUER um dos 3 tipos
+    // iniciais) — corrigido com um LEVEL_BUMP menor só pro Campeão
+    // (content/gen2/eliteFour.ts's CHAMPION_LEVEL_BUMP), sem mudar o
+    // roster nem os outros 4 membros. Agora as duas regiões usam o mesmo
+    // cushion de referência.
     const atParity = simulateFight(gen1, regionDef.starterIds.map((id) => starterAtLevel(gen1, id, avgLevel)), team, OPTIONS)
     const withCushion = simulateFight(
       gen1,
-      regionDef.starterIds.map((id) => starterAtLevel(gen1, id, avgLevel + 20)),
+      regionDef.starterIds.map((id) => starterAtLevel(gen1, id, avgLevel + 8)),
       team,
       OPTIONS,
     )
 
     console.log(
-      `${regionName} Elite Four nívelMédio=${avgLevel}  no nível: ${atParity.outcome} (${(atParity.playerHpFractionRemaining * 100).toFixed(0)}% HP)  com +20 níveis: ${withCushion.outcome} (${(withCushion.playerHpFractionRemaining * 100).toFixed(0)}% HP)`,
+      `${regionName} Elite Four nívelMédio=${avgLevel}  no nível: ${atParity.outcome} (${(atParity.playerHpFractionRemaining * 100).toFixed(0)}% HP)  com +8 níveis: ${withCushion.outcome} (${(withCushion.playerHpFractionRemaining * 100).toFixed(0)}% HP)`,
     )
     expect(withCushion.outcome).toBe('victory')
   })

@@ -349,6 +349,12 @@ export const JOHTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 20, weight: 10, minLevel: 16, maxLevel: 16 }, // Raticate
       { speciesId: 22, weight: 5, minLevel: 16, maxLevel: 16 }, // Fearow
       { speciesId: 24, weight: 5, minLevel: 15, maxLevel: 15 }, // Arbok
+      // Decisão 0039 — conferência contra a fonte achou 3 linhas noturnas
+      // que a normalização original tinha deixado de fora (a rota já tinha
+      // linha "à noite" pra outras, essas 3 ficaram pra trás):
+      { speciesId: 19, weight: 30, minLevel: 13, maxLevel: 13 }, // Rattata (à noite)
+      { speciesId: 20, weight: 20, minLevel: 15, maxLevel: 15 }, // Raticate (à noite)
+      { speciesId: 183, weight: 5, minLevel: 15, maxLevel: 15 }, // Marill (à noite)
       { speciesId: 118, weight: 90, minLevel: 15, maxLevel: 24 }, // Goldeen (Surf)
       { speciesId: 119, weight: 10, minLevel: 20, maxLevel: 24 }, // Seaking (Surf)
     ],
@@ -396,6 +402,7 @@ export const JOHTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 179, weight: 10, minLevel: 15, maxLevel: 15 }, // Mareep
       { speciesId: 20, weight: 5, minLevel: 17, maxLevel: 17 }, // Raticate
       { speciesId: 48, weight: 5, minLevel: 16, maxLevel: 16 }, // Venonat
+      { speciesId: 203, weight: 30, minLevel: 15, maxLevel: 15 }, // Girafarig (decisão 0039)
       { speciesId: 164, weight: 20, minLevel: 17, maxLevel: 17 }, // Noctowl (night)
       { speciesId: 48, weight: 15, minLevel: 16, maxLevel: 16 }, // Venonat (night)
       { speciesId: 129, weight: 100, minLevel: 10, maxLevel: 24 }, // Magikarp (Surf)
@@ -441,6 +448,7 @@ export const JOHTO_LOCATIONS: LocationDefinition[] = [
       { speciesId: 74, weight: 30, minLevel: 23, maxLevel: 23 }, // Geodude
       { speciesId: 207, weight: 20, minLevel: 24, maxLevel: 24 }, // Gligar
       { speciesId: 231, weight: 10, minLevel: 20, maxLevel: 20 }, // Phanpy
+      { speciesId: 232, weight: 15, minLevel: 25, maxLevel: 30 }, // Donphan (decisão 0039)
       { speciesId: 227, weight: 5, minLevel: 27, maxLevel: 27 }, // Skarmory
       { speciesId: 129, weight: 100, minLevel: 5, maxLevel: 24 }, // Magikarp (Surf)
     ],

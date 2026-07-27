@@ -14,25 +14,23 @@ inicial com Metapod/Graveler era comportamento correto — ambos aparecem
 selvagens de verdade nessas rotas em Gold, sem bug). Ainda em aberto, sem
 dado de playtest suficiente pra fechar de vez:
 
-1. `LEVEL_BUMP` do Elite Four/Campeão de Johto — revisado via simulação em
-   2026-07-27 (`docs/decisoes/0034-*.md`): baixado de 25 pra 18, mas o
-   Elite Four de Johto ainda pede bem mais folga de nível que o de Kanto
-   pra vencer (times com evoluções exclusivas de Gen II, tipo Crobat/
-   Steelix, têm stats base mais altos que qualquer "equivalente" de Gen I
-   na mesma posição). Baixar só o número não resolveu — continua
-   precisando de uma comparação Pokémon-por-Pokémon de verdade.
+1. ~~`LEVEL_BUMP` do Elite Four/Campeão de Johto~~ — causa raiz achada e
+   corrigida em 2026-07-27 (`docs/decisoes/0038-*.md`): não eram os 4
+   membros do Elite Four, era só o time do Campeão (Lance, 3 Dragonite
+   cheios sem cura entre si, resistidos por qualquer um dos 3 tipos
+   iniciais). `CHAMPION_LEVEL_BUMP` separado corrige sem tocar no resto.
 2. A curva de `unlockAt` das 39 localizações — simulação (2026-07-27,
    `docs/decisoes/0034-*.md`) achou que o doce nunca é o gargalo real em
    NENHUMA das duas regiões (quem trava é o nível/insígnia do ginásio), e
    por isso não mexeu nela. Considerado não-problema por enquanto.
-3. Algumas tabelas de encontro selvagem de Johto (rotas com muita divisão
-   manhã/dia/noite, e a tabela de Victory Road) passaram por normalização
-   manual mais pesada na pesquisa — `docs/ROTAS-JOHTO.md` já marca quais
-   merecem conferência contra a fonte antes de tratar como definitivas.
-   Duas rotas que travavam de vez o avanço (Rota 22 de Kanto e Rota 46 de
-   Johto, níveis baixos demais pra posição delas na trilha linear) foram
-   corrigidas em 2026-07-27 (`docs/decisoes/0034-*.md`) — o resto da
-   normalização pesada continua sem conferência.
+3. ~~Algumas tabelas de encontro selvagem de Johto~~ — conferidas em
+   2026-07-27 (`docs/decisoes/0039-*.md`): 3 achados reais corrigidos
+   (Rota 42 faltava 3 linhas noturnas, Rota 43 faltava Girafarig, Rota 45
+   faltava Donphan). Victory Road e Rotas 26/27/38/39 continuam sem
+   confiança suficiente pra mexer (ferramenta de fetch deu sinais de erro
+   nessas — ver 0039). Rota 22 de Kanto e Rota 46 de Johto (o problema de
+   nível baixo demais pra posição na trilha) já tinham sido corrigidas em
+   2026-07-27 (`docs/decisoes/0034-*.md`).
 
 ## Bugs encontrados no playtest — corrigidos em 2026-07-25
 

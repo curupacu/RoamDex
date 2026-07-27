@@ -77,6 +77,6 @@ gate nos três estados — falta cópia, falta tipo, os dois satisfeitos —, e
 `globalMultiplierBonus` com 0 e com todos os tiers comprados). Suíte
 completa: 261 testes, `tsc -b` e `oxlint` limpos.
 
-Não testado em navegador ainda (deixado junto com o resto do item 5 do
-backlog de Sprint 25, por pedido do dono do projeto de deixar testes de
-navegador por último).
+Testado em navegador depois (decisão 0040): marco global e sinergia
+confirmados funcionando ao vivo, incluindo o texto certo no tooltip e o
+multiplicador de fato entrando na conta do clique.

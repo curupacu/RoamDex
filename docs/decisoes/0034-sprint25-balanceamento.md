@@ -169,15 +169,15 @@ schema novo.
 
 ## Em aberto pra uma próxima rodada
 
-1. **Elite Four de Johto** ainda pede desproporcionalmente mais folga de
-   nível que o de Kanto — precisa de uma comparação Pokémon-por-Pokémon
-   (stats base, não só nível) contra os times reais, não só mais um chute
-   de `LEVEL_BUMP`.
-2. As tabelas de selvagem de Johto com divisão manhã/dia/noite e a tabela
-   de Victory Road (já sinalizadas em `docs/decisoes/0025-*.md`) continuam
-   sem conferência contra a fonte — só as duas rotas que travavam de vez
-   (22 e 46) foram corrigidas aqui, o resto do "normalização manual mais
-   pesada" continua de pé.
+1. ~~**Elite Four de Johto** pede desproporcionalmente mais folga de nível
+   que o de Kanto~~ — causa raiz achada e corrigida (decisão 0038): não era
+   nenhum dos 4 membros do Elite Four, era só o time do Campeão (Lance),
+   com 3 Dragonite cheios sem cura entre si.
+2. ~~As tabelas de selvagem de Johto com divisão manhã/dia/noite~~ —
+   conferidas (decisão 0039): 3 achados reais corrigidos (Rota 42 faltava
+   3 linhas noturnas, Rota 43 faltava Girafarig, Rota 45 faltava Donphan).
+   Victory Road e Rotas 26/27/38/39 continuam sem confiança suficiente pra
+   mexer (ferramenta de fetch mostrou sinais de erro nessas — ver 0039).
 3. ~~`docs/BACKLOG.md`'s pendências de upgrade (Padrão 3 sinergia, Padrão 4
    marco global)~~ — implementados, ver `docs/decisoes/0035-*.md`. O
    `catch rate` (revisado aqui, sem mudança) continua como estava.

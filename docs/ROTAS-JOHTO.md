@@ -578,10 +578,17 @@ anunciando o clima gelado de Pryce/Ice Path.
 | Raticate | 10% | 16 | A pé (grama) |
 | Fearow | 5% | 16 | A pé (grama) |
 | Arbok | 5% | 15 | A pé (grama) |
+| Rattata | 30% | 13 | A pé (grama, à noite) |
+| Raticate | 20% | 15 | A pé (grama, à noite) |
+| Marill | 5% | 15 | A pé (grama, à noite) |
 | Goldeen | 90% | 15–24 | Surf |
 | Seaking | 10% | 20–24 | Surf |
 
 Fonte: https://bulbapedia.bulbagarden.net/wiki/Johto_Route_42
+Nota (decisão 0039): as 3 linhas noturnas foram achadas numa conferência
+posterior contra a fonte — a normalização original desta rota tinha ficado
+só com o pool diurno. Marill também aparece em Mt. Mortar (rota vizinha),
+o que é normal (duas áreas adjacentes podem compartilhar espécie).
 
 ### Mt. Mortar (1F entrada + 1F fundos + 2F + B1F colapsados)
 | Pokémon | Peso (soma entre andares) | Nível (faixa) | Método |
@@ -624,11 +631,14 @@ sempre macho), não faz parte deste pool aleatório.
 | Mareep | 10% | 15 | A pé (grama) |
 | Raticate | 5% | 17 | A pé (grama) |
 | Venonat | 5% | 16 | A pé (grama) |
+| Girafarig | 30% | 15 | A pé (grama) |
 | Noctowl | 20% | 17 | A pé (grama, à noite) |
 | Venonat | 15% | 16 | A pé (grama, à noite) |
 | Magikarp | 100% | 10–24 | Surf |
 
 Fonte: https://bulbapedia.bulbagarden.net/wiki/Johto_Route_43
+Nota (decisão 0039): Girafarig achado numa conferência posterior contra a
+fonte — tinha ficado de fora da normalização original.
 
 ### Route 44
 | Pokémon | Chance (Gold) | Nível | Método |
@@ -691,12 +701,16 @@ específico de Crystal).
 | Geodude | 30% | 23 | A pé (grama) |
 | Gligar | 20% | 24 | A pé (grama) |
 | Phanpy | 10% | 20 | A pé (grama) |
+| Donphan | 15% | 25–30 | A pé (grama) |
 | Skarmory | 5% | 27 | A pé (grama) |
 | Magikarp | 100% | 5–24 | Surf |
 
 Fonte: https://bulbapedia.bulbagarden.net/wiki/Johto_Route_45
 Nota: Phanpy é exclusivo de Gold nesta rota; Teddiursa é o equivalente de
-Silver (mesmo nível/chance, espécie trocada).
+Silver (mesmo nível/chance, espécie trocada). Donphan (forma evoluída de
+Phanpy, achado numa conferência posterior contra a fonte, decisão 0039)
+aparece raro na forma já evoluída, mesmo padrão que Furret/Raticate já
+tinham em outras rotas deste documento.
 
 ### Route 46
 | Pokémon | Chance (Gold) | Nível | Método |
