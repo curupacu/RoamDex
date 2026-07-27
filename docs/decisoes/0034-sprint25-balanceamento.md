@@ -129,11 +129,43 @@ em si — o HUD de captura (sessão anterior, sistema de Pokébolas) já mostra
 a % exata de cada bola antes do arremesso, o que deve ajudar bastante nisso
 sozinho.
 
+## Achado #6 — upgrades "lendários" (escalam com roster) e o gap clique×CPS
+(adicionado depois de uma pergunta direta do dono do projeto)
+
+Nenhuma das simulações acima simula captura de verdade — `roster` fica
+sempre vazio, então um upgrade com `scalesWith: 'rosterSize'` nunca
+aparecia como problema ali. O dono do projeto perguntou diretamente se
+"Fúria do Ho-Oh"/"Fábrica do Lugia" (e os equivalentes de Kanto, Mewtwo/
+Zapdos) eram inúteis, e se o clique rendia muito mais que investir em CPS
+— as duas suspeitas bateram, e ganharam checagem própria em
+`upgraderoi.sim.test.ts` (efeito-por-doce-gasto de cada upgrade, sem
+precisar simular uma run inteira):
+
+- **Upgrades lendários eram inviáveis de verdade**: pra só EMPATAR (não
+  superar) em eficiência com o tier anterior, "Fúria do Mewtwo"/"Ho-Oh"
+  precisava de **131 Pokémon no roster** — mais que o dex inteiro de
+  Kanto (151 espécies). Efeito subido de 8→50 doces/clique por Pokémon
+  (agora precisa de ~21 pra empatar); "Fábrica do Zapdos"/"Lugia" de
+  1.2→12 CPS por Pokémon (agora ~36.5, ainda generoso mas alcançável).
+- **Clique rendia ~15x mais por doce gasto que CPS** na mesma posição de
+  tier (ex.: Dedos Ligeiros 0.1 efeito/doce vs Ajudante Voluntário
+  0.0067) — mesmo contando que CPS também rende offline/sem esforço
+  (o que essa conta não captura), o gap era exagerado demais pra CPS
+  parecer uma escolha de verdade pra quem joga ativo. Efeitos de CPS
+  (as 6 unidades infinitas: Ajudante Voluntário → Rede de Postos, e as
+  equivalentes de Johto) multiplicados por ~3x — gap ficou entre 1.9x e
+  5x conforme o tier, favorecendo clique pra quem joga ativo sem fazer
+  CPS parecer desperdício.
+
+Ambos ganharam teste de regressão real (`expect(...).toBeLessThan(...)`),
+não só diagnóstico.
+
 ## Verificação
 
-250 testes (todos os anteriores + os novos de `tests/simulations/`), `tsc
--b` e `oxlint` limpos. Testado no navegador com o save real existente:
-sem erros de console, dados carregando certo com o schema novo.
+254 testes (todos os anteriores + os novos de `tests/simulations/`,
+incluindo o achado #6), `tsc -b` e `oxlint` limpos. Testado no navegador com
+o save real existente: sem erros de console, dados carregando certo com o
+schema novo.
 
 ## Em aberto pra uma próxima rodada
 

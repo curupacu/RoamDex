@@ -40,10 +40,10 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'battle-glove', name: 'Luva de Treino', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a couro e determinação.' },
   { id: 'critical-strike', name: 'Golpe Crítico', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Às vezes dói só de ver.' },
   { id: 'pokemon-fury', name: 'Fúria Pokémon', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Ninguém sabe explicar de onde vem essa raiva.' },
-  { id: 'volunteer-helper', name: 'Ajudante Voluntário', kind: 'cps', baseCost: 15, effect: 0.1, unlockAt: 0, flavor: 'Cisca o chão sem parar, nem sabe bem por quê.' },
-  { id: 'collection-post', name: 'Posto de Coleta', kind: 'cps', baseCost: 180, effect: 1, unlockAt: 100, flavor: 'Uma cesta que nunca fica vazia por muito tempo.' },
-  { id: 'candy-conveyor', name: 'Esteira de Doces', kind: 'cps', baseCost: 2_000, effect: 8, unlockAt: 1_500, flavor: 'Doce entra, doce sai, ninguém pergunta como.' },
-  { id: 'candy-factory', name: 'Fábrica de Doces', kind: 'cps', baseCost: 22_000, effect: 47, unlockAt: 15_000, flavor: 'A fumacinha da chaminé é 90% açúcar.' },
+  { id: 'volunteer-helper', name: 'Ajudante Voluntário', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Cisca o chão sem parar, nem sabe bem por quê.' },
+  { id: 'collection-post', name: 'Posto de Coleta', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Uma cesta que nunca fica vazia por muito tempo.' },
+  { id: 'candy-conveyor', name: 'Esteira de Doces', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Doce entra, doce sai, ninguém pergunta como.' },
+  { id: 'candy-factory', name: 'Fábrica de Doces', kind: 'cps', baseCost: 22_000, effect: 140, unlockAt: 15_000, flavor: 'A fumacinha da chaminé é 90% açúcar.' },
   // Idle XP complement (roadmap section 7) — "pra ninguém travar por odiar
   // batalhar", since the battle system itself isn't built until Sprint 13+.
   { id: 'training-regimen', name: 'Treinamento', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'Não rende doce. Rende resultado.' },
@@ -60,13 +60,19 @@ export const UPGRADES: UpgradeDefinition[] = [
     unlockAt: 120_000,
     maxPurchases: 1,
     scalesWith: 'rosterSize',
-    effect: 8, // +8 doces/clique por Pokémon capturado no roster
+    // Sprint 25 ("Balanceamento"): era 8 — simulação (tests/simulations/
+    // upgraderoi.sim.test.ts) achou que precisaria de 131 Pokémon no
+    // roster só pra EMPATAR em eficiência com o Talismã de Insígnia (tier
+    // anterior), inviável (Kanto só tem 151 espécies). 50 deixa um roster
+    // "razoável" (~6, só o time ativo) já competitivo com o tier anterior,
+    // e continua crescendo de verdade conforme você captura mais.
+    effect: 50, // +50 doces/clique por Pokémon capturado no roster
     flavor: 'Cada Pokémon do time empresta um pouco da própria fúria psíquica.',
   },
 
   // --- Cadeia "Colônia de Doces" (CPS) — mesmo formato, eixo de CPS. ---
-  { id: 'village-co-op', name: 'Cooperativa da Vila', kind: 'cps', baseCost: 25_000, effect: 12, unlockAt: 8_000, maxPurchases: 1, flavor: 'Todo mundo participa, ninguém sabe quem manda.' },
-  { id: 'outpost-network', name: 'Rede de Postos', kind: 'cps', baseCost: 120_000, effect: 35, unlockAt: 40_000, maxPurchases: 1, flavor: 'Bandeirinhas coloridas até onde a vista alcança.' },
+  { id: 'village-co-op', name: 'Cooperativa da Vila', kind: 'cps', baseCost: 25_000, effect: 36, unlockAt: 8_000, maxPurchases: 1, flavor: 'Todo mundo participa, ninguém sabe quem manda.' },
+  { id: 'outpost-network', name: 'Rede de Postos', kind: 'cps', baseCost: 120_000, effect: 105, unlockAt: 40_000, maxPurchases: 1, flavor: 'Bandeirinhas coloridas até onde a vista alcança.' },
   {
     id: 'legendary-factory',
     name: 'Fábrica do Zapdos',
@@ -75,7 +81,8 @@ export const UPGRADES: UpgradeDefinition[] = [
     unlockAt: 120_000,
     maxPurchases: 1,
     scalesWith: 'rosterSize',
-    effect: 1.2, // +1.2 CPS por Pokémon capturado no roster
+    // Sprint 25: era 1.2, mesmo motivo do Fúria do Mewtwo acima.
+    effect: 12, // +12 CPS por Pokémon capturado no roster
     flavor: 'Cada trovão vira uma fornada.',
   },
 ]
