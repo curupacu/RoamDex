@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { SpeciesEntry } from '../../content/gen1/types'
 import { makeRegionSave } from '../../engine/save.testUtils'
 import { addToRoster } from './roster'
-import { applyXpGain, gainMemberXp, gainTeamXp, resolveEvolution, resolveEvolutionSafely, xpForNextLevel } from './leveling'
+import { applyXpGain, detectEvolutions, gainMemberXp, gainTeamXp, resolveEvolution, resolveEvolutionSafely, xpForNextLevel } from './leveling'
 
 function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
@@ -117,5 +117,54 @@ describe('gainTeamXp', () => {
   it('is a no-op with zero or negative amount', () => {
     const save = addToRoster(makeRegionSave(), 1, 5)
     expect(gainTeamXp(save, [makeEntry()], 0)).toEqual(save)
+  })
+})
+
+describe('detectEvolutions', () => {
+  it('finds no evolutions when no speciesId changed', () => {
+    const save = addToRoster(makeRegionSave(), 1, 5)
+    expect(detectEvolutions(save, save)).toEqual([])
+  })
+
+  it('reports a from/to pair for a member whose speciesId changed', () => {
+    const save = addToRoster(makeRegionSave(), 1, 15)
+    const after = gainTeamXp({ ...save, activeTeamIds: [1] }, [makeEntry()], xpForNextLevel(15) + 1)
+
+    expect(detectEvolutions(save, after)).toEqual([{ from: 1, to: 2 }])
+  })
+
+  it('reports one entry per evolved member when several evolve from the same call', () => {
+    let save = addToRoster(makeRegionSave(), 1, 15)
+    save = addToRoster(save, 4, 15)
+    save = { ...save, activeTeamIds: [1, 4] }
+    const gen1 = [
+      makeEntry(),
+      makeEntry({
+        id: 4,
+        name: 'charmander',
+        evolutionChain: [
+          { id: 4, species: 'charmander', trigger: 'initial', minLevel: null },
+          { id: 5, species: 'charmeleon', trigger: 'level-up', minLevel: 16 },
+        ],
+      }),
+    ]
+
+    const after = gainTeamXp(save, gen1, xpForNextLevel(15) + 1)
+
+    expect(detectEvolutions(save, after)).toEqual(
+      expect.arrayContaining([
+        { from: 1, to: 2 },
+        { from: 4, to: 5 },
+      ]),
+    )
+    expect(detectEvolutions(save, after)).toHaveLength(2)
+  })
+
+  it('ignores a member that only gained a level without evolving', () => {
+    const save = addToRoster(makeRegionSave(), 1, 5)
+    const after = gainMemberXp(save, [makeEntry()], 1, 5)
+
+    expect(after.roster[0].level).toBe(5) // below xpForNextLevel(5), just xp accumulated
+    expect(detectEvolutions(save, after)).toEqual([])
   })
 })

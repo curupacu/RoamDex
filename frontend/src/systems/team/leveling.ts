@@ -85,3 +85,20 @@ export function gainTeamXp(save: RegionSave, gen1: SpeciesEntry[], amount: numbe
 
   return save.activeTeamIds.reduce((current, speciesId) => gainMemberXp(current, gen1, speciesId, amount), save)
 }
+
+// Diffs two roster snapshots taken before/after the same gainMemberXp/
+// gainTeamXp call(s), for the evolution animation
+// (ui/components/EvolutionScene.tsx) to know what just happened. Comparing
+// by index is safe here specifically because those two functions only ever
+// `.map` the roster — never add/remove members or reorder it — so this must
+// NOT be reused across a call that captures or releases a Pokémon.
+export function detectEvolutions(before: RegionSave, after: RegionSave): { from: number; to: number }[] {
+  const evolutions: { from: number; to: number }[] = []
+  before.roster.forEach((member, index) => {
+    const afterMember = after.roster[index]
+    if (afterMember && afterMember.speciesId !== member.speciesId) {
+      evolutions.push({ from: member.speciesId, to: afterMember.speciesId })
+    }
+  })
+  return evolutions
+}

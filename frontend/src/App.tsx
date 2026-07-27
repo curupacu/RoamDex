@@ -15,6 +15,7 @@ import {
   withRegion,
   writeSave,
   type RegionId,
+  type RegionSave,
   type SaveData,
 } from './engine/save'
 import { signInAsGuest, signInWithEmail, signInWithGoogle, signUpWithEmail } from './services/auth'
@@ -31,7 +32,7 @@ import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMemb
 import { buyUpgrade, contributionsByKind, globalMultiplierBonus, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { recordManyUpgradeEarnings } from './systems/economy/upgradeEarnings'
 import { battleXpForVictory } from './content/battle'
-import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
+import { detectEvolutions, gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, isCaptured, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { rollCapture } from './systems/capture/capture'
 import { applyLoot, rollLoot } from './systems/capture/loot'
@@ -61,6 +62,7 @@ import { UpgradesPanel } from './ui/components/UpgradesPanel'
 import { ClickUpgradesGrid } from './ui/components/ClickUpgradesGrid'
 import { UpgradeScene } from './ui/components/UpgradeScene'
 import { GoldenEncounter } from './ui/components/GoldenEncounter'
+import { EvolutionScene } from './ui/components/EvolutionScene'
 import { NewGameScreen } from './ui/screens/NewGameScreen'
 import { PokedexScreen } from './ui/screens/PokedexScreen'
 import { RebirthShopScreen } from './ui/screens/RebirthShopScreen'
@@ -103,6 +105,10 @@ function App() {
   const [goldenEncounter, setGoldenEncounter] = useState<{ speciesId: number; left: number; top: number } | null>(null)
   const goldenEncounterRef = useRef(goldenEncounter)
   goldenEncounterRef.current = goldenEncounter
+  // Fila de evoluções (decisão 0036) — uma tela cheia por vez; várias
+  // evoluções do mesmo tick idle (ex.: dois membros do time evoluindo
+  // juntos) tocam em sequência em vez de sobrepor.
+  const [evolutionQueue, setEvolutionQueue] = useState<{ from: number; to: number }[]>([])
   const [activeGymId, setActiveGymId] = useState<string | null>(null)
   const [challengingEliteFour, setChallengingEliteFour] = useState(false)
   // Menu principal pós-login (referência Pokelike) — só relevante enquanto
@@ -153,6 +159,14 @@ function App() {
           : wildEncounter
             ? { kind: 'wild', speciesId: wildEncounter.speciesId, level: wildEncounter.level }
             : { kind: 'dummy' }
+
+  // EvolutionScene (decisão 0036) — só o primeiro item da fila é montado;
+  // o próprio componente chama onDone quando termina, avançando pro
+  // próximo. Overlay é `position: fixed`, então funciona em cima de
+  // QUALQUER view, não só o clicker.
+  const evolutionPending = evolutionQueue[0]
+  const evolutionFromSpecies = evolutionPending ? (gen1?.find((entry) => entry.id === evolutionPending.from) ?? null) : null
+  const evolutionToSpecies = evolutionPending ? (gen1?.find((entry) => entry.id === evolutionPending.to) ?? null) : null
 
   // Fundo muda por local (docs/decisoes/0024-fundos-por-local.md) — cada
   // LocationDefinition declara seu próprio arquivo (public/backgrounds/);
@@ -297,6 +311,9 @@ function App() {
             id,
             amount: (amount * xpMultiplier * deltaMs) / 1000,
           }))
+          // Called from a GameLoop tick, not a setSave updater — safe to
+          // enqueue directly here (no StrictMode double-invoke risk).
+          enqueueEvolutions(region, gainTeamXp(region, gen1Ref.current ?? [], xpGain))
           setSave((current) =>
             withRegion(
               current,
@@ -472,6 +489,17 @@ function App() {
     setSave((current) => withRegion(current, toggleActiveTeamMember(currentRegion(current), speciesId)))
   }
 
+  // Compara o roster antes/depois de um ganho de XP e empilha qualquer
+  // evolução encontrada pra EvolutionScene tocar (decisão 0036). Chamado só
+  // nos pontos onde o jogador está de olho na tela (batalha, Doce Raro,
+  // tick idle) — o catch-up de progresso offline no load NÃO passa por
+  // aqui de propósito, pra não abrir uma fila de telas cheias assim que o
+  // jogo carrega depois de um período longo fora.
+  function enqueueEvolutions(before: RegionSave, after: RegionSave) {
+    const found = detectEvolutions(before, after)
+    if (found.length > 0) setEvolutionQueue((current) => [...current, ...found])
+  }
+
   function handleClick() {
     if (!activeRegionDef || !regionSave) return
     const multiplier =
@@ -506,6 +534,7 @@ function App() {
   }
 
   function handleBuyRareCandy(speciesId: number) {
+    if (regionSave) enqueueEvolutions(regionSave, buyRareCandy(regionSave, gen1Ref.current ?? [], speciesId))
     setSave((current) => withRegion(current, buyRareCandy(currentRegion(current), gen1Ref.current ?? [], speciesId)))
   }
 
@@ -517,6 +546,19 @@ function App() {
   // battle was just the "Batalha" tab's fixed test dummy. XP scales with
   // the enemy team's level (content/battle.ts's battleXpForVictory).
   function handleVictory(activeSpeciesId: number, enemyLevel: number) {
+    // Evolution detection reads the render's own `regionSave`/`save` instead
+    // of setSave's `current` — same "outer scope for the display-only side
+    // effect, `current` for the real mutation" split handleClick's candy-pop
+    // already relies on (React 18 StrictMode double-invokes setSave updaters
+    // in dev, so a side effect INSIDE the updater would double-queue there).
+    if (regionSave) {
+      const xpMultiplier = xpGainMultiplierBonus(save)
+      const { team: teamXp, activeBonus } = battleXpForVictory(enemyLevel)
+      const withTeamXp = gainTeamXp(regionSave, gen1Ref.current ?? [], teamXp * xpMultiplier)
+      const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, activeBonus * xpMultiplier)
+      enqueueEvolutions(regionSave, withMemberXp)
+    }
+
     setSave((current) => {
       const xpMultiplier = xpGainMultiplierBonus(current)
       const { team, activeBonus } = battleXpForVictory(enemyLevel)
@@ -742,6 +784,13 @@ function App() {
 
   return (
     <main>
+      {evolutionFromSpecies && evolutionToSpecies && (
+        <EvolutionScene
+          fromSpecies={evolutionFromSpecies}
+          toSpecies={evolutionToSpecies}
+          onDone={() => setEvolutionQueue((current) => current.slice(1))}
+        />
+      )}
       <h1>PokéIdle</h1>
       <nav className="main-nav">
         <button onClick={() => setView('clicker')} disabled={view === 'clicker'}>
