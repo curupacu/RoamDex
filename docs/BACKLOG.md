@@ -131,8 +131,11 @@ medição.
   arriscar) do que a matemática em si; o HUD de captura do sistema de
   Pokébolas (sessão anterior) já mostra a % de cada bola antes do
   arremesso, vale reavaliar essa queixa depois de testar com isso.
-- **Pokébolas diferentes** com bônus de captura diferentes (Great Ball,
-  Ultra Ball etc.) — hoje só existe "jogar Pokébola", sem escolha.
+- ~~**Pokébolas diferentes** com bônus de captura diferentes~~ **Feito.**
+  Great Ball (1.5x) e Ultra Ball (2x) já existem (`content/pokeballs.ts`),
+  compradas na Loja de Doces ou achadas como loot, com HUD mostrando a %
+  de cada uma antes do arremesso. Linha desatualizada, corrigida em
+  2026-07-27.
 - ~~**Fundo muda conforme o lugar** (rota vs caverna vs cidade etc.)~~
   **Feito em 2026-07-26.** Cada uma das 39 localizações de Kanto agora
   declara seu próprio `background` (`content/gen1/locations.ts`); o CSS
