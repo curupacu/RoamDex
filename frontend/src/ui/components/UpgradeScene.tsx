@@ -2,6 +2,8 @@ import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
 import { formatBigNumber } from '../../engine/numberFormat'
 import { ownedCount } from '../../systems/economy/upgrades'
+import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
+import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
 
 interface UpgradeSceneProps {
@@ -58,38 +60,50 @@ export function UpgradeScene({ regionDef, region }: UpgradeSceneProps) {
         const isFull = count >= LANE_CAPACITY
         const background = LANE_BACKGROUNDS[laneIndex % LANE_BACKGROUNDS.length]
 
+        const effectLabel =
+          def.scalesWith === 'rosterSize'
+            ? `+${def.effect} doces/s por Pokémon capturado`
+            : `+${def.effect} doces/s`
+        const laneStatus = isFull ? 'Completo!' : `${formatBigNumber(LANE_CAPACITY - count)} pra completar`
+
         return (
-          <div
+          <UpgradeCard
             key={def.id}
-            className={`scene-lane${isFull ? ' scene-lane--full' : ''}`}
-            style={{ backgroundImage: `linear-gradient(rgba(10, 10, 20, 0.45), rgba(10, 10, 20, 0.45)), url(/backgrounds/${background})` }}
-            title={`${def.name} (${count})${isFull ? ' — completo!' : ` — ${formatBigNumber(LANE_CAPACITY - count)} pra completar`}`}
+            name={`${def.name} (${count})`}
+            effectLabel={`${effectLabel} — ${laneStatus}`}
+            flavor={def.flavor}
+            earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} doces`}
+            className="upgrade-hover-wrap--lane"
           >
-            {Array.from({ length: filled }, (_, i) => {
-              const seed = `${def.id}-${i}`
-              // Posição em grade (6 colunas x 3 linhas = 18) garante
-              // espalhamento de verdade dentro da área útil da faixa — o
-              // hash do seed sozinho não bastava (índices sequenciais tipo
-              // "id-0".."id-7" geram valores quase iguais, ícones ficavam
-              // praticamente empilhados uns sobre os outros). Faixa de
-              // 10%-90% / 20%-80% garante que nenhum ícone, mesmo com o
-              // jitter, encoste ou passe da borda da caixa.
-              const col = i % 6
-              const row = Math.floor(i / 6)
-              const left = 10 + col * 16 + (seededRandom(seed) - 0.5) * 8
-              const top = 20 + row * 30 + (seededRandom(seed + 'y') - 0.5) * 8
-              const delay = seededRandom(seed + 'd') * 2
-              return (
-                <UpgradeIcon
-                  key={seed}
-                  id={def.id}
-                  alt=""
-                  className="scene-lane-sprite"
-                  style={{ left: `${left}%`, top: `${top}%`, animationDelay: `${delay}s` }}
-                />
-              )
-            })}
-          </div>
+            <div
+              className={`scene-lane${isFull ? ' scene-lane--full' : ''}`}
+              style={{ backgroundImage: `linear-gradient(rgba(10, 10, 20, 0.45), rgba(10, 10, 20, 0.45)), url(/backgrounds/${background})` }}
+            >
+              {Array.from({ length: filled }, (_, i) => {
+                const seed = `${def.id}-${i}`
+                // Posição em grade (6 colunas x 3 linhas = 18) garante
+                // espalhamento de verdade dentro da área útil da faixa — o
+                // hash do seed sozinho não bastava (índices sequenciais tipo
+                // "id-0".."id-7" geram valores quase iguais, ícones ficavam
+                // praticamente empilhados uns sobre os outros). Faixa de
+                // 10%-90% / 20%-80% garante que nenhum ícone, mesmo com o
+                // jitter, encoste ou passe da borda da caixa.
+                const col = i % 6
+                const row = Math.floor(i / 6)
+                const left = 10 + col * 16 + (seededRandom(seed) - 0.5) * 8
+                const top = 20 + row * 30 + (seededRandom(seed + 'y') - 0.5) * 8
+                return (
+                  <UpgradeIcon
+                    key={seed}
+                    id={def.id}
+                    alt=""
+                    className="scene-lane-sprite"
+                    style={{ left: `${left}%`, top: `${top}%` }}
+                  />
+                )
+              })}
+            </div>
+          </UpgradeCard>
         )
       })}
     </div>

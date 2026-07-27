@@ -28,12 +28,15 @@ import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/econo
 import { frenzyMultiplier, isFrenzyActive, triggerFrenzy } from './systems/economy/goldenEncounter'
 import { GOLDEN_VISIBLE_MS, rollGoldenIntervalMs } from './content/goldenEncounter'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
-import { buyUpgrade, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
+import { buyUpgrade, contributionsByKind, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
+import { recordManyUpgradeEarnings } from './systems/economy/upgradeEarnings'
 import { BATTLE_XP_ACTIVE_BONUS, BATTLE_XP_TEAM } from './content/battle'
 import { gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
 import { addToRoster, isCaptured, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { rollCapture } from './systems/capture/capture'
 import { applyLoot, rollLoot } from './systems/capture/loot'
+import { buyBall, captureOptions, spendBall } from './systems/capture/pokeballs'
+import { pokeballById } from './content/pokeballs'
 import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
@@ -104,7 +107,7 @@ function App() {
   const [challengingEliteFour, setChallengingEliteFour] = useState(false)
   // Menu principal pós-login (referência Pokelike) — só relevante enquanto
   // currentRegionId é null; não é salvo, sempre volta pro Menu depois de um
-  // login novo ou de "Regiões" no nav.
+  // login novo ou do botão "Home" no nav.
   const [hubView, setHubView] = useState<'home' | 'regions'>('home')
 
   const activeRegionDef = save.currentRegionId ? REGIONS[save.currentRegionId] : null
@@ -120,6 +123,10 @@ function App() {
     .map((entry) => ({ types: entry.types }))
   const teamRef = useRef(team)
   teamRef.current = team
+  // Row per ball for BattleScreen's post-victory capture HUD — computed
+  // upfront so the player sees each ball's actual chance before throwing it.
+  const wildCaptureOptions =
+    wildEntry && regionSave ? captureOptions(regionSave, wildEntry.captureRate, economyMultiplier(team, 'captureChance')) : []
 
   // Sprint 20's route/gym "trilha" (roadmap section 8) — where the player
   // currently is in the region, and what's adjacent to travel to.
@@ -162,24 +169,35 @@ function App() {
 
     const region = currentRegion(saveRef.current)
     const regionDef = regionDefFor(saveRef.current)
-    const cps = totalCps(regionDef, region, economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current))
+    const cpsMultiplier = economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current)
+    const cps = totalCps(regionDef, region, cpsMultiplier)
     const progress = calculateOfflineProgress(saveRef.current, Date.now(), cps)
     if (progress.candiesEarned > 0) {
+      const cpsEarnings = contributionsByKind(regionDef, region, 'cps').map(({ id, amount }) => ({
+        id,
+        amount: (amount * cpsMultiplier * progress.elapsedMs) / 1000,
+      }))
       setSave((current) => {
         const currentRegionSave = currentRegion(current)
         return withRegion(current, {
-          ...currentRegionSave,
+          ...recordManyUpgradeEarnings(currentRegionSave, cpsEarnings),
           candies: currentRegionSave.candies + progress.candiesEarned,
           lifetimeCandies: currentRegionSave.lifetimeCandies + progress.candiesEarned,
         })
       })
     }
 
-    const xpPerSecond =
-      totalXpPerSecond(regionDef, region) * xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+    const xpMultiplier = xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+    const xpPerSecond = totalXpPerSecond(regionDef, region) * xpMultiplier
     if (xpPerSecond > 0) {
       const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
-      setSave((current) => withRegion(current, gainTeamXp(currentRegion(current), gen1, xpGain)))
+      const xpEarnings = contributionsByKind(regionDef, region, 'xp').map(({ id, amount }) => ({
+        id,
+        amount: (amount * xpMultiplier * progress.elapsedMs) / 1000,
+      }))
+      setSave((current) =>
+        withRegion(current, recordManyUpgradeEarnings(gainTeamXp(currentRegion(current), gen1, xpGain), xpEarnings)),
+      )
     }
 
     if (shouldShowOfflineBanner(progress)) setOfflineSummary(progress)
@@ -235,9 +253,9 @@ function App() {
     let msSinceSave = 0
 
     const persist = () => {
-      writeSave(saveRef.current)
+      const stored = writeSave(saveRef.current)
       const uid = uidRef.current
-      if (uid) pushCloudSave(uid, saveRef.current).catch((error) => console.warn('failed to sync save:', error))
+      if (uid) pushCloudSave(uid, stored).catch((error) => console.warn('failed to sync save:', error))
     }
 
     const unsubscribe = loop.subscribe((deltaMs) => {
@@ -245,28 +263,39 @@ function App() {
       if (regionId) {
         const region = currentRegion(saveRef.current)
         const regionDef = REGIONS[regionId]
-        const cps = totalCps(
-          regionDef,
-          region,
-          economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current) * frenzyMultiplier(region, Date.now()),
-        )
+        const cpsMultiplier =
+          economyMultiplier(teamRef.current, 'cps') * cpsMultiplierBonus(saveRef.current) * frenzyMultiplier(region, Date.now())
+        const cps = totalCps(regionDef, region, cpsMultiplier)
         if (cps > 0) {
           const gain = (cps * deltaMs) / 1000
+          const cpsEarnings = contributionsByKind(regionDef, region, 'cps').map(({ id, amount }) => ({
+            id,
+            amount: (amount * cpsMultiplier * deltaMs) / 1000,
+          }))
           setSave((current) => {
             const currentRegionSave = currentRegion(current)
             return withRegion(current, {
-              ...currentRegionSave,
+              ...recordManyUpgradeEarnings(currentRegionSave, cpsEarnings),
               candies: currentRegionSave.candies + gain,
               lifetimeCandies: currentRegionSave.lifetimeCandies + gain,
             })
           })
         }
 
-        const xpPerSecond =
-          totalXpPerSecond(regionDef, region) * xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+        const xpMultiplier = xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+        const xpPerSecond = totalXpPerSecond(regionDef, region) * xpMultiplier
         if (xpPerSecond > 0) {
           const xpGain = (xpPerSecond * deltaMs) / 1000
-          setSave((current) => withRegion(current, gainTeamXp(currentRegion(current), gen1Ref.current ?? [], xpGain)))
+          const xpEarnings = contributionsByKind(regionDef, region, 'xp').map(({ id, amount }) => ({
+            id,
+            amount: (amount * xpMultiplier * deltaMs) / 1000,
+          }))
+          setSave((current) =>
+            withRegion(
+              current,
+              recordManyUpgradeEarnings(gainTeamXp(currentRegion(current), gen1Ref.current ?? [], xpGain), xpEarnings),
+            ),
+          )
         }
       }
 
@@ -417,8 +446,11 @@ function App() {
     })
   }
 
-  function handleGoToRegionSelect() {
-    setHubView('regions')
+  // Nav's "Home" button — back to the Menu (HomeScreen), same gate-clearing
+  // as picking "Regiões" used to be, just landing one screen earlier (the
+  // player picks "História" from there to reach region-select themselves).
+  function handleGoHome() {
+    setHubView('home')
     setSave((current) => ({ ...current, currentRegionId: null }))
   }
 
@@ -437,7 +469,13 @@ function App() {
     if (!activeRegionDef || !regionSave) return
     const multiplier = economyMultiplier(team, 'clickCandies') * frenzyMultiplier(regionSave, Date.now())
     const gain = clickValue(activeRegionDef, regionSave, multiplier)
-    setSave((current) => withRegion(current, applyClick(regionDefFor(current), currentRegion(current), multiplier)))
+    const clickEarnings = contributionsByKind(activeRegionDef, regionSave, 'click').map(({ id, amount }) => ({
+      id,
+      amount: amount * multiplier,
+    }))
+    setSave((current) =>
+      withRegion(current, recordManyUpgradeEarnings(applyClick(regionDefFor(current), currentRegion(current), multiplier), clickEarnings)),
+    )
 
     const id = nextPopId.current++
     const x = Math.random() * 40 - 20
@@ -538,10 +576,11 @@ function App() {
 
   // "Falhou a bola → o Pokémon foge" (roadmap section 6) — a single roll,
   // no second chance... unless the Rebirth Shop's "Segunda Pokébola" is
-  // owned, which grants exactly one immediate retry on the same encounter.
+  // owned, which grants exactly one immediate retry on the same encounter
+  // (the retry re-rolls with the SAME ball, doesn't spend a second one).
   // Doesn't clear wildEncounter itself: BattleScreen still needs it to show
   // the result, onExit clears it once dismissed.
-  function handleCaptureWild(): string {
+  function handleCaptureWild(ballId: string): string {
     const encounter = wildEncounterRef.current
     const entry = encounter ? (gen1Ref.current?.find((candidate) => candidate.id === encounter.speciesId) ?? null) : null
     if (!encounter || !entry) return ''
@@ -551,7 +590,11 @@ function App() {
     // it instead of claiming a capture that doesn't actually change anything.
     if (isCaptured(region, entry.id)) return `Você já tem um ${entry.name}!`
 
-    const bonusMultiplier = economyMultiplier(teamRef.current, 'captureChance')
+    const ball = pokeballById(ballId)
+    if (!ball) return ''
+    if (ball.cost !== undefined && (region.pokeballs[ballId] ?? 0) <= 0) return `Sem ${ball.name} sobrando!`
+
+    const bonusMultiplier = economyMultiplier(teamRef.current, 'captureChance') * ball.catchMultiplier
     let success = rollCapture(entry.captureRate, bonusMultiplier)
     let usedRetry = false
     if (!success && hasCaptureRetry(saveRef.current)) {
@@ -559,9 +602,14 @@ function App() {
       success = rollCapture(entry.captureRate, bonusMultiplier)
     }
 
-    if (success) setSave((current) => withRegion(current, addToRoster(currentRegion(current), entry.id, encounter.level)))
-    if (success) return `${entry.name} foi capturado!${usedRetry ? ' (na segunda tentativa)' : ''}`
-    return `A Pokébola falhou${usedRetry ? ' de novo' : ''}... ${entry.name} fugiu!`
+    setSave((current) => {
+      const spent = spendBall(currentRegion(current), ballId)
+      const withCapture = success ? addToRoster(spent, entry.id, encounter.level) : spent
+      return withRegion(current, withCapture)
+    })
+
+    if (success) return `${entry.name} foi capturado com ${ball.name}!${usedRetry ? ' (na segunda tentativa)' : ''}`
+    return `A ${ball.name} falhou${usedRetry ? ' de novo' : ''}... ${entry.name} fugiu!`
   }
 
   function handleLootWild(): string {
@@ -570,9 +618,13 @@ function App() {
 
     const result = rollLoot(regionDefFor(saveRef.current), currentRegion(saveRef.current), encounter.level)
     setSave((current) => withRegion(current, applyLoot(currentRegion(current), result)))
-    return result.kind === 'candies'
-      ? `Você achou ${formatBigNumber(result.amount)} doces!`
-      : `Você achou uma cópia grátis de ${result.upgradeName}!`
+    if (result.kind === 'candies') return `Você achou ${formatBigNumber(result.amount)} doces!`
+    if (result.kind === 'pokeball') return `Você achou ${result.amount}x ${result.ballName}!`
+    return `Você achou uma cópia grátis de ${result.upgradeName}!`
+  }
+
+  function handleBuyPokeball(id: string) {
+    setSave((current) => withRegion(current, buyBall(currentRegion(current), id)))
   }
 
   // --- Admin (temporary, for manual testing — see AdminScreen.tsx) ---
@@ -704,7 +756,7 @@ function App() {
             Loja de Rebirth
           </button>
         )}
-        <button onClick={handleGoToRegionSelect}>Regiões</button>
+        <button onClick={handleGoHome}>Home</button>
         <button onClick={() => setView('admin')} disabled={view === 'admin'}>
           Admin
         </button>
@@ -735,6 +787,7 @@ function App() {
           now={Date.now()}
           onBuyRareCandy={handleBuyRareCandy}
           onBuyXpBoost={handleBuyXpBoost}
+          onBuyPokeball={handleBuyPokeball}
         />
       )}
       {view === 'battle' && battleEncounter && (
@@ -743,6 +796,7 @@ function App() {
           regionDef={activeRegionDef}
           region={regionSave}
           encounter={battleEncounter}
+          captureOptions={wildCaptureOptions}
           onVictory={handleVictory}
           onCapture={handleCaptureWild}
           onLoot={handleLootWild}

@@ -55,15 +55,37 @@ function scaleValue(save: RegionSave, scalesWith: UpgradeDefinition['scalesWith'
   }
 }
 
+// One definition's own share of its kind's total, before the caller's
+// economy multiplier — same math sumEffect sums across a whole region, kept
+// separate so callers can attribute output to a specific upgrade instead of
+// just the region total (the "já rendeu X" line on the upgrade hover card,
+// ui/components/UpgradeCard.tsx, and the tick handlers in App.tsx that feed
+// systems/economy/upgradeEarnings.ts).
+export function upgradeContribution(save: RegionSave, def: UpgradeDefinition): number {
+  const owned = ownedCount(save, def.id)
+  if (owned === 0) return 0
+  const multiplier = def.scalesWith ? scaleValue(save, def.scalesWith) : owned
+  return def.effect * multiplier
+}
+
 function sumEffect(region: RegionDefinition, save: RegionSave, kind: UpgradeDefinition['kind']): number {
   return region.upgrades
     .filter((def) => def.kind === kind)
-    .reduce((total, def) => {
-      const owned = ownedCount(save, def.id)
-      if (owned === 0) return total
-      const multiplier = def.scalesWith ? scaleValue(save, def.scalesWith) : owned
-      return total + def.effect * multiplier
-    }, 0)
+    .reduce((total, def) => total + upgradeContribution(save, def), 0)
+}
+
+// Per-definition breakdown for one kind, owned-only — id/amount pairs ready
+// to multiply by whatever global multiplier the caller is already applying
+// and fold into RegionSave.upgradeEarnings.
+export function contributionsByKind(
+  region: RegionDefinition,
+  save: RegionSave,
+  kind: UpgradeDefinition['kind'],
+): { id: string; amount: number }[] {
+  return region.upgrades
+    .filter((def) => def.kind === kind)
+    .map((def) => ({ id: def.id, amount: upgradeContribution(save, def) }))
+    .filter((entry) => entry.amount > 0)
 }
 
 export function totalClickBonus(region: RegionDefinition, save: RegionSave): number {

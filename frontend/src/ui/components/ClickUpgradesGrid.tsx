@@ -2,6 +2,8 @@ import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
 import { formatBigNumber } from '../../engine/numberFormat'
 import { isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
+import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
+import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
 
 interface ClickUpgradesGridProps {
@@ -14,8 +16,8 @@ interface ClickUpgradesGridProps {
 // Small square icon buttons in the corner of the click stage — separate
 // from the CPS "Store" list (UpgradesPanel), matching the split in the
 // reference screenshot the project owner brought (docs/decisoes/0028-*.md).
-// Title (native tooltip) carries name/cost/effect since there's no room for
-// text in a 32px square.
+// UpgradeCard (hover card) carries name/cost/effect/earned since there's no
+// room for text in a small square.
 export function ClickUpgradesGrid({ regionDef, region, onBuy, costMultiplier = 1 }: ClickUpgradesGridProps) {
   const clickDefs = regionDef.upgrades.filter((def) => def.kind === 'click')
   const visible = clickDefs.filter((def) => isUnlocked(def, region))
@@ -32,23 +34,22 @@ export function ClickUpgradesGrid({ regionDef, region, onBuy, costMultiplier = 1
           def.scalesWith === 'rosterSize'
             ? `+${def.effect} doces/clique por Pokémon capturado`
             : `+${def.effect} doces/clique`
-        const title = soldOut
-          ? `${def.name} (comprado) — ${effectLabel}${def.flavor ? ` — "${def.flavor}"` : ''}`
-          : `${def.name} — ${formatBigNumber(cost)} doces — ${effectLabel}${def.flavor ? ` — "${def.flavor}"` : ''}`
 
         return (
-          <button
+          <UpgradeCard
             key={def.id}
-            className="click-upgrade-square"
-            title={title}
-            onClick={() => onBuy(def.id)}
-            disabled={soldOut || region.candies < cost}
+            name={def.name}
+            effectLabel={soldOut ? `${effectLabel} (comprado)` : `${effectLabel} — ${formatBigNumber(cost)} doces`}
+            flavor={def.flavor}
+            earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} doces`}
           >
-            <UpgradeIcon id={def.id} alt={def.name} />
-            {!soldOut && <span className="click-upgrade-cost">{formatBigNumber(cost)}</span>}
-            {def.maxPurchases === 1 && soldOut && <span className="click-upgrade-badge click-upgrade-badge--done">✓</span>}
-            {def.maxPurchases === undefined && owned > 0 && <span className="click-upgrade-badge">{owned}</span>}
-          </button>
+            <button className="click-upgrade-square" onClick={() => onBuy(def.id)} disabled={soldOut || region.candies < cost}>
+              <UpgradeIcon id={def.id} alt={def.name} />
+              {!soldOut && <span className="click-upgrade-cost">{formatBigNumber(cost)}</span>}
+              {def.maxPurchases === 1 && soldOut && <span className="click-upgrade-badge click-upgrade-badge--done">✓</span>}
+              {def.maxPurchases === undefined && owned > 0 && <span className="click-upgrade-badge">{owned}</span>}
+            </button>
+          </UpgradeCard>
         )
       })}
       {upcoming && (

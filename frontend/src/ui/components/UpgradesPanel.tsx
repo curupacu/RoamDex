@@ -3,7 +3,9 @@ import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
 import { formatBigNumber } from '../../engine/numberFormat'
 import { isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
+import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
 import type { UpgradeDefinition } from '../../content/gen1/upgrades'
+import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
 
 interface UpgradesPanelProps {
@@ -92,28 +94,33 @@ function UpgradeRow({
   }, [owned, def.kind])
 
   const affordable = !soldOut && region.candies >= cost
-  const title = soldOut
-    ? `${def.name} (comprado) — ${effectLabel}${def.flavor ? ` — "${def.flavor}"` : ''}`
-    : `${def.name} — ${effectLabel}${def.flavor ? ` — "${def.flavor}"` : ''}`
+  const earnedUnit = def.kind === 'xp' ? 'XP' : 'doces'
 
   return (
     <li>
-      <button className="upgrade-row" onClick={() => onBuy(def.id)} disabled={soldOut || !affordable} title={title}>
-        <span className="upgrade-icon">
-          <UpgradeIcon id={def.id} alt="" />
-          {pops.map((pop) => (
-            <span key={pop.id} className="upgrade-pop">
-              +{formatBigNumber(amount)}
-            </span>
-          ))}
-        </span>
-        <span className="upgrade-info">
-          <strong>
-            {def.name} {def.maxPurchases === 1 ? (soldOut ? '(comprado)' : '') : `(${owned})`}
-          </strong>
-          <span className="upgrade-cost">{!soldOut && `${formatBigNumber(cost)} doces`}</span>
-        </span>
-      </button>
+      <UpgradeCard
+        name={def.name}
+        effectLabel={soldOut ? `${effectLabel} (comprado)` : effectLabel}
+        flavor={def.flavor}
+        earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${earnedUnit}`}
+      >
+        <button className="upgrade-row" onClick={() => onBuy(def.id)} disabled={soldOut || !affordable}>
+          <span className="upgrade-icon">
+            <UpgradeIcon id={def.id} alt="" />
+            {pops.map((pop) => (
+              <span key={pop.id} className="upgrade-pop">
+                +{formatBigNumber(amount)}
+              </span>
+            ))}
+          </span>
+          <span className="upgrade-info">
+            <strong>
+              {def.name} {def.maxPurchases === 1 ? (soldOut ? '(comprado)' : '') : `(${owned})`}
+            </strong>
+            <span className="upgrade-cost">{!soldOut && `${formatBigNumber(cost)} doces`}</span>
+          </span>
+        </button>
+      </UpgradeCard>
     </li>
   )
 }

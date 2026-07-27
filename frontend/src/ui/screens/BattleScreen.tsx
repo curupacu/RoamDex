@@ -19,6 +19,7 @@ import {
   type EnemyRosterEntry,
 } from '../../systems/battle/engine'
 import { moveStage } from '../../systems/battle/moveStage'
+import type { CaptureOption } from '../../systems/capture/pokeballs'
 import { HpBar } from '../components/HpBar'
 import { QteModal } from '../components/qte/QteModal'
 
@@ -38,9 +39,13 @@ interface BattleScreenProps {
   region: RegionSave
   encounter: BattleEncounter
   onVictory: (activeSpeciesId: number) => void
-  // Only called for encounter.kind === 'wild' — roll capture or loot, apply
-  // it to the save, and return the result text to show.
-  onCapture?: () => string
+  // Only meaningful for encounter.kind === 'wild' — one row per ball (name,
+  // owned count or null for infinite, catch chance for THIS species) to
+  // show in the ball-choice HUD before the player commits to a throw.
+  captureOptions?: CaptureOption[]
+  // Only called for encounter.kind === 'wild' — rolls capture with the
+  // chosen ball, applies it to the save, and returns the result text to show.
+  onCapture?: (ballId: string) => string
   onLoot?: () => string
   // Only called for encounter.kind === 'gym' — awards the badge.
   onGymVictory?: (gymId: string) => void
@@ -58,6 +63,15 @@ function rosterFromTeam(team: GymTeamMember[], gen1: SpeciesEntry[], trainerName
     })
     .filter((member): member is EnemyRosterEntry => member !== null)
 }
+
+// Sistema de Pokébolas — animação de captura. O resultado (sucesso/falha)
+// já foi decidido e aplicado ao save no momento em que o jogador escolhe a
+// bola (onCapture roda na hora); isso aqui só atrasa QUANDO o texto de
+// resultado aparece pro jogador, pra dar tempo da bola voar e balançar
+// antes de revelar. Puro CSS, sem asset novo (ver .capture-pokeball).
+type CapturePhase = 'idle' | 'throwing' | 'shaking'
+const CAPTURE_THROW_MS = 500
+const CAPTURE_SHAKE_MS = 1500
 
 function buildEnemyRoster(
   encounter: BattleEncounter,
@@ -80,7 +94,19 @@ function buildEnemyRoster(
   return entry ? [{ entry, level: dummyLevel }] : []
 }
 
-export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, onCapture, onLoot, onGymVictory, onEliteFourVictory, onExit }: BattleScreenProps) {
+export function BattleScreen({
+  gen1,
+  regionDef,
+  region,
+  encounter,
+  captureOptions = [],
+  onVictory,
+  onCapture,
+  onLoot,
+  onGymVictory,
+  onEliteFourVictory,
+  onExit,
+}: BattleScreenProps) {
   // Frozen at mount: if the parent's state changed for any reason while
   // this screen is still up, the fight in progress must not suddenly show
   // a different opponent than the one createBattle() built stats for below.
@@ -95,6 +121,9 @@ export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, on
   const [telegraph, setTelegraph] = useState(false)
   const [hitMessage, setHitMessage] = useState<string | null>(null)
   const [postVictoryMessage, setPostVictoryMessage] = useState<string | null>(null)
+  const [showBallMenu, setShowBallMenu] = useState(false)
+  const [capturePhase, setCapturePhase] = useState<CapturePhase>('idle')
+  const captureTimeoutsRef = useRef<number[]>([])
   const victoryHandledRef = useRef(false)
   const onVictoryRef = useRef(onVictory)
   onVictoryRef.current = onVictory
@@ -181,6 +210,35 @@ export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, on
     }
   }, [])
 
+  // Clears any pending capture-animation timers if the screen unmounts
+  // mid-sequence (e.g. the player somehow navigates away before it finishes).
+  // `timeouts` below is the SAME array object captureTimeoutsRef.current
+  // points to (arrays are reference types) — later pushes to it from
+  // startCaptureAnimation are still visible here at cleanup time.
+  useEffect(() => {
+    const timeouts = captureTimeoutsRef.current
+    return () => {
+      timeouts.forEach((id) => window.clearTimeout(id))
+    }
+  }, [])
+
+  // Rolls the capture right away (onCapture already mutated the save and
+  // knows the outcome) but holds the result text back until the throw +
+  // shake animation plays out, so the player watches the ball before
+  // finding out whether it worked.
+  function startCaptureAnimation(ballId: string) {
+    const message = onCapture?.(ballId) ?? null
+    setShowBallMenu(false)
+    setCapturePhase('throwing')
+    captureTimeoutsRef.current.push(
+      window.setTimeout(() => setCapturePhase('shaking'), CAPTURE_THROW_MS),
+      window.setTimeout(() => {
+        setCapturePhase('idle')
+        setPostVictoryMessage(message)
+      }, CAPTURE_THROW_MS + CAPTURE_SHAKE_MS),
+    )
+  }
+
   const activeEnemyUnit = battle.enemyTeam[battle.enemyIndex]
   const activeEnemyEntry = activeEnemyUnit ? gen1.find((entry) => entry.id === activeEnemyUnit.speciesId) : null
   if (!activeEnemyUnit || !activeEnemyEntry) return null
@@ -200,7 +258,9 @@ export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, on
           hitMessage clears would shift everything below it up, including a
           QTE hold button, right out from under the player's finger. */}
       <p className="battle-hit-message">{hitMessage}</p>
-      <div className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}`}>
+      <div
+        className={`battle-enemy${telegraph ? ' battle-enemy--telegraph' : ''}${capturePhase === 'shaking' ? ' battle-enemy--capturing' : ''}`}
+      >
         <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>
           {activeEnemyEntry.name} Nv.{activeEnemyUnit.level}
@@ -209,6 +269,11 @@ export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, on
             : battle.enemyTeam.length > 1 && ` (${battle.enemyIndex + 1}/${battle.enemyTeam.length})`}
         </p>
         <HpBar current={activeEnemyUnit.currentHp} max={activeEnemyUnit.maxHp} />
+        {capturePhase !== 'idle' && (
+          <div className={`capture-animation capture-animation--${capturePhase}`}>
+            <div className="capture-pokeball" />
+          </div>
+        )}
       </div>
 
       {battle.outcome === 'ongoing' && active && activeEntry && battle.awaitingQte && (
@@ -275,12 +340,34 @@ export function BattleScreen({ gen1, regionDef, region, encounter, onVictory, on
             </>
           )}
 
-          {frozenEncounter.kind === 'wild' && postVictoryMessage === null && (
+          {frozenEncounter.kind === 'wild' && postVictoryMessage === null && capturePhase === 'idle' && !showBallMenu && (
             <>
               <p>Vitória! Capturar ou pegar o loot?</p>
-              <button onClick={() => setPostVictoryMessage(onCapture?.() ?? null)}>Jogar Pokébola</button>
+              <button onClick={() => setShowBallMenu(true)}>Capturar</button>
               <button onClick={() => setPostVictoryMessage(onLoot?.() ?? null)}>Pegar Loot</button>
             </>
+          )}
+
+          {frozenEncounter.kind === 'wild' && postVictoryMessage === null && capturePhase === 'idle' && showBallMenu && (
+            <>
+              <p>Qual bola?</p>
+              <div className="ball-choice-menu">
+                {captureOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => startCaptureAnimation(option.id)}
+                    disabled={option.count !== null && option.count <= 0}
+                  >
+                    {option.name} ({option.count === null ? '∞' : option.count}) — {Math.round(option.chance * 100)}%
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setShowBallMenu(false)}>Voltar</button>
+            </>
+          )}
+
+          {frozenEncounter.kind === 'wild' && postVictoryMessage === null && capturePhase !== 'idle' && (
+            <p>Capturando...</p>
           )}
 
           {frozenEncounter.kind === 'wild' && postVictoryMessage !== null && (

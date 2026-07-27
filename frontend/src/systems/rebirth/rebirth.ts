@@ -96,6 +96,8 @@ export function performRebirth(region: RegionDefinition, save: SaveData, gen1: S
     // over automatically.
     activeTeamIds: [],
     championBeaten: false,
+    upgradeEarnings: {},
+    pokeballs: {},
   }
 
   return withRegion({ ...save, insignias: save.insignias + insigniasEarned(before), hasRebirthed: true }, resetRegion)

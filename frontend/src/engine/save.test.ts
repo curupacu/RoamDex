@@ -59,6 +59,8 @@ describe('save', () => {
           currentLocationId: 'pallet-town',
           badges: [],
           championBeaten: false,
+          upgradeEarnings: {},
+          pokeballs: {},
         },
       },
       regionsUnlocked: ['kanto'],

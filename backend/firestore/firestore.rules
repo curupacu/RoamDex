@@ -7,15 +7,21 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // Shape check follows engine/save.ts's SaveData (current version, v11) —
+    // candies moved off the top level into regions[regionId].candies when
+    // multi-região landed (decisão 0022); this used to still require a
+    // top-level `candies` field that no longer exists, so every single
+    // write was silently rejected ("Missing or insufficient permissions").
     function isValidSave(data) {
-      return data.keys().hasAll(['version', 'candies', 'lastSavedAt'])
+      return data.keys().hasAll(['version', 'lastSavedAt', 'regions', 'insignias'])
         && data.version is int
         && data.version >= 0
-        && data.candies is number
-        && data.candies >= 0
         && data.lastSavedAt is number
         // reject timestamps "from the future" (5 min margin for clock skew)
-        && data.lastSavedAt <= request.time.toMillis() + 300000;
+        && data.lastSavedAt <= request.time.toMillis() + 300000
+        && data.regions is map
+        && data.insignias is number
+        && data.insignias >= 0;
     }
 
     // Main save — one document per player

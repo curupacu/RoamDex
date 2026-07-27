@@ -25,13 +25,22 @@ describe('rollLoot', () => {
     if (result.kind === 'upgrade') expect(result.upgradeId).toBe(unlockedDef.id)
   })
 
-  it('falls back to candies when no upgrade is unlocked yet', () => {
+  it('falls back to candies when no upgrade is unlocked and the pokeball roll misses too', () => {
     const save = { ...makeRegionSave(), lifetimeCandies: -1 } // below every unlockAt
-    vi.spyOn(Math, 'random').mockReturnValue(0)
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
     const result = rollLoot(kanto, save, 5)
     vi.restoreAllMocks()
 
     expect(result.kind).toBe('candies')
+  })
+
+  it('rolls a pokeball when the upgrade roll misses but the pokeball roll hits', () => {
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0.99).mockReturnValueOnce(0)
+    const result = rollLoot(kanto, makeRegionSave(), 5)
+    vi.restoreAllMocks()
+
+    expect(result.kind).toBe('pokeball')
+    if (result.kind === 'pokeball') expect(result.amount).toBe(1)
   })
 })
 
@@ -51,5 +60,12 @@ describe('applyLoot', () => {
 
     expect(result.upgrades[def.id]).toBe(1)
     expect(result.candies).toBe(0)
+  })
+
+  it('adds a looted pokeball to the owned count', () => {
+    const save = makeRegionSave()
+    const result = applyLoot(save, { kind: 'pokeball', ballId: 'great-ball', ballName: 'Great Ball', amount: 1 })
+
+    expect(result.pokeballs['great-ball']).toBe(1)
   })
 })

@@ -6,10 +6,10 @@
 
 :root {
   --panel-bg: #1e1a2e;
-  --panel-border: #6a4fc0;
+  --panel-border: #8a5a2b;
   --panel-border-strong: #e0645a;
   --text-light: #f0ecff;
-  --text-dim: #b6a8e0;
+  --text-dim: #cbb69a;
   --accent-yellow: #f8d030;
   --hp-green: #78c850;
 
@@ -351,6 +351,15 @@ button:disabled {
   margin-top: 0.5rem;
 }
 
+/* HUD de escolha de bola pós-vitória (sistema de Pokébolas) — uma linha por
+   bola, botão desabilitado se a bola finita acabou. */
+.ball-choice-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
 .offline-banner {
   margin: 0 auto 1rem;
   max-width: 320px;
@@ -433,7 +442,7 @@ button:disabled {
 .game-area {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr 320px;
+  grid-template-columns: auto 1fr 380px;
   column-gap: 2rem;
   align-items: start;
   width: 100vw;
@@ -464,7 +473,6 @@ button:disabled {
 
 .upgrades-panel li {
   padding: 0;
-  overflow: hidden;
 }
 
 /* Decisão 0033: linha compacta tipo Cookie Clicker de verdade — ícone +
@@ -474,10 +482,10 @@ button:disabled {
 .upgrade-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.8rem;
   width: 100%;
   text-align: left;
-  padding: 0.4rem 0.5rem;
+  padding: 0.65rem 0.75rem;
   border: none;
   border-left: 4px solid transparent;
   border-radius: 0;
@@ -497,8 +505,8 @@ button:disabled {
 }
 
 .upgrades-panel img {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   flex: none;
   object-fit: contain;
   image-rendering: pixelated;
@@ -524,8 +532,8 @@ button:disabled {
 }
 
 .upgrade-icon--locked {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   flex: none;
   display: flex;
   align-items: center;
@@ -574,14 +582,14 @@ button:disabled {
 .click-upgrades-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
 .click-upgrade-square {
   position: relative;
-  width: 58px;
-  height: 58px;
-  padding: 4px;
+  width: 74px;
+  height: 74px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -623,6 +631,71 @@ button:disabled {
 
 .click-upgrade-badge--done {
   background: var(--hp-green);
+}
+
+/* Hover card (ui/components/UpgradeCard.tsx) — substitui o `title` nativo
+   (o dono do projeto achou feio) por um cartão com tipografia legível de
+   verdade: nome, efeito, flavor e "já rendeu X". Puro CSS (:hover revela o
+   cartão) — sem handler de mouse por item numa lista com dezenas deles. */
+.upgrade-hover-wrap {
+  position: relative;
+}
+
+.upgrade-hover-wrap--lane {
+  width: 100%;
+}
+
+.upgrade-hover-card {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: max-content;
+  max-width: 240px;
+  padding: 0.65rem 0.8rem;
+  background: #2a1c12;
+  border: 3px solid var(--accent-yellow);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  text-align: left;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.upgrade-hover-wrap:hover .upgrade-hover-card {
+  display: block;
+}
+
+.upgrade-hover-card-name {
+  display: block;
+  font-family: 'Press Start 2P', system-ui, sans-serif;
+  font-size: 0.6rem;
+  color: var(--accent-yellow);
+  margin-bottom: 0.4rem;
+}
+
+.upgrade-hover-card-effect {
+  margin: 0 0 0.3rem;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.upgrade-hover-card-flavor {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.upgrade-hover-card-earned {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--hp-green);
+  border-top: 1px dashed rgba(240, 236, 255, 0.25);
+  padding-top: 0.35rem;
 }
 
 /* Cena dos geradores de CPS possuídos (decisão 0029/0030/0033/0034/0036/
@@ -673,22 +746,8 @@ button:disabled {
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.5));
-  animation: scene-bob 2.4s ease-in-out infinite;
+  transform: translate(-50%, -50%);
   pointer-events: none;
-}
-
-/* translate(-50%,-50%) tem que ir DENTRO de cada keyframe — uma animação
-   substitui o transform inteiro, não soma com o transform base do
-   elemento. Sem isso aqui o bob "roubava" a centralização do ícone e
-   ele acabava desenhado deslocado, meio pra fora da faixa. */
-@keyframes scene-bob {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-4px);
-  }
 }
 
 /* Golden Encounter (decisão 0030) — Pokémon raro clicável, brilho dourado
@@ -1100,6 +1159,7 @@ button:disabled {
 }
 
 .battle-enemy {
+  position: relative;
   margin-bottom: 1.5rem;
   transition: transform 0.15s ease-in-out;
 }
@@ -1124,6 +1184,98 @@ button:disabled {
   }
   75% {
     transform: translateX(4px);
+  }
+}
+
+/* Animação de captura (sistema de Pokébolas) — o resultado já foi decidido
+   antes disso começar (BattleScreen.tsx's startCaptureAnimation), essa
+   sequência é só a encenação: bola arremessada de baixo pra cima, o
+   selvagem "é sugado" pra dentro dela, ela balança pra dar suspense, e só
+   então o texto de resultado aparece. Bola desenhada em CSS puro (sem
+   asset novo) — círculo vermelho/branco com faixa preta e botão central. */
+.battle-enemy--capturing img {
+  animation: capture-suck-in 0.4s ease-in forwards;
+}
+
+@keyframes capture-suck-in {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+.capture-animation {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin-left: -24px;
+  pointer-events: none;
+}
+
+.capture-pokeball {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, var(--panel-border-strong) 0%, var(--panel-border-strong) 46%, #1a1a1a 46%, #1a1a1a 54%, #f0ecff 54%, #f0ecff 100%);
+  border: 3px solid #1a1a1a;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.capture-pokeball::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f0ecff;
+  border: 2px solid #1a1a1a;
+  transform: translate(-50%, -50%);
+}
+
+.capture-animation--throwing .capture-pokeball {
+  animation: capture-throw 0.5s ease-out forwards;
+}
+
+@keyframes capture-throw {
+  from {
+    transform: translate(0, 180px) rotate(0deg);
+  }
+  to {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+.capture-animation--shaking .capture-pokeball {
+  animation: capture-shake 1.5s ease-in-out;
+}
+
+@keyframes capture-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  30%,
+  50% {
+    transform: rotate(-18deg);
+  }
+  20%,
+  40%,
+  60% {
+    transform: rotate(18deg);
+  }
+  70%,
+  100% {
+    transform: rotate(0deg);
   }
 }
 

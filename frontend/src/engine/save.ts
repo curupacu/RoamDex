@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 11
+export const CURRENT_SAVE_VERSION = 13
 
 export interface SaveDataV1 {
   version: 1
@@ -171,6 +171,16 @@ export interface RegionSave {
   currentLocationId: string
   badges: string[]
   championBeaten: boolean
+  // upgradeId -> total earned by THAT upgrade alone since it was bought
+  // (candies for click/cps, XP for xp) — powers the "já rendeu X" line on
+  // the upgrade hover card (ui/components/UpgradeCard.tsx). Resets on
+  // rebirth same as `upgrades` itself, since it's this run's own history.
+  upgradeEarnings: Record<string, number>
+  // pokeballId -> quantidade possuída (content/pokeballs.ts) — só as bolas
+  // finitas aparecem aqui; a Pokébola base é infinita e nunca é contada.
+  // Compradas na Loja de Doces ou achadas no loot pós-vitória (Sprint do
+  // sistema de Pokébolas). Reseta no rebirth, mesma lógica de `upgrades`.
+  pokeballs: Record<string, number>
 }
 
 export interface SaveDataV10 {
@@ -198,7 +208,15 @@ export interface SaveDataV11 extends Omit<SaveDataV10, 'version'> {
   hasRebirthed: boolean
 }
 
-export type SaveData = SaveDataV11
+export interface SaveDataV12 extends Omit<SaveDataV11, 'version'> {
+  version: 12
+}
+
+export interface SaveDataV13 extends Omit<SaveDataV12, 'version'> {
+  version: 13
+}
+
+export type SaveData = SaveDataV13
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -292,6 +310,8 @@ const migrations: Record<number, Migration> = {
       currentLocationId: v9.currentLocationId,
       badges: v9.badges,
       championBeaten: v9.championBeaten,
+      upgradeEarnings: {},
+      pokeballs: {},
     }
     return {
       version: 10,
@@ -319,6 +339,20 @@ const migrations: Record<number, Migration> = {
       hasRebirthed: v10.insignias > 0,
     }
   },
+  11: (old): SaveDataV12 => {
+    const v11 = old as SaveDataV11
+    const regions = Object.fromEntries(
+      Object.entries(v11.regions).map(([id, region]) => [id, { ...region, upgradeEarnings: {} }]),
+    ) as Partial<Record<RegionId, RegionSave>>
+    return { ...v11, version: 12, regions }
+  },
+  12: (old): SaveDataV13 => {
+    const v12 = old as SaveDataV12
+    const regions = Object.fromEntries(
+      Object.entries(v12.regions).map(([id, region]) => [id, { ...region, pokeballs: {} }]),
+    ) as Partial<Record<RegionId, RegionSave>>
+    return { ...v12, version: 13, regions }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -344,6 +378,8 @@ export function emptyRegionSave(regionId: RegionId, startLocationId: string): Re
     currentLocationId: startLocationId,
     badges: [],
     championBeaten: false,
+    upgradeEarnings: {},
+    pokeballs: {},
   }
 }
 
@@ -406,7 +442,13 @@ export function loadSave(): SaveData {
   }
 }
 
-export function writeSave(data: SaveData): void {
+// Returns the stored copy (with its fresh lastSavedAt) so callers that also
+// push to the cloud (App.tsx's persist()) send that same timestamp instead
+// of the pre-save in-memory value, which never advances during a session —
+// sending the stale one broke resolveSync's "latest write wins" comparison
+// across devices.
+export function writeSave(data: SaveData): SaveData {
   const toStore: SaveData = { ...data, lastSavedAt: Date.now() }
   localStorage.setItem(SAVE_KEY, JSON.stringify(toStore))
+  return toStore
 }
