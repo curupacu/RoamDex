@@ -1,6 +1,8 @@
 import type { GymDefinition } from '../../content/gen1/gyms'
 import type { LocationDefinition } from '../../content/gen1/locations'
+import type { SpeciesEntry } from '../../content/gen1/types'
 import { formatBigNumber } from '../../engine/numberFormat'
+import { EncounterRatesButton } from './EncounterRatesButton'
 
 interface LocationNavProps {
   location: LocationDefinition
@@ -16,6 +18,7 @@ interface LocationNavProps {
   // same trust model as `gym` above. See systems/gyms/locations.ts.
   eliteFourAvailable: boolean
   onChallengeEliteFour: () => void
+  gen1: SpeciesEntry[]
 }
 
 export function LocationNav({
@@ -29,11 +32,13 @@ export function LocationNav({
   onChallengeGym,
   eliteFourAvailable,
   onChallengeEliteFour,
+  gen1,
 }: LocationNavProps) {
   const nextLocked = nextLocation !== null && lifetimeCandies < nextLocation.unlockAt
 
   return (
     <div className="location-nav">
+      <EncounterRatesButton location={location} gen1={gen1} />
       <div className="location-nav-row">
         <button disabled={!prevLocation} onClick={() => prevLocation && onTravel(prevLocation.id)}>
           ← {prevLocation ? prevLocation.name : ''}

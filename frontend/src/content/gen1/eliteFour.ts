@@ -16,6 +16,20 @@ export interface EliteFourMember {
 // below half HP through the whole 26-mon sequence at the original levels.
 const LEVEL_BUMP = 12
 
+// Champion (Blue)-only bump, LOWER than the other 4 members' LEVEL_BUMP —
+// same pattern (and, coincidentally, same value) as Johto's
+// CHAMPION_LEVEL_BUMP (content/gen2/eliteFour.ts, decision 0038). Raising
+// DAMAGE_SCALE for the 2026-07-28 difficulty pass (systems/battle/engine.ts)
+// tipped Blue's 6-mon team (already the longest, most level-varied roster in
+// the sequence, right after 4 trainers with only a single 50% heal to show
+// for it) past the "wins with the standard +8 level cushion" bar the battle
+// simulation checks, while the other 4 Elite Four members stayed fine
+// untouched. Calibrated the same way as 0038 (temp script, deleted after):
+// swept the bump down from LEVEL_BUMP and re-ran the sim at each value —
+// 8 is the highest value that still lets the +8-cushion fight land a
+// victory (4% HP left, same "barely won" margin 0038 found for Johto).
+const CHAMPION_LEVEL_BUMP = 8
+
 // Sources: docs/ROTAS-KANTO.md lines 686-728 (Bulbapedia, Pokémon Red) —
 // already researched, see decision 0018. Levels below are the original
 // Bulbapedia numbers + LEVEL_BUMP, not invented from scratch.
@@ -73,30 +87,30 @@ export const ELITE_FOUR: EliteFourMember[] = [
 export const CHAMPION_TEAM_BY_STARTER: Record<number, GymTeamMember[]> = {
   1: [
     // Player chose Bulbasaur
-    { speciesId: 18, level: 61 + LEVEL_BUMP }, // Pidgeot
-    { speciesId: 65, level: 59 + LEVEL_BUMP }, // Alakazam
-    { speciesId: 112, level: 61 + LEVEL_BUMP }, // Rhydon
-    { speciesId: 103, level: 61 + LEVEL_BUMP }, // Exeggutor
-    { speciesId: 130, level: 63 + LEVEL_BUMP }, // Gyarados
-    { speciesId: 6, level: 65 + LEVEL_BUMP }, // Charizard
+    { speciesId: 18, level: 61 + CHAMPION_LEVEL_BUMP }, // Pidgeot
+    { speciesId: 65, level: 59 + CHAMPION_LEVEL_BUMP }, // Alakazam
+    { speciesId: 112, level: 61 + CHAMPION_LEVEL_BUMP }, // Rhydon
+    { speciesId: 103, level: 61 + CHAMPION_LEVEL_BUMP }, // Exeggutor
+    { speciesId: 130, level: 63 + CHAMPION_LEVEL_BUMP }, // Gyarados
+    { speciesId: 6, level: 65 + CHAMPION_LEVEL_BUMP }, // Charizard
   ],
   4: [
     // Player chose Charmander
-    { speciesId: 18, level: 61 + LEVEL_BUMP }, // Pidgeot
-    { speciesId: 65, level: 59 + LEVEL_BUMP }, // Alakazam
-    { speciesId: 112, level: 61 + LEVEL_BUMP }, // Rhydon
-    { speciesId: 59, level: 61 + LEVEL_BUMP }, // Arcanine
-    { speciesId: 103, level: 63 + LEVEL_BUMP }, // Exeggutor
-    { speciesId: 9, level: 65 + LEVEL_BUMP }, // Blastoise
+    { speciesId: 18, level: 61 + CHAMPION_LEVEL_BUMP }, // Pidgeot
+    { speciesId: 65, level: 59 + CHAMPION_LEVEL_BUMP }, // Alakazam
+    { speciesId: 112, level: 61 + CHAMPION_LEVEL_BUMP }, // Rhydon
+    { speciesId: 59, level: 61 + CHAMPION_LEVEL_BUMP }, // Arcanine
+    { speciesId: 103, level: 63 + CHAMPION_LEVEL_BUMP }, // Exeggutor
+    { speciesId: 9, level: 65 + CHAMPION_LEVEL_BUMP }, // Blastoise
   ],
   7: [
     // Player chose Squirtle
-    { speciesId: 18, level: 61 + LEVEL_BUMP }, // Pidgeot
-    { speciesId: 65, level: 59 + LEVEL_BUMP }, // Alakazam
-    { speciesId: 112, level: 61 + LEVEL_BUMP }, // Rhydon
-    { speciesId: 130, level: 61 + LEVEL_BUMP }, // Gyarados
-    { speciesId: 59, level: 63 + LEVEL_BUMP }, // Arcanine
-    { speciesId: 3, level: 65 + LEVEL_BUMP }, // Venusaur
+    { speciesId: 18, level: 61 + CHAMPION_LEVEL_BUMP }, // Pidgeot
+    { speciesId: 65, level: 59 + CHAMPION_LEVEL_BUMP }, // Alakazam
+    { speciesId: 112, level: 61 + CHAMPION_LEVEL_BUMP }, // Rhydon
+    { speciesId: 130, level: 61 + CHAMPION_LEVEL_BUMP }, // Gyarados
+    { speciesId: 59, level: 63 + CHAMPION_LEVEL_BUMP }, // Arcanine
+    { speciesId: 3, level: 65 + CHAMPION_LEVEL_BUMP }, // Venusaur
   ],
 }
 

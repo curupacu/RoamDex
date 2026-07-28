@@ -884,6 +884,7 @@ function App() {
             onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
             eliteFourAvailable={currentLocation.id === activeRegionDef.locations[activeRegionDef.locations.length - 1].id}
             onChallengeEliteFour={handleChallengeEliteFour}
+            gen1={gen1}
           />
           {wildEncounter && wildEntry && (
             <div className="wild-encounter-banner">

@@ -35,8 +35,11 @@ const DEF_DAMPING = 0.5
 // balances this for real.
 // (Was 0.15 — testing found that still ended most fights in ~5 hits on
 // either side, both directions, which felt over almost instantly. Lowered
-// so a typical early fight takes closer to 10-15 hits.)
-const DAMAGE_SCALE = 0.06
+// so a typical early fight takes closer to 10-15 hits. Raised again
+// 2026-07-28, project owner's playtest call: "tá muito fácil" — every hit,
+// player's and enemy's alike, now lands harder. Provisional like the rest
+// of this constant's history — revisit if it swings too far either way.)
+const DAMAGE_SCALE = 0.09
 
 export interface BattleUnit {
   speciesId: number
