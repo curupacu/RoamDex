@@ -1335,6 +1335,35 @@ button:disabled {
   }
 }
 
+/* Fileira de pokébolas do treinador (ginásio ou membro da Elite Four) —
+   mesmo desenho da .capture-pokeball, só pequena, mostrando quantos
+   Pokémon do time atual já caíram (bola vazada) e qual está lutando agora
+   (halo). Só o time do treinador ATUAL (currentTrainerBalls), nunca a
+   sequência toda da Elite Four. */
+.trainer-balls {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+
+.trainer-ball {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, var(--panel-border-strong) 0%, var(--panel-border-strong) 46%, #1a1a1a 46%, #1a1a1a 54%, #f0ecff 54%, #f0ecff 100%);
+  border: 1.5px solid #1a1a1a;
+}
+
+.trainer-ball--fainted {
+  background: #3a3a44;
+  opacity: 0.5;
+}
+
+.trainer-ball--current {
+  box-shadow: 0 0 0 2px var(--accent-yellow);
+}
+
 .battle-tap-area {
   background: none;
   border: none;

@@ -310,3 +310,30 @@ export function currentTrainerProgress(state: BattleState): TrainerProgress | nu
 
   return { name: state.trainerBoundaries[start], position: state.enemyIndex - start + 1, size }
 }
+
+export interface TrainerBallStatus {
+  fainted: boolean
+  current: boolean
+}
+
+// One entry per Pokémon on the team of whichever trainer is CURRENTLY being
+// fought — a gym leader's whole team (no boundaries, so start=0/end=full
+// team), or just the active Elite Four member's slice (reuses the same
+// boundary math as currentTrainerProgress, not the whole 26-Pokémon
+// sequence). Mirrors the official games' pokeball-row HUD. The caller only
+// renders this when it has more than one entry, so a 1-Pokémon wild
+// encounter never shows a silly single ball.
+export function currentTrainerBalls(state: BattleState): TrainerBallStatus[] {
+  const boundaryIndices = Object.keys(state.trainerBoundaries)
+    .map(Number)
+    .sort((a, b) => a - b)
+  const start =
+    boundaryIndices.length === 0 ? 0 : (boundaryIndices.filter((index) => index <= state.enemyIndex).pop() ?? boundaryIndices[0])
+  const next = boundaryIndices.find((index) => index > start)
+  const end = next ?? state.enemyTeam.length
+
+  return state.enemyTeam.slice(start, end).map((unit, offset) => ({
+    fainted: unit.currentHp <= 0,
+    current: start + offset === state.enemyIndex,
+  }))
+}

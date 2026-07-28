@@ -116,11 +116,12 @@ medição.
 - **Animações**: de evolução ✅ (`docs/decisoes/0036-*.md`), de captura
   (arremesso + balanço da bola) e de início de batalha ✅
   (`docs/decisoes/0037-*.md`, 2026-07-27) — as três feitas.
-- **Time do treinador do ginásio visível durante a luta**: pokébolas
-  pequenas no canto mostrando quantos Pokémon ele tem e quantos já
-  caíram (como nos jogos oficiais), + sprite do treinador (verificar se a
-  PokeAPI/repositório de sprites tem sprite de treinador antes de assumir
-  que dá — pode não ter, é mais focado em Pokémon que em treinador).
+- ~~**Time do treinador do ginásio visível durante a luta**~~ **Feito em
+  2026-07-28** (`docs/decisoes/0041-*.md`): fileira de pokébolas abaixo do
+  nome do inimigo mostrando quantos Pokémon do treinador atual (ginásio ou
+  membro da Elite Four) já caíram. Ficou só a fileira de bolas, a pedido do
+  dono do projeto — o sprite do treinador ao lado (mencionado junto na ideia
+  original) não entrou.
 - **Catch rate precisa de ajuste** — mecanismo atual
   (`systems/capture/capture.ts`, usa `captureRate` cru da API +
   `captureChance` do time) não está satisfazendo no playtest; rever a

@@ -11,6 +11,7 @@ import {
   applyEnemyAttack,
   applyPlayerTap,
   createBattle,
+  currentTrainerBalls,
   currentTrainerProgress,
   ENERGY_MAX,
   resolveQteAttack,
@@ -269,6 +270,10 @@ export function BattleScreen({
   // "3/5 do Bruno" instead of the raw "9/26" for multi-trainer sequences
   // (Elite Four) — null (and the plain counter below) for wild/gym fights.
   const trainerProgress = currentTrainerProgress(battle)
+  // Pokeball row (official-games style) for whichever trainer's team is
+  // currently up — only worth rendering for actual multi-Pokémon trainer
+  // fights (gym, Elite Four member), never a 1-Pokémon wild encounter.
+  const trainerBalls = currentTrainerBalls(battle)
 
   return (
     <div className="battle-screen">
@@ -287,6 +292,16 @@ export function BattleScreen({
             ? ` (${trainerProgress.name} ${trainerProgress.position}/${trainerProgress.size})`
             : battle.enemyTeam.length > 1 && ` (${battle.enemyIndex + 1}/${battle.enemyTeam.length})`}
         </p>
+        {trainerBalls.length > 1 && (
+          <div className="trainer-balls">
+            {trainerBalls.map((ball, index) => (
+              <span
+                key={index}
+                className={`trainer-ball${ball.fainted ? ' trainer-ball--fainted' : ''}${ball.current ? ' trainer-ball--current' : ''}`}
+              />
+            ))}
+          </div>
+        )}
         <HpBar current={activeEnemyUnit.currentHp} max={activeEnemyUnit.maxHp} />
         {capturePhase !== 'idle' && (
           <div className={`capture-animation capture-animation--${capturePhase}`}>
