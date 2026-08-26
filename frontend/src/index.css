@@ -13,6 +13,24 @@
   --accent-yellow: #f8d030;
   --hp-green: #78c850;
 
+  /* Repaginação "Centro Pokémon" (GBA) — deliberadamente isolada do resto
+     da paleta acima em vez de reaproveitar --panel-*: essas variáveis só
+     alimentam main-nav / region-select / roster / location-nav por
+     enquanto (pedido explícito do dono do projeto de mexer só nessas 4
+     telas primeiro); trocar --panel-bg direto mudaria TUDO que reusa o
+     seletor "pixel panel" (loja, pokédex, telas de starter etc.) antes da
+     hora. Se o resto do app adotar esse visual depois, é migrar pra cá. */
+  --gba-bg: linear-gradient(#f4f9ff, #dbe9fb);
+  --gba-bg-solid: #eef5ff;
+  --gba-border: #2c4a77;
+  --gba-border-inset: #ffffff;
+  --gba-text: #24345c;
+  --gba-text-dim: #5b7096;
+  --gba-accent: #ffcc33;
+  --gba-accent-strong: #3b6ea5;
+  --gba-locked-bg: #d8dfe8;
+  --gba-locked-text: #8894a6;
+
   font-family: 'Press Start 2P', system-ui, sans-serif;
   color-scheme: dark;
 }
@@ -121,7 +139,6 @@ button:disabled {
 .pokemon-detail,
 .starter-choice,
 .pokedex-entry,
-.roster-entry,
 .upgrades-panel li {
   background: var(--panel-bg);
   border: 3px solid var(--panel-border);
@@ -129,11 +146,45 @@ button:disabled {
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
+/* Repaginação "Centro Pokémon" (GBA) — barra de abas em vez dos botões
+   soltos de antes: moldura dupla (borda escura + friso branco por dentro,
+   via box-shadow inset) e cantos bem arredondados, referência direta às
+   caixas de diálogo dos jogos Pokémon de GBA. */
 .main-nav {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 auto 1.25rem;
+  max-width: 720px;
+  padding: 0.5rem;
+  background: var(--gba-bg);
+  border: 3px solid var(--gba-border);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 2px var(--gba-border-inset),
+    3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+.main-nav button {
+  background: var(--gba-bg-solid);
+  color: var(--gba-text);
+  border: 2px solid var(--gba-border);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0.9rem;
+}
+
+.main-nav button:not(:disabled):hover {
+  background: #ffffff;
+  border-color: var(--gba-accent-strong);
+}
+
+.main-nav button:disabled {
+  background: var(--gba-accent-strong);
+  color: #ffffff;
+  opacity: 1;
+  box-shadow: none;
 }
 
 .candy-counter {
@@ -223,14 +274,23 @@ button:disabled {
   margin: 0 auto;
 }
 
+/* Repaginação "Centro Pokémon" (GBA) — mesmo tratamento do .main-nav
+   (moldura dupla + cantos arredondados), card claro em vez do painel
+   roxo-escuro que o resto do app ainda usa. */
 .roster-entry {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem 0.75rem;
   text-align: left;
-  border-color: transparent;
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 2px solid var(--gba-border);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px var(--gba-border-inset),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .roster-entry img {
@@ -240,7 +300,14 @@ button:disabled {
 }
 
 .roster-entry--active {
-  border-color: var(--hp-green);
+  border-color: var(--gba-accent-strong);
+  box-shadow:
+    inset 0 0 0 2px var(--gba-accent),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.roster-entry:not(:disabled):hover {
+  border-color: var(--gba-accent-strong);
 }
 
 .type-bonuses {
@@ -288,15 +355,20 @@ button:disabled {
   margin: 0.3rem 0;
 }
 
+/* Repaginação "Centro Pokémon" (GBA) — igual .main-nav/.roster-entry:
+   moldura dupla clara em vez do painel roxo-escuro. */
 .location-nav {
   position: relative;
   margin: 0 auto 1rem;
   max-width: 420px;
   padding: 0.75rem 1rem;
-  background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 3px solid var(--gba-border);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 2px var(--gba-border-inset),
+    3px 3px 0 rgba(0, 0, 0, 0.25);
 }
 
 /* Botão de chances de encontro selvagem (canto superior direito do painel
@@ -314,6 +386,9 @@ button:disabled {
   padding: 0;
   font-size: 0.6rem;
   line-height: 1;
+  background: var(--gba-bg-solid);
+  color: var(--gba-text);
+  border: 2px solid var(--gba-border);
 }
 
 .encounter-rates-panel {
@@ -323,17 +398,20 @@ button:disabled {
   z-index: 5;
   width: 200px;
   padding: 0.5rem;
-  background: var(--panel-bg);
-  border: 2px solid var(--panel-border-strong);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 2px solid var(--gba-border);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 2px var(--gba-border-inset),
+    3px 3px 0 rgba(0, 0, 0, 0.25);
   text-align: left;
 }
 
 .encounter-rates-title {
   margin: 0 0 0.4rem;
   font-size: 0.55rem;
-  color: var(--accent-yellow);
+  color: var(--gba-accent-strong);
 }
 
 .encounter-rates-panel ul {
@@ -366,7 +444,8 @@ button:disabled {
 }
 
 .encounter-rates-percent {
-  color: var(--accent-yellow);
+  color: var(--gba-accent-strong);
+  font-weight: bold;
 }
 
 .location-nav-row {
@@ -379,24 +458,42 @@ button:disabled {
 .location-nav-row h2 {
   margin: 0;
   font-size: 0.75rem;
+  color: var(--gba-text);
 }
 
 .location-nav-row button {
   font-size: 0.55rem;
   padding: 0.4rem 0.5rem;
+  background: var(--gba-bg-solid);
+  color: var(--gba-text);
+  border: 2px solid var(--gba-border);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.location-nav-row button:not(:disabled):hover {
+  background: #ffffff;
+  border-color: var(--gba-accent-strong);
 }
 
 .location-locked-hint {
   margin: 0.5rem 0 0;
   font-size: 0.55rem;
-  color: var(--text-dim);
+  color: var(--gba-text-dim);
 }
 
 .location-gym-button {
   margin-top: 0.5rem;
   width: 100%;
-  border-color: var(--panel-border-strong);
-  color: var(--accent-yellow);
+  background: var(--gba-accent-strong);
+  border: 2px solid var(--gba-border);
+  border-radius: 999px;
+  color: #ffffff;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.location-gym-button:not(:disabled):hover {
+  background: var(--gba-border);
 }
 
 .wild-encounter-banner {
@@ -1546,18 +1643,31 @@ button:disabled {
 .region-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
+  gap: 0.85rem;
   max-width: 700px;
   margin: 0 auto;
 }
 
+/* Repaginação "Centro Pokémon" (GBA) — mesmo tratamento das outras 3
+   telas desta leva (moldura dupla clara, cantos bem arredondados). */
 .region-card {
-  background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
-  padding: 0.75rem;
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 3px solid var(--gba-border);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 2px var(--gba-border-inset),
+    3px 3px 0 rgba(0, 0, 0, 0.25);
+  padding: 0.85rem;
   text-align: left;
+}
+
+.region-card h3 {
+  color: var(--gba-accent-strong);
+}
+
+.region-card:not(:disabled):hover {
+  border-color: var(--gba-accent-strong);
 }
 
 .region-card ul {
@@ -1569,12 +1679,18 @@ button:disabled {
 }
 
 .region-card--locked {
-  opacity: 0.5;
+  background: var(--gba-locked-bg);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  opacity: 1;
   cursor: default;
 }
 
+.region-card--locked h3 {
+  color: var(--gba-locked-text);
+}
+
 .region-card-locked {
-  color: var(--text-dim);
+  color: var(--gba-locked-text);
   font-size: 0.6rem;
 }
 
