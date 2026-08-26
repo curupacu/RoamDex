@@ -128,7 +128,7 @@ describe('unlockNextRegion', () => {
 
   it('is a no-op past the last defined region', () => {
     const save = makeSaveWithRegion()
-    expect(unlockNextRegion(save, 'sinnoh' as RegionId)).toEqual(save)
+    expect(unlockNextRegion(save, 'kalos' as RegionId)).toEqual(save)
   })
 })
 

@@ -30,11 +30,20 @@ import {
 } from './gen4/eliteFour'
 import { UPGRADES as SINNOH_UPGRADES } from './gen4/upgrades'
 import { STARTER_IDS as SINNOH_STARTER_IDS, STARTER_LEVEL as SINNOH_STARTER_LEVEL } from './gen4/starters'
+import { GYMS as KALOS_GYMS } from './gen6/gyms'
+import { KALOS_LOCATIONS } from './gen6/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as KALOS_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as KALOS_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as KALOS_ELITE_FOUR,
+} from './gen6/eliteFour'
+import { UPGRADES as KALOS_UPGRADES } from './gen6/upgrades'
+import { STARTER_IDS as KALOS_STARTER_IDS, STARTER_LEVEL as KALOS_STARTER_LEVEL } from './gen6/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
 // Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
-export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh']
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -44,7 +53,11 @@ export interface UpcomingRegion {
   name: string
 }
 
-export const UPCOMING_REGIONS: UpcomingRegion[] = [{ id: 'kalos', name: 'Kalos' }]
+// Vazio por enquanto — Unova precisa de uma micro-decisão de design (qual
+// dos 3 líderes de Striaton vira o oficial) e Alola/Galar/Paldea têm
+// rupturas estruturais maiores (docs/PESQUISA-GEN3-9-ESQUELETO.md), nenhuma
+// é "drop-in" como Hoenn/Sinnoh/Kalos foram.
+export const UPCOMING_REGIONS: UpcomingRegion[] = []
 
 // Everything a system/screen needs to run a region, bundled — replaces the
 // scattered direct `content/gen1/*` imports that used to hardcode Kanto
@@ -119,5 +132,18 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: SINNOH_UPGRADES,
     starterIds: SINNOH_STARTER_IDS,
     starterLevel: SINNOH_STARTER_LEVEL,
+  },
+  kalos: {
+    id: 'kalos',
+    name: 'Kalos',
+    dataUrl: '/data/gen6.json',
+    locations: KALOS_LOCATIONS,
+    gyms: KALOS_GYMS,
+    eliteFour: KALOS_ELITE_FOUR,
+    championTeamByStarter: KALOS_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: KALOS_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: KALOS_UPGRADES,
+    starterIds: KALOS_STARTER_IDS,
+    starterLevel: KALOS_STARTER_LEVEL,
   },
 }

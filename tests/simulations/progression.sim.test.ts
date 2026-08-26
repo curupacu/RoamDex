@@ -56,4 +56,12 @@ describe('progressão — valores de produção (Sprint 25)', () => {
   it('Sinnoh, SÓ batalha (Treinamento nunca comprado)', () => {
     report('SINNOH só batalha', REGIONS.sinnoh, false)
   })
+
+  it('Kalos, com XP idle (Treinamento) + batalha', () => {
+    report('KALOS com idle', REGIONS.kalos, true)
+  })
+
+  it('Kalos, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('KALOS só batalha', REGIONS.kalos, false)
+  })
 })

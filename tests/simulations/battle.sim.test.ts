@@ -39,6 +39,7 @@ describe.each([
   ['Johto', REGIONS.johto],
   ['Hoenn', REGIONS.hoenn],
   ['Sinnoh', REGIONS.sinnoh],
+  ['Kalos', REGIONS.kalos],
 ] as const)('batalhas — time dos 3 iniciais evoluídos (%s)', (regionName, regionDef) => {
   const gen1 = loadSpecies(regionDef.dataUrl)
 
