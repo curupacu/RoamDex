@@ -801,41 +801,6 @@ button:disabled {
   padding: 0;
 }
 
-/* Celular (o dono do projeto só testa pelo link, no telefone): sem isso,
-   as 3 faixas força uma largura mínima enorme (220px + 320px + conteúdo
-   do meio) numa tela de ~380px e o jogo fica espremido/ilegível — achado
-   inspecionando esse commit, não pedido explícito, mas bloqueava o teste
-   no celular. Empilha as 3 faixas na vertical em vez de lado a lado; cada
-   uma continua com o próprio fundo colorido, só a borda muda de lado
-   (embaixo em vez de do lado, já que agora é empilhado). */
-@media (max-width: 860px) {
-  .game-area {
-    /* minmax(0, 1fr), não só 1fr — mesmo motivo do .click-upgrades-grid:
-       sem isso a trilha não encolhe abaixo do min-content de filhos com
-       largura fixa (.upgrade-scene é 560px), e a faixa toda vaza. */
-    grid-template-columns: minmax(0, 1fr);
-    padding: 1rem 0;
-  }
-
-  .click-stage,
-  .upgrade-scene,
-  .side-column {
-    grid-column: 1;
-  }
-
-  .click-stage {
-    border-right: none;
-    border-bottom: 8px solid var(--pkc-red-dark);
-    box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.12);
-  }
-
-  .side-column {
-    border-left: none;
-    border-top: 8px solid var(--pkc-gold-dark);
-    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.12);
-  }
-}
-
 /* Decisão 0034/0037: coluna direita — grid de clique empilhado em cima
    da loja. Cresce naturalmente com o conteúdo, sem scroll próprio.
    Repaginação: faixa própria (acento dourado, mesma cor do botão "Loja"
@@ -2224,4 +2189,43 @@ button:disabled {
 
 .evolution-caption--visible {
   animation: evolution-fade-in 0.5s ease forwards;
+}
+
+/* Celular (o dono do projeto só testa pelo link, no telefone): sem isso,
+   as 3 faixas do .game-area forçam uma largura mínima enorme (220px +
+   320px + conteúdo do meio) numa tela de ~380px e o jogo fica espremido.
+   DE PROPÓSITO no fim do arquivo, não perto de onde .game-area é
+   definido: .side-column/.upgrade-scene têm suas próprias regras de
+   `grid-column` incondicionais (sem media query) mais abaixo no arquivo
+   — cascata do CSS empata em especificidade entre uma regra dentro de
+   @media e uma incondicional, e quem vem DEPOIS no arquivo vence, celular
+   ou não. Um media query cedo demais (como a 1ª tentativa) fica
+   sobrescrito por elas mesmo quando a condição bate; só resolve ficando
+   depois de TUDO. */
+@media (max-width: 860px) {
+  .game-area {
+    /* minmax(0, 1fr), não só 1fr — mesmo motivo do .click-upgrades-grid:
+       sem isso a trilha não encolhe abaixo do min-content de filhos com
+       largura fixa (.upgrade-scene é 560px), e a faixa toda vaza. */
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem 0;
+  }
+
+  .click-stage,
+  .upgrade-scene,
+  .side-column {
+    grid-column: 1;
+  }
+
+  .click-stage {
+    border-right: none;
+    border-bottom: 8px solid var(--pkc-red-dark);
+    box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .side-column {
+    border-left: none;
+    border-top: 8px solid var(--pkc-gold-dark);
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.12);
+  }
 }
