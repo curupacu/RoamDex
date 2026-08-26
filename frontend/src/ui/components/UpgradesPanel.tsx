@@ -116,7 +116,7 @@ function UpgradeRow({
         flavor={def.flavor}
         earnedLabel={earnedLabel}
       >
-        <button className="upgrade-row" onClick={() => onBuy(def.id)} disabled={soldOut || !affordable}>
+        <button className={`upgrade-row upgrade-row--${def.kind}`} onClick={() => onBuy(def.id)} disabled={soldOut || !affordable}>
           <span className="upgrade-icon">
             <UpgradeIcon id={def.id} alt="" />
             {pops.map((pop) => (

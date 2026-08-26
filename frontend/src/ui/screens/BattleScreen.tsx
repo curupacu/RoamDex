@@ -359,14 +359,18 @@ export function BattleScreen({
           {frozenEncounter.kind === 'dummy' && (
             <>
               <p>Vitória!</p>
-              <button onClick={onExit}>Continuar</button>
+              <button className="btn-action btn-action--blue" onClick={onExit}>
+            Continuar
+          </button>
             </>
           )}
 
           {frozenEncounter.kind === 'gym' && (
             <>
               <p>Vitória! Você conquistou a {frozenEncounter.gym.badgeName}!</p>
-              <button onClick={onExit}>Continuar</button>
+              <button className="btn-action btn-action--blue" onClick={onExit}>
+            Continuar
+          </button>
             </>
           )}
 
@@ -374,15 +378,21 @@ export function BattleScreen({
             <>
               <p>Vitória! Você derrotou a Elite Four e o Campeão!</p>
               <p>Seu time entrou pra Victory Road. Quando quiser, dá pra fazer rebirth na tela do clicker.</p>
-              <button onClick={onExit}>Continuar</button>
+              <button className="btn-action btn-action--blue" onClick={onExit}>
+            Continuar
+          </button>
             </>
           )}
 
           {frozenEncounter.kind === 'wild' && postVictoryMessage === null && capturePhase === 'idle' && !showBallMenu && (
             <>
               <p>Vitória! Capturar ou pegar o loot?</p>
-              <button onClick={() => setShowBallMenu(true)}>Capturar</button>
-              <button onClick={() => setPostVictoryMessage(onLoot?.() ?? null)}>Pegar Loot</button>
+              <button className="btn-action btn-action--red" onClick={() => setShowBallMenu(true)}>
+                Capturar
+              </button>
+              <button className="btn-action btn-action--gold" onClick={() => setPostVictoryMessage(onLoot?.() ?? null)}>
+                Pegar Loot
+              </button>
             </>
           )}
 
@@ -400,7 +410,9 @@ export function BattleScreen({
                   </button>
                 ))}
               </div>
-              <button onClick={() => setShowBallMenu(false)}>Voltar</button>
+              <button className="btn-action btn-action--grey" onClick={() => setShowBallMenu(false)}>
+                Voltar
+              </button>
             </>
           )}
 
@@ -411,7 +423,9 @@ export function BattleScreen({
           {frozenEncounter.kind === 'wild' && postVictoryMessage !== null && (
             <>
               <p>{postVictoryMessage}</p>
-              <button onClick={onExit}>Continuar</button>
+              <button className="btn-action btn-action--blue" onClick={onExit}>
+            Continuar
+          </button>
             </>
           )}
         </div>
@@ -420,7 +434,9 @@ export function BattleScreen({
       {battle.outcome === 'defeat' && (
         <div className="pokemon-detail">
           <p>Seu time caiu... mas você não perdeu nada além da oportunidade.</p>
-          <button onClick={onExit}>Continuar</button>
+          <button className="btn-action btn-action--blue" onClick={onExit}>
+            Continuar
+          </button>
         </div>
       )}
     </div>

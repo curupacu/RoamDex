@@ -22,21 +22,24 @@
 
   /* Repaginação "menu de batalha" (referência: telas de batalha DS/3DS —
      FIGHT/BAG/POKÉMON/RUN em blocos coloridos por função, cantos cortados,
-     borda grossa, sombra dura) — cartões de menu/diálogo/escolha (region
-     select, roster, location-nav, pokédex, tela de inicial, banners) usam
-     essa paleta clara; feedback do dono do projeto: o tom inicial (quase
-     branco) incomodava, então agora é um azul mais encorpado, não um
-     "papel em branco". */
-  --gba-bg: linear-gradient(#dbe7f6, #b6cce7);
-  --gba-bg-solid: #cfe0f2;
-  --gba-border: #1c2b45;
-  --gba-border-inset: #ffffff;
-  --gba-text: #1c2b45;
-  --gba-text-dim: #4c6084;
+     borda grossa, sombra dura). 2ª rodada de feedback: o card CLARO
+     (mesmo já mais azulado) destoava do clima escuro/floresta que o resto
+     do jogo já tem — então essa paleta virou escura de novo, igual
+     --panel-*, e só a FORMA (corte diagonal, borda grossa, sombra dura,
+     cabeçalho colorido por função) é o que diferencia da paleta antiga.
+     Mantida como variável separada (não voltou a ser literalmente
+     --panel-*) só pra facilitar trocar tom/contraste dos CARDS sem afetar
+     os widgets densos que usam --panel-* direto. */
+  --gba-bg: linear-gradient(#2c2748, #1a1730);
+  --gba-bg-solid: #221e3a;
+  --gba-border: #4a6fa5;
+  --gba-border-inset: rgba(255, 255, 255, 0.15);
+  --gba-text: var(--text-light);
+  --gba-text-dim: var(--text-dim);
   --gba-accent: #ffcc33;
-  --gba-accent-strong: #2f6fb0;
-  --gba-locked-bg: #aab8ce;
-  --gba-locked-text: #566b8f;
+  --gba-accent-strong: #6d9bd6;
+  --gba-locked-bg: #2a2740;
+  --gba-locked-text: #6c6a86;
 
   /* Um par (clara/escura) por "função" de botão, igual FIGHT=vermelho,
      BAG=laranja, POKÉMON=verde, RUN=azul nos jogos — cor já diz o que o
@@ -809,8 +812,14 @@ button:disabled {
 /* Decisão 0033: linha compacta tipo Cookie Clicker de verdade — ícone +
    nome + custo, só isso. Efeito/flavor viraram tooltip nativo (title) em
    vez de linha sempre visível; a linha inteira é o botão de compra (sem
-   um "Comprar" separado — não existe assim na referência real). */
+   um "Comprar" separado — não existe assim na referência real).
+   Repaginação: tarja lateral colorida por `kind` do upgrade (cps=teal,
+   xp=verde, globalMultiplier=roxo — mesma ideia de function-color da nav)
+   em vez de um verde genérico só de "dá pra comprar"; affordability agora
+   é brilho/saturação (comprável = tarja cheia + leve glow; sem dinheiro =
+   tarja apagada), sem trocar a cor de identidade da linha. */
 .upgrade-row {
+  --row-color: var(--pkc-grey);
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -818,16 +827,31 @@ button:disabled {
   text-align: left;
   padding: 0.65rem 0.75rem;
   border: none;
-  border-left: 4px solid transparent;
+  border-left: 8px solid var(--row-color);
   border-radius: 0;
   box-shadow: none;
   background: none;
+  opacity: 0.55;
+  filter: saturate(0.6);
+  transition:
+    opacity 0.15s ease,
+    filter 0.15s ease;
 }
 
-/* Green edge = affordable right now, matching --hp-green used everywhere
-   else as "good to go" (roster-entry--active uses the same signal). */
+.upgrade-row--cps {
+  --row-color: var(--pkc-teal);
+}
+.upgrade-row--xp {
+  --row-color: var(--pkc-green);
+}
+.upgrade-row--globalMultiplier {
+  --row-color: var(--pkc-purple);
+}
+
 .upgrade-row:not(:disabled) {
-  border-left-color: var(--hp-green);
+  opacity: 1;
+  filter: saturate(1);
+  box-shadow: inset 6px 0 8px -6px var(--row-color);
 }
 
 .upgrade-icon {
@@ -916,6 +940,9 @@ button:disabled {
   gap: 8px;
 }
 
+/* Cor de identidade "clique" (vermelho, mesma família de Clicker na nav e
+   do botão de ginásio) — todo upgrade aqui é kind:'click', então a cor é
+   fixa, sem precisar de modificador por item como .upgrade-row. */
 .click-upgrade-square {
   position: relative;
   width: 74px;
@@ -924,6 +951,11 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-color: var(--pkc-red-dark);
+}
+
+.click-upgrade-square:not(:disabled):hover {
+  border-color: var(--pkc-red);
 }
 
 .click-upgrade-square img {
@@ -986,10 +1018,11 @@ button:disabled {
   width: max-content;
   max-width: 240px;
   padding: 0.65rem 0.8rem;
-  background: #2a1c12;
-  border: 3px solid var(--accent-yellow);
-  border-radius: 6px;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  background: var(--panel-bg);
+  border: 3px solid var(--gba-border);
+  border-radius: 4px 12px 4px 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
   text-align: left;
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.4;
@@ -1170,8 +1203,9 @@ button:disabled {
   height: 16px;
   margin: 0.5rem auto;
   background: #10101a;
-  border: 2px solid var(--panel-border);
-  border-radius: 4px;
+  border: 3px solid var(--panel-border);
+  border-radius: 4px 10px 4px 10px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -1889,7 +1923,6 @@ button:disabled {
 
 .region-card--locked {
   background: var(--gba-locked-bg);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
   opacity: 1;
   cursor: default;
 }
