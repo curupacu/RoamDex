@@ -959,11 +959,7 @@ function App() {
           <div className="game-area">
             <div className="click-stage">
               <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
-                {clickerEntry && (
-                  <span className={`click-ball click-ball--${equippedBallId}`}>
-                    <span className="click-ball-shine" />
-                  </span>
-                )}
+                {clickerEntry && <img className="click-ball" src={`/items/${equippedBallId}.png`} alt={equippedBallId} />}
                 {candyPops.map((pop) => (
                   <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
                     +{formatBigNumber(pop.gain)}
