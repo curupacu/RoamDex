@@ -13,23 +13,43 @@
   --accent-yellow: #f8d030;
   --hp-green: #78c850;
 
-  /* Repaginação "Centro Pokémon" (GBA) — deliberadamente isolada do resto
-     da paleta acima em vez de reaproveitar --panel-*: essas variáveis só
+  /* Repaginação "menu de batalha" (referência: telas de batalha DS/3DS —
+     FIGHT/BAG/POKÉMON/RUN em blocos coloridos por função, cantos cortados,
+     borda grossa, sombra dura) — deliberadamente isolada do resto da
+     paleta acima em vez de reaproveitar --panel-*: essas variáveis só
      alimentam main-nav / region-select / roster / location-nav por
-     enquanto (pedido explícito do dono do projeto de mexer só nessas 4
-     telas primeiro); trocar --panel-bg direto mudaria TUDO que reusa o
-     seletor "pixel panel" (loja, pokédex, telas de starter etc.) antes da
-     hora. Se o resto do app adotar esse visual depois, é migrar pra cá. */
-  --gba-bg: linear-gradient(#f4f9ff, #dbe9fb);
+     enquanto (pedido do dono do projeto de mexer só nessas 4 telas
+     primeiro); trocar --panel-bg direto mudaria TUDO que reusa o seletor
+     "pixel panel" (loja, pokédex, telas de starter etc.) antes da hora.
+     Se o resto do app adotar esse visual depois, é migrar pra cá. */
+  --gba-bg: linear-gradient(#fdfefe, #e4edf7);
   --gba-bg-solid: #eef5ff;
-  --gba-border: #2c4a77;
+  --gba-border: #1c2b45;
   --gba-border-inset: #ffffff;
-  --gba-text: #24345c;
+  --gba-text: #1c2b45;
   --gba-text-dim: #5b7096;
   --gba-accent: #ffcc33;
-  --gba-accent-strong: #3b6ea5;
-  --gba-locked-bg: #d8dfe8;
-  --gba-locked-text: #8894a6;
+  --gba-accent-strong: #2f6fb0;
+  --gba-locked-bg: #c7ceda;
+  --gba-locked-text: #6e7890;
+
+  /* Um par (clara/escura) por "função" de botão, igual FIGHT=vermelho,
+     BAG=laranja, POKÉMON=verde, RUN=azul nos jogos — cor já diz o que o
+     botão faz antes de ler o texto. */
+  --pkc-red: #ef4a3f;
+  --pkc-red-dark: #a3241c;
+  --pkc-green: #4caf5e;
+  --pkc-green-dark: #266b34;
+  --pkc-teal: #2ba7bd;
+  --pkc-teal-dark: #146674;
+  --pkc-gold: #f5a623;
+  --pkc-gold-dark: #a8650a;
+  --pkc-blue: #3b6ea5;
+  --pkc-blue-dark: #1c2b45;
+  --pkc-purple: #9057d1;
+  --pkc-purple-dark: #57318a;
+  --pkc-grey: #8b95a6;
+  --pkc-grey-dark: #4a5266;
 
   font-family: 'Press Start 2P', system-ui, sans-serif;
   color-scheme: dark;
@@ -146,45 +166,86 @@ button:disabled {
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Repaginação "Centro Pokémon" (GBA) — barra de abas em vez dos botões
-   soltos de antes: moldura dupla (borda escura + friso branco por dentro,
-   via box-shadow inset) e cantos bem arredondados, referência direta às
-   caixas de diálogo dos jogos Pokémon de GBA. */
+/* Repaginação "menu de batalha" — cada botão é um bloco colorido por
+   função (referência: FIGHT/BAG/POKÉMON/RUN dos jogos DS/3DS), canto
+   superior-direito cortado em diagonal, sombra dura deslocada. A cor já
+   diz o que o botão faz antes de ler o texto; a aba ATIVA (view atual)
+   fica "afundada" — sem sombra, deslocada 2px, borda clara por dentro —
+   como se estivesse pressionada. */
 .main-nav {
   display: flex;
   justify-content: center;
+  align-items: flex-end;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0 auto 1.25rem;
-  max-width: 720px;
-  padding: 0.5rem;
-  background: var(--gba-bg);
-  border: 3px solid var(--gba-border);
-  border-radius: 16px;
-  box-shadow:
-    inset 0 0 0 2px var(--gba-border-inset),
-    3px 3px 0 rgba(0, 0, 0, 0.25);
+  gap: 0.5rem;
+  margin: 0 auto 1.5rem;
+  max-width: 760px;
+  padding: 0.75rem;
 }
 
-.main-nav button {
-  background: var(--gba-bg-solid);
-  color: var(--gba-text);
-  border: 2px solid var(--gba-border);
-  border-radius: 999px;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  padding: 0.5rem 0.9rem;
-}
-
-.main-nav button:not(:disabled):hover {
-  background: #ffffff;
-  border-color: var(--gba-accent-strong);
-}
-
-.main-nav button:disabled {
-  background: var(--gba-accent-strong);
+.main-nav-btn {
+  --btn-color: var(--pkc-grey);
+  --btn-color-dark: var(--pkc-grey-dark);
+  position: relative;
   color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(160deg, var(--btn-color), var(--btn-color-dark));
+  border: 3px solid var(--btn-color-dark);
+  border-radius: 10px 4px 10px 4px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    4px 4px 0 rgba(0, 0, 0, 0.35);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  transition: transform 0.08s ease;
+}
+
+.main-nav-btn--action {
+  --btn-color: var(--pkc-red);
+  --btn-color-dark: var(--pkc-red-dark);
+}
+.main-nav-btn--team {
+  --btn-color: var(--pkc-green);
+  --btn-color-dark: var(--pkc-green-dark);
+}
+.main-nav-btn--dex {
+  --btn-color: var(--pkc-teal);
+  --btn-color-dark: var(--pkc-teal-dark);
+}
+.main-nav-btn--shop {
+  --btn-color: var(--pkc-gold);
+  --btn-color-dark: var(--pkc-gold-dark);
+}
+.main-nav-btn--special {
+  --btn-color: var(--pkc-purple);
+  --btn-color-dark: var(--pkc-purple-dark);
+}
+.main-nav-btn--home {
+  --btn-color: var(--pkc-blue);
+  --btn-color-dark: var(--pkc-blue-dark);
+}
+.main-nav-btn--utility,
+.main-nav-btn--danger {
+  --btn-color: var(--pkc-grey);
+  --btn-color-dark: var(--pkc-grey-dark);
+}
+.main-nav-btn--danger {
+  --btn-color: var(--pkc-red-dark);
+  --btn-color-dark: #3a0d0a;
+}
+
+.main-nav-btn:not(:disabled):hover {
+  transform: translateY(-3px);
+}
+
+.main-nav-btn:disabled {
+  transform: translate(3px, 3px);
   opacity: 1;
-  box-shadow: none;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.85) saturate(1.2);
 }
 
 .candy-counter {
@@ -274,23 +335,24 @@ button:disabled {
   margin: 0 auto;
 }
 
-/* Repaginação "Centro Pokémon" (GBA) — mesmo tratamento do .main-nav
-   (moldura dupla + cantos arredondados), card claro em vez do painel
-   roxo-escuro que o resto do app ainda usa. */
+/* Repaginação "party slip" — cartão do roster vira uma "ficha de
+   treinador": tarja lateral esquerda grossa (verde = no time, cinza = no
+   banco), canto superior-direito cortado, sombra dura, nome em bold. */
 .roster-entry {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 0.7rem 0.9rem 0.7rem 0.6rem;
   text-align: left;
   background: var(--gba-bg);
   color: var(--gba-text);
-  border: 2px solid var(--gba-border);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 0 0 2px var(--gba-border-inset),
-    2px 2px 0 rgba(0, 0, 0, 0.2);
+  border: 3px solid var(--gba-border);
+  border-left: 10px solid var(--pkc-grey);
+  border-radius: 4px 14px 4px 14px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.08s ease;
 }
 
 .roster-entry img {
@@ -299,15 +361,17 @@ button:disabled {
   image-rendering: pixelated;
 }
 
+.roster-entry span:first-of-type {
+  font-weight: bold;
+}
+
 .roster-entry--active {
-  border-color: var(--gba-accent-strong);
-  box-shadow:
-    inset 0 0 0 2px var(--gba-accent),
-    2px 2px 0 rgba(0, 0, 0, 0.2);
+  border-left-color: var(--pkc-green);
 }
 
 .roster-entry:not(:disabled):hover {
-  border-color: var(--gba-accent-strong);
+  transform: translateX(3px);
+  border-left-color: var(--gba-accent-strong);
 }
 
 .type-bonuses {
@@ -355,20 +419,20 @@ button:disabled {
   margin: 0.3rem 0;
 }
 
-/* Repaginação "Centro Pokémon" (GBA) — igual .main-nav/.roster-entry:
-   moldura dupla clara em vez do painel roxo-escuro. */
+/* Repaginação "cartão de rota" — moldura escura grossa com sombra dura
+   (mesma família visual do .main-nav/.roster-entry); o nome do local vira
+   uma faixa própria dentro do card (ver .location-nav-row h2) em vez de
+   texto solto. */
 .location-nav {
   position: relative;
   margin: 0 auto 1rem;
   max-width: 420px;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   background: var(--gba-bg);
   color: var(--gba-text);
   border: 3px solid var(--gba-border);
-  border-radius: 16px;
-  box-shadow:
-    inset 0 0 0 2px var(--gba-border-inset),
-    3px 3px 0 rgba(0, 0, 0, 0.25);
+  border-radius: 4px 18px 4px 18px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Botão de chances de encontro selvagem (canto superior direito do painel
@@ -451,49 +515,69 @@ button:disabled {
 .location-nav-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
 }
 
 .location-nav-row h2 {
+  flex: 1;
   margin: 0;
-  font-size: 0.75rem;
-  color: var(--gba-text);
+  font-size: 0.7rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0.45rem 0.25rem;
+  background: linear-gradient(160deg, var(--pkc-blue), var(--pkc-blue-dark));
+  border: 2px solid var(--gba-border);
+  border-radius: 4px 12px 4px 12px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .location-nav-row button {
+  flex-shrink: 0;
+  font-weight: bold;
   font-size: 0.55rem;
-  padding: 0.4rem 0.5rem;
-  background: var(--gba-bg-solid);
-  color: var(--gba-text);
-  border: 2px solid var(--gba-border);
-  border-radius: 999px;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  padding: 0.45rem 0.55rem;
+  color: #ffffff;
+  background: linear-gradient(160deg, var(--pkc-grey), var(--pkc-grey-dark));
+  border: 2px solid var(--pkc-grey-dark);
+  border-radius: 4px 10px 4px 10px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.08s ease;
 }
 
 .location-nav-row button:not(:disabled):hover {
-  background: #ffffff;
-  border-color: var(--gba-accent-strong);
+  transform: translateY(-2px);
 }
 
 .location-locked-hint {
-  margin: 0.5rem 0 0;
+  margin: 0.6rem 0 0;
   font-size: 0.55rem;
   color: var(--gba-text-dim);
+  text-align: center;
 }
 
 .location-gym-button {
-  margin-top: 0.5rem;
+  margin-top: 0.6rem;
   width: 100%;
-  background: var(--gba-accent-strong);
-  border: 2px solid var(--gba-border);
-  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.65rem;
+  background: linear-gradient(160deg, var(--pkc-red), var(--pkc-red-dark));
+  border: 3px solid var(--pkc-red-dark);
+  border-radius: 4px 16px 4px 16px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
   color: #ffffff;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    4px 4px 0 rgba(0, 0, 0, 0.3);
+  transition: transform 0.08s ease;
 }
 
 .location-gym-button:not(:disabled):hover {
-  background: var(--gba-border);
+  transform: translateY(-2px);
 }
 
 .wild-encounter-banner {
@@ -1648,32 +1732,46 @@ button:disabled {
   margin: 0 auto;
 }
 
-/* Repaginação "Centro Pokémon" (GBA) — mesmo tratamento das outras 3
-   telas desta leva (moldura dupla clara, cantos bem arredondados). */
+/* Repaginação "cartão de liga" — mesma família visual das outras 3 áreas
+   (canto cortado, borda grossa, sombra dura); o nome da região vira uma
+   faixa azul própria no topo do card, tipo cabeçalho de troféu. */
 .region-card {
+  display: flex;
+  flex-direction: column;
   background: var(--gba-bg);
   color: var(--gba-text);
   border: 3px solid var(--gba-border);
-  border-radius: 16px;
-  box-shadow:
-    inset 0 0 0 2px var(--gba-border-inset),
-    3px 3px 0 rgba(0, 0, 0, 0.25);
-  padding: 0.85rem;
+  border-radius: 4px 20px 4px 20px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  padding: 0;
   text-align: left;
+  transition: transform 0.08s ease;
+  overflow: hidden;
 }
 
 .region-card h3 {
-  color: var(--gba-accent-strong);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background: linear-gradient(160deg, var(--pkc-blue), var(--pkc-blue-dark));
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.region-card > p,
+.region-card > ul {
+  margin: 0.6rem 0.75rem 0.75rem;
+  padding: 0;
 }
 
 .region-card:not(:disabled):hover {
-  border-color: var(--gba-accent-strong);
+  transform: translateY(-3px);
 }
 
 .region-card ul {
   list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0;
   font-size: 0.55rem;
   line-height: 1.8;
 }

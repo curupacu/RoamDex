@@ -805,34 +805,36 @@ function App() {
       )}
       <h1>PokéIdle</h1>
       <nav className="main-nav">
-        <button onClick={() => setView('clicker')} disabled={view === 'clicker'}>
+        <button className="main-nav-btn main-nav-btn--action" onClick={() => setView('clicker')} disabled={view === 'clicker'}>
           Clicker
         </button>
-        <button onClick={() => setView('team')} disabled={view === 'team'}>
+        <button className="main-nav-btn main-nav-btn--team" onClick={() => setView('team')} disabled={view === 'team'}>
           Time
         </button>
-        <button onClick={() => setView('pokedex')} disabled={view === 'pokedex'}>
+        <button className="main-nav-btn main-nav-btn--dex" onClick={() => setView('pokedex')} disabled={view === 'pokedex'}>
           Pokédex
         </button>
-        <button onClick={() => setView('shop')} disabled={view === 'shop'}>
+        <button className="main-nav-btn main-nav-btn--shop" onClick={() => setView('shop')} disabled={view === 'shop'}>
           Loja
         </button>
         {save.victoryRoad.length > 0 && (
-          <button onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
+          <button className="main-nav-btn main-nav-btn--special" onClick={() => setView('victoryRoad')} disabled={view === 'victoryRoad'}>
             Victory Road
           </button>
         )}
         {save.hasRebirthed && (
-          <button onClick={() => setView('rebirthShop')} disabled={view === 'rebirthShop'}>
+          <button className="main-nav-btn main-nav-btn--special" onClick={() => setView('rebirthShop')} disabled={view === 'rebirthShop'}>
             Loja de Rebirth
           </button>
         )}
-        <button onClick={handleGoHome}>Home</button>
-        <button onClick={() => setView('backup')} disabled={view === 'backup'}>
+        <button className="main-nav-btn main-nav-btn--home" onClick={handleGoHome}>
+          Home
+        </button>
+        <button className="main-nav-btn main-nav-btn--utility" onClick={() => setView('backup')} disabled={view === 'backup'}>
           Backup
         </button>
         {import.meta.env.DEV && (
-          <button onClick={() => setView('admin')} disabled={view === 'admin'}>
+          <button className="main-nav-btn main-nav-btn--danger" onClick={() => setView('admin')} disabled={view === 'admin'}>
             Admin
           </button>
         )}
