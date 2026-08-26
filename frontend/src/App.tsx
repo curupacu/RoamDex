@@ -804,7 +804,7 @@ function App() {
   }
 
   return (
-    <main>
+    <main className={view === 'clicker' ? 'view-clicker' : ''}>
       {evolutionFromSpecies && evolutionToSpecies && (
         <EvolutionScene
           fromSpecies={evolutionFromSpecies}

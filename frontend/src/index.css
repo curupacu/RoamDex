@@ -2229,3 +2229,52 @@ button:disabled {
     box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.12);
   }
 }
+
+/* Feedback (2ª vez): as faixas coloridas ainda não iam até o TOPO DE
+   VERDADE da tela — só até o topo do .game-area, que fica bem abaixo do
+   nav/candy-counter. Tirar o padding do .game-area não resolve isso: o
+   nav e o resto continuam ocupando espaço ACIMA dele no fluxo normal da
+   página. É assim que o Cookie Clicker faz de verdade (inspecionado ao
+   vivo): as faixas de fundo são `position: fixed`, presas na tela inteira
+   (top:0, height:100vh), e o conteúdo real (nav, cartões, o jogo) ROLA
+   POR CIMA delas. Aqui: dois pseudo-elementos fixos em `<main
+   className="view-clicker">` (só existe essa classe na view do clicker)
+   com a MESMA cor/vinheta/borda de .click-stage/.side-column — o efeito é
+   a cor "vazando" por trás de tudo, sem precisar mexer onde o nav mora no
+   DOM. Só desktop (>860px): no celular tudo já é uma coluna só, empilhada
+   de verdade, não faz sentido ter uma tarja de cor fixa atrás disso. */
+@media (min-width: 861px) {
+  .view-clicker {
+    position: relative;
+  }
+
+  .view-clicker::before,
+  .view-clicker::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .view-clicker::before {
+    left: 0;
+    width: max(220px, 30vw);
+    background:
+      radial-gradient(circle at 50% 32%, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.55) 60%, rgba(0, 0, 0, 0.85) 100%),
+      linear-gradient(160deg, #2c1420, var(--panel-bg));
+    border-right: 8px solid var(--pkc-red-dark);
+    box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .view-clicker::after {
+    right: 0;
+    width: 320px;
+    background:
+      radial-gradient(circle at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.4) 70%),
+      linear-gradient(160deg, #2c2410, var(--panel-bg));
+    border-left: 8px solid var(--pkc-gold-dark);
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.12);
+  }
+}
