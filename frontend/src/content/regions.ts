@@ -12,11 +12,29 @@ import {
 } from './gen2/eliteFour'
 import { UPGRADES as JOHTO_UPGRADES } from './gen2/upgrades'
 import { STARTER_IDS as JOHTO_STARTER_IDS, STARTER_LEVEL as JOHTO_STARTER_LEVEL } from './gen2/starters'
+import { GYMS as HOENN_GYMS } from './gen3/gyms'
+import { HOENN_LOCATIONS } from './gen3/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as HOENN_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as HOENN_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as HOENN_ELITE_FOUR,
+} from './gen3/eliteFour'
+import { UPGRADES as HOENN_UPGRADES } from './gen3/upgrades'
+import { STARTER_IDS as HOENN_STARTER_IDS, STARTER_LEVEL as HOENN_STARTER_LEVEL } from './gen3/starters'
+import { GYMS as SINNOH_GYMS } from './gen4/gyms'
+import { SINNOH_LOCATIONS } from './gen4/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as SINNOH_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as SINNOH_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as SINNOH_ELITE_FOUR,
+} from './gen4/eliteFour'
+import { UPGRADES as SINNOH_UPGRADES } from './gen4/upgrades'
+import { STARTER_IDS as SINNOH_STARTER_IDS, STARTER_LEVEL as SINNOH_STARTER_LEVEL } from './gen4/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
 // Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
-export const REGION_ORDER: RegionId[] = ['kanto', 'johto']
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -26,10 +44,7 @@ export interface UpcomingRegion {
   name: string
 }
 
-export const UPCOMING_REGIONS: UpcomingRegion[] = [
-  { id: 'hoenn', name: 'Hoenn' },
-  { id: 'sinnoh', name: 'Sinnoh' },
-]
+export const UPCOMING_REGIONS: UpcomingRegion[] = [{ id: 'kalos', name: 'Kalos' }]
 
 // Everything a system/screen needs to run a region, bundled — replaces the
 // scattered direct `content/gen1/*` imports that used to hardcode Kanto
@@ -78,5 +93,31 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: JOHTO_UPGRADES,
     starterIds: JOHTO_STARTER_IDS,
     starterLevel: JOHTO_STARTER_LEVEL,
+  },
+  hoenn: {
+    id: 'hoenn',
+    name: 'Hoenn',
+    dataUrl: '/data/gen3.json',
+    locations: HOENN_LOCATIONS,
+    gyms: HOENN_GYMS,
+    eliteFour: HOENN_ELITE_FOUR,
+    championTeamByStarter: HOENN_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: HOENN_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: HOENN_UPGRADES,
+    starterIds: HOENN_STARTER_IDS,
+    starterLevel: HOENN_STARTER_LEVEL,
+  },
+  sinnoh: {
+    id: 'sinnoh',
+    name: 'Sinnoh',
+    dataUrl: '/data/gen4.json',
+    locations: SINNOH_LOCATIONS,
+    gyms: SINNOH_GYMS,
+    eliteFour: SINNOH_ELITE_FOUR,
+    championTeamByStarter: SINNOH_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: SINNOH_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: SINNOH_UPGRADES,
+    starterIds: SINNOH_STARTER_IDS,
+    starterLevel: SINNOH_STARTER_LEVEL,
   },
 }

@@ -155,7 +155,7 @@ export interface SaveDataV9 {
 // only content/regions.ts knows what a RegionId actually contains — engine/
 // stays content-agnostic, same rule that already kept 'pallet-town' a plain
 // string literal instead of an import.
-export type RegionId = 'kanto' | 'johto'
+export type RegionId = 'kanto' | 'johto' | 'hoenn' | 'sinnoh'
 
 // Everything that resets on THAT region's rebirth. One run's worth of
 // progress — a player with two unlocked regions has two of these, entirely
@@ -451,4 +451,27 @@ export function writeSave(data: SaveData): SaveData {
   const toStore: SaveData = { ...data, lastSavedAt: Date.now() }
   localStorage.setItem(SAVE_KEY, JSON.stringify(toStore))
   return toStore
+}
+
+// Sprint 27 (export/import de save, docs/ROADMAP-E-SPRINTS.md Fase 5):
+// Base64 backup the player copies/pastes across browsers — no server round
+// trip, works offline, same local-first spirit as the rest of the save
+// system. UTF-8 safe (TextEncoder/TextDecoder) instead of the deprecated
+// escape/unescape + btoa/atob combo.
+export function exportSave(data: SaveData): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(data))
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary)
+}
+
+// Throws (invalid Base64, invalid JSON, or no migration path) — callers
+// decide how to surface that to the player, same as JSON.parse callers
+// elsewhere in this file.
+export function importSave(encoded: string): SaveData {
+  const binary = atob(encoded.trim())
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  const json = new TextDecoder().decode(bytes)
+  return migrateSave(JSON.parse(json))
 }

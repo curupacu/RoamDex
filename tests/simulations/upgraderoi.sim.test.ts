@@ -15,6 +15,8 @@ function roiOf(def: (typeof REGIONS)['kanto']['upgrades'][number]): number {
 describe.each([
   ['Kanto', REGIONS.kanto],
   ['Johto', REGIONS.johto],
+  ['Sinnoh', REGIONS.sinnoh],
+  ['Hoenn', REGIONS.hoenn],
 ] as const)('efeito por doce gasto (%s)', (regionName, regionDef) => {
   it('upgrades "lendários" (escalam com roster) precisam de um roster realista pra valer a pena', () => {
     const legendaryClick = regionDef.upgrades.find((d) => d.scalesWith === 'rosterSize' && d.kind === 'click')!

@@ -4,7 +4,14 @@
   "type": "module",
   "scripts": {
     "build:gen1": "tsx build-gen1.ts",
-    "build:gen2": "tsx build-gen2.ts"
+    "build:gen2": "tsx build-gen2.ts",
+    "build:gen3": "tsx build-gen3.ts",
+    "build:gen4": "tsx build-gen4.ts",
+    "build:gen5": "tsx build-gen5.ts",
+    "build:gen6": "tsx build-gen6.ts",
+    "build:gen7": "tsx build-gen7.ts",
+    "build:gen8": "tsx build-gen8.ts",
+    "build:gen9": "tsx build-gen9.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

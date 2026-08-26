@@ -40,4 +40,20 @@ describe('progressão — valores de produção (Sprint 25)', () => {
   it('Johto, SÓ batalha (Treinamento nunca comprado)', () => {
     report('JOHTO só batalha', REGIONS.johto, false)
   })
+
+  it('Hoenn, com XP idle (Treinamento) + batalha', () => {
+    report('HOENN com idle', REGIONS.hoenn, true)
+  })
+
+  it('Hoenn, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('HOENN só batalha', REGIONS.hoenn, false)
+  })
+
+  it('Sinnoh, com XP idle (Treinamento) + batalha', () => {
+    report('SINNOH com idle', REGIONS.sinnoh, true)
+  })
+
+  it('Sinnoh, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('SINNOH só batalha', REGIONS.sinnoh, false)
+  })
 })

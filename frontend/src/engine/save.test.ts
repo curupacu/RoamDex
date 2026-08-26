@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { CURRENT_SAVE_VERSION, SAVE_KEY, loadSave, migrateSave, writeSave } from './save'
-import { makeSave } from './save.testUtils'
+import { CURRENT_SAVE_VERSION, SAVE_KEY, exportSave, importSave, loadSave, migrateSave, writeSave } from './save'
+import { makeSave, makeSaveWithRegion } from './save.testUtils'
 
 describe('save', () => {
   beforeEach(() => {
@@ -160,5 +160,35 @@ describe('save', () => {
     expect(() => migrateSave({ version: 999 })).not.toThrow()
     // version 999 is already >= CURRENT_SAVE_VERSION, so it's returned as-is
     expect(migrateSave({ version: 999, candies: 1 })).toEqual({ version: 999, candies: 1 })
+  })
+})
+
+describe('exportSave/importSave', () => {
+  it('round-trips a save through Base64', () => {
+    const save = makeSaveWithRegion({ candies: 4200, lifetimeCandies: 4200 })
+
+    const imported = importSave(exportSave(save))
+
+    expect(imported).toEqual(save)
+  })
+
+  it('round-trips non-ASCII text (Pokémon name accents, region flavor text)', () => {
+    const save = makeSaveWithRegion({ currentLocationId: 'Cidade Pokémon — ção' })
+
+    expect(importSave(exportSave(save)).regions.kanto?.currentLocationId).toBe('Cidade Pokémon — ção')
+  })
+
+  it('runs imported saves through migrateSave, same as loadSave', () => {
+    const legacyJson = JSON.stringify({ candies: 999 })
+    const encoded = btoa(legacyJson)
+
+    const imported = importSave(encoded)
+
+    expect(imported.version).toBe(CURRENT_SAVE_VERSION)
+    expect(imported.regions.kanto?.candies).toBe(999)
+  })
+
+  it('throws on garbage input instead of silently returning a default save', () => {
+    expect(() => importSave('not valid base64 at all!!')).toThrow()
   })
 })

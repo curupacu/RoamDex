@@ -1,0 +1,4129 @@
+[
+  {
+    "id": 906,
+    "name": "sprigatito",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 61,
+      "defense": 54,
+      "special-attack": 45,
+      "special-defense": 45,
+      "speed": 65
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/906.png",
+      "local": "/sprites/906.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 906,
+        "species": "sprigatito",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 907,
+        "species": "floragato",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 908,
+        "species": "meowscarada",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 907,
+    "name": "floragato",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 61,
+      "attack": 80,
+      "defense": 63,
+      "special-attack": 60,
+      "special-defense": 63,
+      "speed": 83
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/907.png",
+      "local": "/sprites/907.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 906,
+        "species": "sprigatito",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 907,
+        "species": "floragato",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 908,
+        "species": "meowscarada",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 908,
+    "name": "meowscarada",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "stats": {
+      "hp": 76,
+      "attack": 110,
+      "defense": 70,
+      "special-attack": 81,
+      "special-defense": 70,
+      "speed": 123
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/908.png",
+      "local": "/sprites/908.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 906,
+        "species": "sprigatito",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 907,
+        "species": "floragato",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 908,
+        "species": "meowscarada",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 909,
+    "name": "fuecoco",
+    "types": [
+      "fire"
+    ],
+    "stats": {
+      "hp": 67,
+      "attack": 45,
+      "defense": 59,
+      "special-attack": 63,
+      "special-defense": 40,
+      "speed": 36
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/909.png",
+      "local": "/sprites/909.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 909,
+        "species": "fuecoco",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 910,
+        "species": "crocalor",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 911,
+        "species": "skeledirge",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 910,
+    "name": "crocalor",
+    "types": [
+      "fire"
+    ],
+    "stats": {
+      "hp": 81,
+      "attack": 55,
+      "defense": 78,
+      "special-attack": 90,
+      "special-defense": 58,
+      "speed": 49
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/910.png",
+      "local": "/sprites/910.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 909,
+        "species": "fuecoco",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 910,
+        "species": "crocalor",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 911,
+        "species": "skeledirge",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 911,
+    "name": "skeledirge",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 104,
+      "attack": 75,
+      "defense": 100,
+      "special-attack": 110,
+      "special-defense": 75,
+      "speed": 66
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/911.png",
+      "local": "/sprites/911.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 909,
+        "species": "fuecoco",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 910,
+        "species": "crocalor",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 911,
+        "species": "skeledirge",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 912,
+    "name": "quaxly",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 55,
+      "attack": 65,
+      "defense": 45,
+      "special-attack": 50,
+      "special-defense": 45,
+      "speed": 50
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/912.png",
+      "local": "/sprites/912.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 912,
+        "species": "quaxly",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 913,
+        "species": "quaxwell",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 914,
+        "species": "quaquaval",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 913,
+    "name": "quaxwell",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 85,
+      "defense": 65,
+      "special-attack": 65,
+      "special-defense": 60,
+      "speed": 65
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/913.png",
+      "local": "/sprites/913.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 912,
+        "species": "quaxly",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 913,
+        "species": "quaxwell",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 914,
+        "species": "quaquaval",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 914,
+    "name": "quaquaval",
+    "types": [
+      "water",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 120,
+      "defense": 80,
+      "special-attack": 85,
+      "special-defense": 75,
+      "speed": 85
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/914.png",
+      "local": "/sprites/914.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 912,
+        "species": "quaxly",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 913,
+        "species": "quaxwell",
+        "trigger": "level-up",
+        "minLevel": 16
+      },
+      {
+        "id": 914,
+        "species": "quaquaval",
+        "trigger": "level-up",
+        "minLevel": 36
+      }
+    ]
+  },
+  {
+    "id": 915,
+    "name": "lechonk",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 54,
+      "attack": 45,
+      "defense": 40,
+      "special-attack": 35,
+      "special-defense": 45,
+      "speed": 35
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/915.png",
+      "local": "/sprites/915.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 915,
+        "species": "lechonk",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 916,
+        "species": "oinkologne",
+        "trigger": "level-up",
+        "minLevel": 18
+      }
+    ]
+  },
+  {
+    "id": 916,
+    "name": "oinkologne-male",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 110,
+      "attack": 100,
+      "defense": 75,
+      "special-attack": 59,
+      "special-defense": 80,
+      "speed": 65
+    },
+    "captureRate": 100,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/916.png",
+      "local": "/sprites/916.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 915,
+        "species": "lechonk",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 916,
+        "species": "oinkologne",
+        "trigger": "level-up",
+        "minLevel": 18
+      }
+    ]
+  },
+  {
+    "id": 917,
+    "name": "tarountula",
+    "types": [
+      "bug"
+    ],
+    "stats": {
+      "hp": 35,
+      "attack": 41,
+      "defense": 45,
+      "special-attack": 29,
+      "special-defense": 40,
+      "speed": 20
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/917.png",
+      "local": "/sprites/917.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 917,
+        "species": "tarountula",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 918,
+        "species": "spidops",
+        "trigger": "level-up",
+        "minLevel": 15
+      }
+    ]
+  },
+  {
+    "id": 918,
+    "name": "spidops",
+    "types": [
+      "bug"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 79,
+      "defense": 92,
+      "special-attack": 52,
+      "special-defense": 86,
+      "speed": 35
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/918.png",
+      "local": "/sprites/918.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 917,
+        "species": "tarountula",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 918,
+        "species": "spidops",
+        "trigger": "level-up",
+        "minLevel": 15
+      }
+    ]
+  },
+  {
+    "id": 919,
+    "name": "nymble",
+    "types": [
+      "bug"
+    ],
+    "stats": {
+      "hp": 33,
+      "attack": 46,
+      "defense": 40,
+      "special-attack": 21,
+      "special-defense": 25,
+      "speed": 45
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/919.png",
+      "local": "/sprites/919.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 919,
+        "species": "nymble",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 920,
+        "species": "lokix",
+        "trigger": "level-up",
+        "minLevel": 24
+      }
+    ]
+  },
+  {
+    "id": 920,
+    "name": "lokix",
+    "types": [
+      "bug",
+      "dark"
+    ],
+    "stats": {
+      "hp": 71,
+      "attack": 102,
+      "defense": 78,
+      "special-attack": 52,
+      "special-defense": 55,
+      "speed": 92
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/920.png",
+      "local": "/sprites/920.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 919,
+        "species": "nymble",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 920,
+        "species": "lokix",
+        "trigger": "level-up",
+        "minLevel": 24
+      }
+    ]
+  },
+  {
+    "id": 921,
+    "name": "pawmi",
+    "types": [
+      "electric"
+    ],
+    "stats": {
+      "hp": 45,
+      "attack": 50,
+      "defense": 20,
+      "special-attack": 40,
+      "special-defense": 25,
+      "speed": 60
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/921.png",
+      "local": "/sprites/921.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 921,
+        "species": "pawmi",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 922,
+        "species": "pawmo",
+        "trigger": "level-up",
+        "minLevel": 18
+      },
+      {
+        "id": 923,
+        "species": "pawmot",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 922,
+    "name": "pawmo",
+    "types": [
+      "electric",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 75,
+      "defense": 40,
+      "special-attack": 50,
+      "special-defense": 40,
+      "speed": 85
+    },
+    "captureRate": 80,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/922.png",
+      "local": "/sprites/922.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 921,
+        "species": "pawmi",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 922,
+        "species": "pawmo",
+        "trigger": "level-up",
+        "minLevel": 18
+      },
+      {
+        "id": 923,
+        "species": "pawmot",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 923,
+    "name": "pawmot",
+    "types": [
+      "electric",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 115,
+      "defense": 70,
+      "special-attack": 70,
+      "special-defense": 60,
+      "speed": 105
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/923.png",
+      "local": "/sprites/923.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 921,
+        "species": "pawmi",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 922,
+        "species": "pawmo",
+        "trigger": "level-up",
+        "minLevel": 18
+      },
+      {
+        "id": 923,
+        "species": "pawmot",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 924,
+    "name": "tandemaus",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 50,
+      "attack": 50,
+      "defense": 45,
+      "special-attack": 40,
+      "special-defense": 45,
+      "speed": 75
+    },
+    "captureRate": 150,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/924.png",
+      "local": "/sprites/924.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 924,
+        "species": "tandemaus",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 925,
+        "species": "maushold",
+        "trigger": "other",
+        "minLevel": 25
+      }
+    ]
+  },
+  {
+    "id": 925,
+    "name": "maushold-family-of-four",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 74,
+      "attack": 75,
+      "defense": 70,
+      "special-attack": 65,
+      "special-defense": 75,
+      "speed": 111
+    },
+    "captureRate": 75,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/925.png",
+      "local": "/sprites/925.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 924,
+        "species": "tandemaus",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 925,
+        "species": "maushold",
+        "trigger": "other",
+        "minLevel": 25
+      }
+    ]
+  },
+  {
+    "id": 926,
+    "name": "fidough",
+    "types": [
+      "fairy"
+    ],
+    "stats": {
+      "hp": 37,
+      "attack": 55,
+      "defense": 70,
+      "special-attack": 30,
+      "special-defense": 55,
+      "speed": 65
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/926.png",
+      "local": "/sprites/926.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 926,
+        "species": "fidough",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 927,
+        "species": "dachsbun",
+        "trigger": "level-up",
+        "minLevel": 26
+      }
+    ]
+  },
+  {
+    "id": 927,
+    "name": "dachsbun",
+    "types": [
+      "fairy"
+    ],
+    "stats": {
+      "hp": 57,
+      "attack": 80,
+      "defense": 115,
+      "special-attack": 50,
+      "special-defense": 80,
+      "speed": 95
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/927.png",
+      "local": "/sprites/927.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 926,
+        "species": "fidough",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 927,
+        "species": "dachsbun",
+        "trigger": "level-up",
+        "minLevel": 26
+      }
+    ]
+  },
+  {
+    "id": 928,
+    "name": "smoliv",
+    "types": [
+      "grass",
+      "normal"
+    ],
+    "stats": {
+      "hp": 41,
+      "attack": 35,
+      "defense": 45,
+      "special-attack": 58,
+      "special-defense": 51,
+      "speed": 30
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/928.png",
+      "local": "/sprites/928.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 928,
+        "species": "smoliv",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 929,
+        "species": "dolliv",
+        "trigger": "level-up",
+        "minLevel": 25
+      },
+      {
+        "id": 930,
+        "species": "arboliva",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 929,
+    "name": "dolliv",
+    "types": [
+      "grass",
+      "normal"
+    ],
+    "stats": {
+      "hp": 52,
+      "attack": 53,
+      "defense": 60,
+      "special-attack": 78,
+      "special-defense": 78,
+      "speed": 33
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/929.png",
+      "local": "/sprites/929.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 928,
+        "species": "smoliv",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 929,
+        "species": "dolliv",
+        "trigger": "level-up",
+        "minLevel": 25
+      },
+      {
+        "id": 930,
+        "species": "arboliva",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 930,
+    "name": "arboliva",
+    "types": [
+      "grass",
+      "normal"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 69,
+      "defense": 90,
+      "special-attack": 125,
+      "special-defense": 109,
+      "speed": 39
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/930.png",
+      "local": "/sprites/930.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 928,
+        "species": "smoliv",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 929,
+        "species": "dolliv",
+        "trigger": "level-up",
+        "minLevel": 25
+      },
+      {
+        "id": 930,
+        "species": "arboliva",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 931,
+    "name": "squawkabilly-green-plumage",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 96,
+      "defense": 51,
+      "special-attack": 45,
+      "special-defense": 51,
+      "speed": 92
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/931.png",
+      "local": "/sprites/931.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 931,
+        "species": "squawkabilly",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 932,
+    "name": "nacli",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 55,
+      "attack": 55,
+      "defense": 75,
+      "special-attack": 35,
+      "special-defense": 35,
+      "speed": 25
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/932.png",
+      "local": "/sprites/932.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 932,
+        "species": "nacli",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 933,
+        "species": "naclstack",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 934,
+        "species": "garganacl",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 933,
+    "name": "naclstack",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 60,
+      "defense": 100,
+      "special-attack": 35,
+      "special-defense": 65,
+      "speed": 35
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/933.png",
+      "local": "/sprites/933.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 932,
+        "species": "nacli",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 933,
+        "species": "naclstack",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 934,
+        "species": "garganacl",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 934,
+    "name": "garganacl",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 100,
+      "defense": 130,
+      "special-attack": 45,
+      "special-defense": 90,
+      "speed": 35
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/934.png",
+      "local": "/sprites/934.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 932,
+        "species": "nacli",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 933,
+        "species": "naclstack",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 934,
+        "species": "garganacl",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 935,
+    "name": "charcadet",
+    "types": [
+      "fire"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 50,
+      "defense": 40,
+      "special-attack": 50,
+      "special-defense": 40,
+      "speed": 35
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/935.png",
+      "local": "/sprites/935.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 935,
+        "species": "charcadet",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 936,
+        "species": "armarouge",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 937,
+        "species": "ceruledge",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 936,
+    "name": "armarouge",
+    "types": [
+      "fire",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 60,
+      "defense": 100,
+      "special-attack": 125,
+      "special-defense": 80,
+      "speed": 75
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/936.png",
+      "local": "/sprites/936.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 935,
+        "species": "charcadet",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 936,
+        "species": "armarouge",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 937,
+        "species": "ceruledge",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 937,
+    "name": "ceruledge",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 75,
+      "attack": 125,
+      "defense": 80,
+      "special-attack": 60,
+      "special-defense": 100,
+      "speed": 85
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/937.png",
+      "local": "/sprites/937.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 935,
+        "species": "charcadet",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 936,
+        "species": "armarouge",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 937,
+        "species": "ceruledge",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 938,
+    "name": "tadbulb",
+    "types": [
+      "electric"
+    ],
+    "stats": {
+      "hp": 61,
+      "attack": 31,
+      "defense": 41,
+      "special-attack": 59,
+      "special-defense": 35,
+      "speed": 45
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/938.png",
+      "local": "/sprites/938.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 938,
+        "species": "tadbulb",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 939,
+        "species": "bellibolt",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 939,
+    "name": "bellibolt",
+    "types": [
+      "electric"
+    ],
+    "stats": {
+      "hp": 109,
+      "attack": 64,
+      "defense": 91,
+      "special-attack": 103,
+      "special-defense": 83,
+      "speed": 45
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/939.png",
+      "local": "/sprites/939.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 938,
+        "species": "tadbulb",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 939,
+        "species": "bellibolt",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 940,
+    "name": "wattrel",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 40,
+      "defense": 35,
+      "special-attack": 55,
+      "special-defense": 40,
+      "speed": 70
+    },
+    "captureRate": 180,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/940.png",
+      "local": "/sprites/940.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 940,
+        "species": "wattrel",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 941,
+        "species": "kilowattrel",
+        "trigger": "level-up",
+        "minLevel": 25
+      }
+    ]
+  },
+  {
+    "id": 941,
+    "name": "kilowattrel",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 70,
+      "defense": 60,
+      "special-attack": 105,
+      "special-defense": 60,
+      "speed": 125
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/941.png",
+      "local": "/sprites/941.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 940,
+        "species": "wattrel",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 941,
+        "species": "kilowattrel",
+        "trigger": "level-up",
+        "minLevel": 25
+      }
+    ]
+  },
+  {
+    "id": 942,
+    "name": "maschiff",
+    "types": [
+      "dark"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 78,
+      "defense": 60,
+      "special-attack": 40,
+      "special-defense": 51,
+      "speed": 51
+    },
+    "captureRate": 150,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/942.png",
+      "local": "/sprites/942.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 942,
+        "species": "maschiff",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 943,
+        "species": "mabosstiff",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 943,
+    "name": "mabosstiff",
+    "types": [
+      "dark"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 120,
+      "defense": 90,
+      "special-attack": 60,
+      "special-defense": 70,
+      "speed": 85
+    },
+    "captureRate": 75,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/943.png",
+      "local": "/sprites/943.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 942,
+        "species": "maschiff",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 943,
+        "species": "mabosstiff",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 944,
+    "name": "shroodle",
+    "types": [
+      "poison",
+      "normal"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 65,
+      "defense": 35,
+      "special-attack": 40,
+      "special-defense": 35,
+      "speed": 75
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/944.png",
+      "local": "/sprites/944.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 944,
+        "species": "shroodle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 945,
+        "species": "grafaiai",
+        "trigger": "level-up",
+        "minLevel": 28
+      }
+    ]
+  },
+  {
+    "id": 945,
+    "name": "grafaiai",
+    "types": [
+      "poison",
+      "normal"
+    ],
+    "stats": {
+      "hp": 63,
+      "attack": 95,
+      "defense": 65,
+      "special-attack": 80,
+      "special-defense": 72,
+      "speed": 110
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/945.png",
+      "local": "/sprites/945.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 944,
+        "species": "shroodle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 945,
+        "species": "grafaiai",
+        "trigger": "level-up",
+        "minLevel": 28
+      }
+    ]
+  },
+  {
+    "id": 946,
+    "name": "bramblin",
+    "types": [
+      "grass",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 65,
+      "defense": 30,
+      "special-attack": 45,
+      "special-defense": 35,
+      "speed": 60
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/946.png",
+      "local": "/sprites/946.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 946,
+        "species": "bramblin",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 947,
+        "species": "brambleghast",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 947,
+    "name": "brambleghast",
+    "types": [
+      "grass",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 55,
+      "attack": 115,
+      "defense": 70,
+      "special-attack": 80,
+      "special-defense": 70,
+      "speed": 90
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/947.png",
+      "local": "/sprites/947.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 946,
+        "species": "bramblin",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 947,
+        "species": "brambleghast",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 948,
+    "name": "toedscool",
+    "types": [
+      "ground",
+      "grass"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 40,
+      "defense": 35,
+      "special-attack": 50,
+      "special-defense": 100,
+      "speed": 70
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/948.png",
+      "local": "/sprites/948.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 948,
+        "species": "toedscool",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 949,
+        "species": "toedscruel",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 949,
+    "name": "toedscruel",
+    "types": [
+      "ground",
+      "grass"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 70,
+      "defense": 65,
+      "special-attack": 80,
+      "special-defense": 120,
+      "speed": 100
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/949.png",
+      "local": "/sprites/949.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 948,
+        "species": "toedscool",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 949,
+        "species": "toedscruel",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 950,
+    "name": "klawf",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 100,
+      "defense": 115,
+      "special-attack": 35,
+      "special-defense": 55,
+      "speed": 75
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/950.png",
+      "local": "/sprites/950.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 950,
+        "species": "klawf",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 951,
+    "name": "capsakid",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 50,
+      "attack": 62,
+      "defense": 40,
+      "special-attack": 62,
+      "special-defense": 40,
+      "speed": 50
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/951.png",
+      "local": "/sprites/951.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 951,
+        "species": "capsakid",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 952,
+        "species": "scovillain",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 952,
+    "name": "scovillain",
+    "types": [
+      "grass",
+      "fire"
+    ],
+    "stats": {
+      "hp": 65,
+      "attack": 108,
+      "defense": 65,
+      "special-attack": 108,
+      "special-defense": 65,
+      "speed": 75
+    },
+    "captureRate": 75,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/952.png",
+      "local": "/sprites/952.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 951,
+        "species": "capsakid",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 952,
+        "species": "scovillain",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 953,
+    "name": "rellor",
+    "types": [
+      "bug"
+    ],
+    "stats": {
+      "hp": 41,
+      "attack": 50,
+      "defense": 60,
+      "special-attack": 31,
+      "special-defense": 58,
+      "speed": 30
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/953.png",
+      "local": "/sprites/953.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 953,
+        "species": "rellor",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 954,
+        "species": "rabsca",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 954,
+    "name": "rabsca",
+    "types": [
+      "bug",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 75,
+      "attack": 50,
+      "defense": 85,
+      "special-attack": 115,
+      "special-defense": 100,
+      "speed": 45
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/954.png",
+      "local": "/sprites/954.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 953,
+        "species": "rellor",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 954,
+        "species": "rabsca",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 955,
+    "name": "flittle",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 30,
+      "attack": 35,
+      "defense": 30,
+      "special-attack": 55,
+      "special-defense": 30,
+      "speed": 75
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/955.png",
+      "local": "/sprites/955.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 955,
+        "species": "flittle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 956,
+        "species": "espathra",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 956,
+    "name": "espathra",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 95,
+      "attack": 60,
+      "defense": 60,
+      "special-attack": 101,
+      "special-defense": 60,
+      "speed": 105
+    },
+    "captureRate": 60,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/956.png",
+      "local": "/sprites/956.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 955,
+        "species": "flittle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 956,
+        "species": "espathra",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 957,
+    "name": "tinkatink",
+    "types": [
+      "fairy",
+      "steel"
+    ],
+    "stats": {
+      "hp": 50,
+      "attack": 45,
+      "defense": 45,
+      "special-attack": 35,
+      "special-defense": 64,
+      "speed": 58
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/957.png",
+      "local": "/sprites/957.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 957,
+        "species": "tinkatink",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 958,
+        "species": "tinkatuff",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 959,
+        "species": "tinkaton",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 958,
+    "name": "tinkatuff",
+    "types": [
+      "fairy",
+      "steel"
+    ],
+    "stats": {
+      "hp": 65,
+      "attack": 55,
+      "defense": 55,
+      "special-attack": 45,
+      "special-defense": 82,
+      "speed": 78
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/958.png",
+      "local": "/sprites/958.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 957,
+        "species": "tinkatink",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 958,
+        "species": "tinkatuff",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 959,
+        "species": "tinkaton",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 959,
+    "name": "tinkaton",
+    "types": [
+      "fairy",
+      "steel"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 75,
+      "defense": 77,
+      "special-attack": 70,
+      "special-defense": 105,
+      "speed": 94
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/959.png",
+      "local": "/sprites/959.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 957,
+        "species": "tinkatink",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 958,
+        "species": "tinkatuff",
+        "trigger": "level-up",
+        "minLevel": 24
+      },
+      {
+        "id": 959,
+        "species": "tinkaton",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 960,
+    "name": "wiglett",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 10,
+      "attack": 55,
+      "defense": 25,
+      "special-attack": 35,
+      "special-defense": 25,
+      "speed": 95
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/960.png",
+      "local": "/sprites/960.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 960,
+        "species": "wiglett",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 961,
+        "species": "wugtrio",
+        "trigger": "level-up",
+        "minLevel": 26
+      }
+    ]
+  },
+  {
+    "id": 961,
+    "name": "wugtrio",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 35,
+      "attack": 100,
+      "defense": 50,
+      "special-attack": 50,
+      "special-defense": 70,
+      "speed": 120
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/961.png",
+      "local": "/sprites/961.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 960,
+        "species": "wiglett",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 961,
+        "species": "wugtrio",
+        "trigger": "level-up",
+        "minLevel": 26
+      }
+    ]
+  },
+  {
+    "id": 962,
+    "name": "bombirdier",
+    "types": [
+      "flying",
+      "dark"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 103,
+      "defense": 85,
+      "special-attack": 60,
+      "special-defense": 85,
+      "speed": 82
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/962.png",
+      "local": "/sprites/962.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 962,
+        "species": "bombirdier",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 963,
+    "name": "finizen",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 45,
+      "defense": 40,
+      "special-attack": 45,
+      "special-defense": 40,
+      "speed": 75
+    },
+    "captureRate": 200,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/963.png",
+      "local": "/sprites/963.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 963,
+        "species": "finizen",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 964,
+        "species": "palafin",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 964,
+    "name": "palafin-zero",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 70,
+      "defense": 72,
+      "special-attack": 53,
+      "special-defense": 62,
+      "speed": 100
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/964.png",
+      "local": "/sprites/964.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 963,
+        "species": "finizen",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 964,
+        "species": "palafin",
+        "trigger": "level-up",
+        "minLevel": 38
+      }
+    ]
+  },
+  {
+    "id": 965,
+    "name": "varoom",
+    "types": [
+      "steel",
+      "poison"
+    ],
+    "stats": {
+      "hp": 45,
+      "attack": 70,
+      "defense": 63,
+      "special-attack": 30,
+      "special-defense": 45,
+      "speed": 47
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/965.png",
+      "local": "/sprites/965.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 965,
+        "species": "varoom",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 966,
+        "species": "revavroom",
+        "trigger": "level-up",
+        "minLevel": 40
+      }
+    ]
+  },
+  {
+    "id": 966,
+    "name": "revavroom",
+    "types": [
+      "steel",
+      "poison"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 119,
+      "defense": 90,
+      "special-attack": 54,
+      "special-defense": 67,
+      "speed": 90
+    },
+    "captureRate": 75,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/966.png",
+      "local": "/sprites/966.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 965,
+        "species": "varoom",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 966,
+        "species": "revavroom",
+        "trigger": "level-up",
+        "minLevel": 40
+      }
+    ]
+  },
+  {
+    "id": 967,
+    "name": "cyclizar",
+    "types": [
+      "dragon",
+      "normal"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 95,
+      "defense": 65,
+      "special-attack": 85,
+      "special-defense": 65,
+      "speed": 121
+    },
+    "captureRate": 190,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/967.png",
+      "local": "/sprites/967.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 967,
+        "species": "cyclizar",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 968,
+    "name": "orthworm",
+    "types": [
+      "steel"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 85,
+      "defense": 145,
+      "special-attack": 60,
+      "special-defense": 55,
+      "speed": 65
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/968.png",
+      "local": "/sprites/968.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 968,
+        "species": "orthworm",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 969,
+    "name": "glimmet",
+    "types": [
+      "rock",
+      "poison"
+    ],
+    "stats": {
+      "hp": 48,
+      "attack": 35,
+      "defense": 42,
+      "special-attack": 105,
+      "special-defense": 60,
+      "speed": 60
+    },
+    "captureRate": 70,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/969.png",
+      "local": "/sprites/969.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 969,
+        "species": "glimmet",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 970,
+        "species": "glimmora",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 970,
+    "name": "glimmora",
+    "types": [
+      "rock",
+      "poison"
+    ],
+    "stats": {
+      "hp": 83,
+      "attack": 55,
+      "defense": 90,
+      "special-attack": 130,
+      "special-defense": 81,
+      "speed": 86
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/970.png",
+      "local": "/sprites/970.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 969,
+        "species": "glimmet",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 970,
+        "species": "glimmora",
+        "trigger": "level-up",
+        "minLevel": 35
+      }
+    ]
+  },
+  {
+    "id": 971,
+    "name": "greavard",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 50,
+      "attack": 61,
+      "defense": 60,
+      "special-attack": 30,
+      "special-defense": 55,
+      "speed": 34
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/971.png",
+      "local": "/sprites/971.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 971,
+        "species": "greavard",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 972,
+        "species": "houndstone",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 972,
+    "name": "houndstone",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 101,
+      "defense": 100,
+      "special-attack": 50,
+      "special-defense": 97,
+      "speed": 68
+    },
+    "captureRate": 60,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/972.png",
+      "local": "/sprites/972.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 971,
+        "species": "greavard",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 972,
+        "species": "houndstone",
+        "trigger": "level-up",
+        "minLevel": 30
+      }
+    ]
+  },
+  {
+    "id": 973,
+    "name": "flamigo",
+    "types": [
+      "flying",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 115,
+      "defense": 74,
+      "special-attack": 75,
+      "special-defense": 64,
+      "speed": 90
+    },
+    "captureRate": 100,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/973.png",
+      "local": "/sprites/973.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 973,
+        "species": "flamigo",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 974,
+    "name": "cetoddle",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 68,
+      "defense": 45,
+      "special-attack": 30,
+      "special-defense": 40,
+      "speed": 43
+    },
+    "captureRate": 150,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/974.png",
+      "local": "/sprites/974.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 974,
+        "species": "cetoddle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 975,
+        "species": "cetitan",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 975,
+    "name": "cetitan",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 170,
+      "attack": 113,
+      "defense": 65,
+      "special-attack": 45,
+      "special-defense": 55,
+      "speed": 73
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/975.png",
+      "local": "/sprites/975.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 974,
+        "species": "cetoddle",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 975,
+        "species": "cetitan",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 976,
+    "name": "veluza",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 102,
+      "defense": 73,
+      "special-attack": 78,
+      "special-defense": 65,
+      "speed": 70
+    },
+    "captureRate": 100,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/976.png",
+      "local": "/sprites/976.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 976,
+        "species": "veluza",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 977,
+    "name": "dondozo",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 150,
+      "attack": 100,
+      "defense": 115,
+      "special-attack": 65,
+      "special-defense": 65,
+      "speed": 35
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/977.png",
+      "local": "/sprites/977.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 977,
+        "species": "dondozo",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 978,
+    "name": "tatsugiri-curly",
+    "types": [
+      "dragon",
+      "water"
+    ],
+    "stats": {
+      "hp": 68,
+      "attack": 50,
+      "defense": 60,
+      "special-attack": 120,
+      "special-defense": 95,
+      "speed": 82
+    },
+    "captureRate": 100,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/978.png",
+      "local": "/sprites/978.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 978,
+        "species": "tatsugiri",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 979,
+    "name": "annihilape",
+    "types": [
+      "fighting",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 110,
+      "attack": 115,
+      "defense": 80,
+      "special-attack": 50,
+      "special-defense": 90,
+      "speed": 90
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/979.png",
+      "local": "/sprites/979.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 56,
+        "species": "mankey",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 57,
+        "species": "primeape",
+        "trigger": "level-up",
+        "minLevel": 28
+      },
+      {
+        "id": 979,
+        "species": "annihilape",
+        "trigger": "use-move",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 980,
+    "name": "clodsire",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "stats": {
+      "hp": 130,
+      "attack": 75,
+      "defense": 60,
+      "special-attack": 45,
+      "special-defense": 100,
+      "speed": 20
+    },
+    "captureRate": 90,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/980.png",
+      "local": "/sprites/980.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 194,
+        "species": "wooper",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 195,
+        "species": "quagsire",
+        "trigger": "level-up",
+        "minLevel": 20
+      },
+      {
+        "id": 980,
+        "species": "clodsire",
+        "trigger": "level-up",
+        "minLevel": 20
+      }
+    ]
+  },
+  {
+    "id": 981,
+    "name": "farigiraf",
+    "types": [
+      "normal",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 90,
+      "defense": 70,
+      "special-attack": 110,
+      "special-defense": 70,
+      "speed": 60
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/981.png",
+      "local": "/sprites/981.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 203,
+        "species": "girafarig",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 981,
+        "species": "farigiraf",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 982,
+    "name": "dudunsparce-two-segment",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 125,
+      "attack": 100,
+      "defense": 80,
+      "special-attack": 85,
+      "special-defense": 75,
+      "speed": 55
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/982.png",
+      "local": "/sprites/982.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 206,
+        "species": "dunsparce",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 982,
+        "species": "dudunsparce",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 983,
+    "name": "kingambit",
+    "types": [
+      "dark",
+      "steel"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 135,
+      "defense": 120,
+      "special-attack": 60,
+      "special-defense": 85,
+      "speed": 50
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/983.png",
+      "local": "/sprites/983.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 624,
+        "species": "pawniard",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 625,
+        "species": "bisharp",
+        "trigger": "level-up",
+        "minLevel": 52
+      },
+      {
+        "id": 983,
+        "species": "kingambit",
+        "trigger": "three-defeated-bisharp",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 984,
+    "name": "great-tusk",
+    "types": [
+      "ground",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 115,
+      "attack": 131,
+      "defense": 131,
+      "special-attack": 53,
+      "special-defense": 53,
+      "speed": 87
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/984.png",
+      "local": "/sprites/984.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 984,
+        "species": "great-tusk",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 985,
+    "name": "scream-tail",
+    "types": [
+      "fairy",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 115,
+      "attack": 65,
+      "defense": 99,
+      "special-attack": 65,
+      "special-defense": 115,
+      "speed": 111
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/985.png",
+      "local": "/sprites/985.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 985,
+        "species": "scream-tail",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 986,
+    "name": "brute-bonnet",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "stats": {
+      "hp": 111,
+      "attack": 127,
+      "defense": 99,
+      "special-attack": 79,
+      "special-defense": 99,
+      "speed": 55
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/986.png",
+      "local": "/sprites/986.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 986,
+        "species": "brute-bonnet",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 987,
+    "name": "flutter-mane",
+    "types": [
+      "ghost",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 55,
+      "attack": 55,
+      "defense": 55,
+      "special-attack": 135,
+      "special-defense": 135,
+      "speed": 135
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/987.png",
+      "local": "/sprites/987.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 987,
+        "species": "flutter-mane",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 988,
+    "name": "slither-wing",
+    "types": [
+      "bug",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 135,
+      "defense": 79,
+      "special-attack": 85,
+      "special-defense": 105,
+      "speed": 81
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/988.png",
+      "local": "/sprites/988.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 988,
+        "species": "slither-wing",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 989,
+    "name": "sandy-shocks",
+    "types": [
+      "electric",
+      "ground"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 81,
+      "defense": 97,
+      "special-attack": 121,
+      "special-defense": 85,
+      "speed": 101
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/989.png",
+      "local": "/sprites/989.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 989,
+        "species": "sandy-shocks",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 990,
+    "name": "iron-treads",
+    "types": [
+      "ground",
+      "steel"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 112,
+      "defense": 120,
+      "special-attack": 72,
+      "special-defense": 70,
+      "speed": 106
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/990.png",
+      "local": "/sprites/990.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 990,
+        "species": "iron-treads",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 991,
+    "name": "iron-bundle",
+    "types": [
+      "ice",
+      "water"
+    ],
+    "stats": {
+      "hp": 56,
+      "attack": 80,
+      "defense": 114,
+      "special-attack": 124,
+      "special-defense": 60,
+      "speed": 136
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/991.png",
+      "local": "/sprites/991.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 991,
+        "species": "iron-bundle",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 992,
+    "name": "iron-hands",
+    "types": [
+      "fighting",
+      "electric"
+    ],
+    "stats": {
+      "hp": 154,
+      "attack": 140,
+      "defense": 108,
+      "special-attack": 50,
+      "special-defense": 68,
+      "speed": 50
+    },
+    "captureRate": 50,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/992.png",
+      "local": "/sprites/992.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 992,
+        "species": "iron-hands",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 993,
+    "name": "iron-jugulis",
+    "types": [
+      "dark",
+      "flying"
+    ],
+    "stats": {
+      "hp": 94,
+      "attack": 80,
+      "defense": 86,
+      "special-attack": 122,
+      "special-defense": 80,
+      "speed": 108
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/993.png",
+      "local": "/sprites/993.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 993,
+        "species": "iron-jugulis",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 994,
+    "name": "iron-moth",
+    "types": [
+      "fire",
+      "poison"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 70,
+      "defense": 60,
+      "special-attack": 140,
+      "special-defense": 110,
+      "speed": 110
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/994.png",
+      "local": "/sprites/994.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 994,
+        "species": "iron-moth",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 995,
+    "name": "iron-thorns",
+    "types": [
+      "rock",
+      "electric"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 134,
+      "defense": 110,
+      "special-attack": 70,
+      "special-defense": 84,
+      "speed": 72
+    },
+    "captureRate": 30,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/995.png",
+      "local": "/sprites/995.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 995,
+        "species": "iron-thorns",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 996,
+    "name": "frigibax",
+    "types": [
+      "dragon",
+      "ice"
+    ],
+    "stats": {
+      "hp": 65,
+      "attack": 75,
+      "defense": 45,
+      "special-attack": 35,
+      "special-defense": 45,
+      "speed": 55
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/996.png",
+      "local": "/sprites/996.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 996,
+        "species": "frigibax",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 997,
+        "species": "arctibax",
+        "trigger": "level-up",
+        "minLevel": 35
+      },
+      {
+        "id": 998,
+        "species": "baxcalibur",
+        "trigger": "level-up",
+        "minLevel": 54
+      }
+    ]
+  },
+  {
+    "id": 997,
+    "name": "arctibax",
+    "types": [
+      "dragon",
+      "ice"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 95,
+      "defense": 66,
+      "special-attack": 45,
+      "special-defense": 65,
+      "speed": 62
+    },
+    "captureRate": 25,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/997.png",
+      "local": "/sprites/997.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 996,
+        "species": "frigibax",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 997,
+        "species": "arctibax",
+        "trigger": "level-up",
+        "minLevel": 35
+      },
+      {
+        "id": 998,
+        "species": "baxcalibur",
+        "trigger": "level-up",
+        "minLevel": 54
+      }
+    ]
+  },
+  {
+    "id": 998,
+    "name": "baxcalibur",
+    "types": [
+      "dragon",
+      "ice"
+    ],
+    "stats": {
+      "hp": 115,
+      "attack": 145,
+      "defense": 92,
+      "special-attack": 75,
+      "special-defense": 86,
+      "speed": 87
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/998.png",
+      "local": "/sprites/998.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 996,
+        "species": "frigibax",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 997,
+        "species": "arctibax",
+        "trigger": "level-up",
+        "minLevel": 35
+      },
+      {
+        "id": 998,
+        "species": "baxcalibur",
+        "trigger": "level-up",
+        "minLevel": 54
+      }
+    ]
+  },
+  {
+    "id": 999,
+    "name": "gimmighoul",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 45,
+      "attack": 30,
+      "defense": 70,
+      "special-attack": 75,
+      "special-defense": 70,
+      "speed": 10
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/999.png",
+      "local": "/sprites/999.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 999,
+        "species": "gimmighoul",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 1000,
+        "species": "gholdengo",
+        "trigger": "gimmighoul-coins",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1000,
+    "name": "gholdengo",
+    "types": [
+      "steel",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 87,
+      "attack": 60,
+      "defense": 95,
+      "special-attack": 133,
+      "special-defense": 91,
+      "speed": 84
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1000.png",
+      "local": "/sprites/1000.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 999,
+        "species": "gimmighoul",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 1000,
+        "species": "gholdengo",
+        "trigger": "gimmighoul-coins",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1001,
+    "name": "wo-chien",
+    "types": [
+      "dark",
+      "grass"
+    ],
+    "stats": {
+      "hp": 85,
+      "attack": 85,
+      "defense": 100,
+      "special-attack": 95,
+      "special-defense": 135,
+      "speed": 70
+    },
+    "captureRate": 6,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1001.png",
+      "local": "/sprites/1001.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1001,
+        "species": "wo-chien",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1002,
+    "name": "chien-pao",
+    "types": [
+      "dark",
+      "ice"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 120,
+      "defense": 80,
+      "special-attack": 90,
+      "special-defense": 65,
+      "speed": 135
+    },
+    "captureRate": 6,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1002.png",
+      "local": "/sprites/1002.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1002,
+        "species": "chien-pao",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1003,
+    "name": "ting-lu",
+    "types": [
+      "dark",
+      "ground"
+    ],
+    "stats": {
+      "hp": 155,
+      "attack": 110,
+      "defense": 125,
+      "special-attack": 55,
+      "special-defense": 80,
+      "speed": 45
+    },
+    "captureRate": 6,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1003.png",
+      "local": "/sprites/1003.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1003,
+        "species": "ting-lu",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1004,
+    "name": "chi-yu",
+    "types": [
+      "dark",
+      "fire"
+    ],
+    "stats": {
+      "hp": 55,
+      "attack": 80,
+      "defense": 80,
+      "special-attack": 135,
+      "special-defense": 120,
+      "speed": 100
+    },
+    "captureRate": 6,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1004.png",
+      "local": "/sprites/1004.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1004,
+        "species": "chi-yu",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1005,
+    "name": "roaring-moon",
+    "types": [
+      "dragon",
+      "dark"
+    ],
+    "stats": {
+      "hp": 105,
+      "attack": 139,
+      "defense": 71,
+      "special-attack": 55,
+      "special-defense": 101,
+      "speed": 119
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1005.png",
+      "local": "/sprites/1005.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1005,
+        "species": "roaring-moon",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1006,
+    "name": "iron-valiant",
+    "types": [
+      "fairy",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 74,
+      "attack": 130,
+      "defense": 90,
+      "special-attack": 120,
+      "special-defense": 60,
+      "speed": 116
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1006.png",
+      "local": "/sprites/1006.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1006,
+        "species": "iron-valiant",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1007,
+    "name": "koraidon",
+    "types": [
+      "fighting",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 135,
+      "defense": 115,
+      "special-attack": 85,
+      "special-defense": 100,
+      "speed": 135
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1007.png",
+      "local": "/sprites/1007.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1007,
+        "species": "koraidon",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1008,
+    "name": "miraidon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 85,
+      "defense": 100,
+      "special-attack": 135,
+      "special-defense": 115,
+      "speed": 135
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1008.png",
+      "local": "/sprites/1008.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1008,
+        "species": "miraidon",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1009,
+    "name": "walking-wake",
+    "types": [
+      "water",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 99,
+      "attack": 83,
+      "defense": 91,
+      "special-attack": 125,
+      "special-defense": 83,
+      "speed": 109
+    },
+    "captureRate": 5,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1009.png",
+      "local": "/sprites/1009.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1009,
+        "species": "walking-wake",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1010,
+    "name": "iron-leaves",
+    "types": [
+      "grass",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 130,
+      "defense": 88,
+      "special-attack": 70,
+      "special-defense": 108,
+      "speed": 104
+    },
+    "captureRate": 5,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1010.png",
+      "local": "/sprites/1010.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1010,
+        "species": "iron-leaves",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1011,
+    "name": "dipplin",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 80,
+      "defense": 110,
+      "special-attack": 95,
+      "special-defense": 80,
+      "speed": 40
+    },
+    "captureRate": 45,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1011.png",
+      "local": "/sprites/1011.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 840,
+        "species": "applin",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 841,
+        "species": "flapple",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 842,
+        "species": "appletun",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 1011,
+        "species": "dipplin",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 1019,
+        "species": "hydrapple",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1012,
+    "name": "poltchageist",
+    "types": [
+      "grass",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 40,
+      "attack": 45,
+      "defense": 45,
+      "special-attack": 74,
+      "special-defense": 54,
+      "speed": 50
+    },
+    "captureRate": 120,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1012.png",
+      "local": "/sprites/1012.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1012,
+        "species": "poltchageist",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 1013,
+        "species": "sinistcha",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1013,
+    "name": "sinistcha",
+    "types": [
+      "grass",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 71,
+      "attack": 60,
+      "defense": 106,
+      "special-attack": 121,
+      "special-defense": 80,
+      "speed": 70
+    },
+    "captureRate": 60,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1013.png",
+      "local": "/sprites/1013.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1012,
+        "species": "poltchageist",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 1013,
+        "species": "sinistcha",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1014,
+    "name": "okidogi",
+    "types": [
+      "poison",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 128,
+      "defense": 115,
+      "special-attack": 58,
+      "special-defense": 86,
+      "speed": 80
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1014.png",
+      "local": "/sprites/1014.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1014,
+        "species": "okidogi",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1015,
+    "name": "munkidori",
+    "types": [
+      "poison",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 75,
+      "defense": 66,
+      "special-attack": 130,
+      "special-defense": 90,
+      "speed": 106
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1015.png",
+      "local": "/sprites/1015.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1015,
+        "species": "munkidori",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1016,
+    "name": "fezandipiti",
+    "types": [
+      "poison",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 91,
+      "defense": 82,
+      "special-attack": 70,
+      "special-defense": 125,
+      "speed": 99
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1016.png",
+      "local": "/sprites/1016.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1016,
+        "species": "fezandipiti",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1017,
+    "name": "ogerpon",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 80,
+      "attack": 120,
+      "defense": 84,
+      "special-attack": 60,
+      "special-defense": 96,
+      "speed": 110
+    },
+    "captureRate": 5,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1017.png",
+      "local": "/sprites/1017.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1017,
+        "species": "ogerpon",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1018,
+    "name": "archaludon",
+    "types": [
+      "steel",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 105,
+      "defense": 130,
+      "special-attack": 125,
+      "special-defense": 65,
+      "speed": 85
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1018.png",
+      "local": "/sprites/1018.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 884,
+        "species": "duraludon",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 1018,
+        "species": "archaludon",
+        "trigger": "use-item",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1019,
+    "name": "hydrapple",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 106,
+      "attack": 80,
+      "defense": 110,
+      "special-attack": 120,
+      "special-defense": 80,
+      "speed": 44
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1019.png",
+      "local": "/sprites/1019.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 840,
+        "species": "applin",
+        "trigger": "initial",
+        "minLevel": null
+      },
+      {
+        "id": 841,
+        "species": "flapple",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 842,
+        "species": "appletun",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 1011,
+        "species": "dipplin",
+        "trigger": "use-item",
+        "minLevel": null
+      },
+      {
+        "id": 1019,
+        "species": "hydrapple",
+        "trigger": "level-up",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1020,
+    "name": "gouging-fire",
+    "types": [
+      "fire",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 105,
+      "attack": 115,
+      "defense": 121,
+      "special-attack": 65,
+      "special-defense": 93,
+      "speed": 91
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1020.png",
+      "local": "/sprites/1020.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1020,
+        "species": "gouging-fire",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1021,
+    "name": "raging-bolt",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 125,
+      "attack": 73,
+      "defense": 91,
+      "special-attack": 137,
+      "special-defense": 89,
+      "speed": 75
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1021.png",
+      "local": "/sprites/1021.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1021,
+        "species": "raging-bolt",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1022,
+    "name": "iron-boulder",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 120,
+      "defense": 80,
+      "special-attack": 68,
+      "special-defense": 108,
+      "speed": 124
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1022.png",
+      "local": "/sprites/1022.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1022,
+        "species": "iron-boulder",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1023,
+    "name": "iron-crown",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 72,
+      "defense": 100,
+      "special-attack": 122,
+      "special-defense": 108,
+      "speed": 98
+    },
+    "captureRate": 10,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1023.png",
+      "local": "/sprites/1023.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1023,
+        "species": "iron-crown",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1024,
+    "name": "terapagos",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 65,
+      "defense": 85,
+      "special-attack": 65,
+      "special-defense": 85,
+      "speed": 60
+    },
+    "captureRate": 255,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1024.png",
+      "local": "/sprites/1024.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1024,
+        "species": "terapagos",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  },
+  {
+    "id": 1025,
+    "name": "pecharunt",
+    "types": [
+      "poison",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 88,
+      "defense": 160,
+      "special-attack": 88,
+      "special-defense": 88,
+      "speed": 88
+    },
+    "captureRate": 3,
+    "sprite": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1025.png",
+      "local": "/sprites/1025.png"
+    },
+    "evolutionChain": [
+      {
+        "id": 1025,
+        "species": "pecharunt",
+        "trigger": "initial",
+        "minLevel": null
+      }
+    ]
+  }
+]

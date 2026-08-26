@@ -11,6 +11,8 @@ import {
 import {
   currentRegion,
   emptyRegionSave,
+  exportSave,
+  importSave,
   loadSave,
   withRegion,
   writeSave,
@@ -52,6 +54,7 @@ import {
   xpGainMultiplierBonus,
 } from './systems/rebirth/rebirthShop'
 import { AdminScreen } from './ui/screens/AdminScreen'
+import { SaveBackupScreen } from './ui/screens/SaveBackupScreen'
 import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { LocationNav } from './ui/components/LocationNav'
@@ -73,7 +76,7 @@ import { VictoryRoadScreen } from './ui/screens/VictoryRoadScreen'
 const AUTOSAVE_INTERVAL_MS = 10_000 // README: "salva a cada 10s"
 const CANDY_POP_LIFETIME_MS = 700
 
-type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad' | 'rebirthShop'
+type View = 'clicker' | 'team' | 'pokedex' | 'shop' | 'battle' | 'admin' | 'victoryRoad' | 'rebirthShop' | 'backup'
 type AuthStatus = 'loading' | 'signed-out' | 'signed-in'
 
 // Only called from handlers reachable after the region gates below have
@@ -726,6 +729,15 @@ function App() {
     })
   }
 
+  // Sprint 27 — throws on invalid input (SaveBackupScreen catches it and
+  // shows a status message instead of crashing). Persists immediately
+  // (writeSave) so the imported save survives a refresh even before the
+  // next autosave tick, same as any other save-replacing action.
+  function handleImportSave(encoded: string) {
+    const imported = importSave(encoded)
+    setSave(writeSave(imported))
+  }
+
   if (authStatus === 'loading') {
     return (
       <main>
@@ -816,12 +828,18 @@ function App() {
           </button>
         )}
         <button onClick={handleGoHome}>Home</button>
-        <button onClick={() => setView('admin')} disabled={view === 'admin'}>
-          Admin
+        <button onClick={() => setView('backup')} disabled={view === 'backup'}>
+          Backup
         </button>
+        {import.meta.env.DEV && (
+          <button onClick={() => setView('admin')} disabled={view === 'admin'}>
+            Admin
+          </button>
+        )}
       </nav>
 
-      {view === 'admin' && (
+      {view === 'backup' && <SaveBackupScreen exportedSave={exportSave(save)} onImport={handleImportSave} />}
+      {view === 'admin' && import.meta.env.DEV && (
         <AdminScreen
           gen1={gen1}
           region={regionSave}

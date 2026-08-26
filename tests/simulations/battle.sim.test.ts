@@ -37,6 +37,8 @@ function averageLevel(team: GymTeamMember[]): number {
 describe.each([
   ['Kanto', REGIONS.kanto],
   ['Johto', REGIONS.johto],
+  ['Hoenn', REGIONS.hoenn],
+  ['Sinnoh', REGIONS.sinnoh],
 ] as const)('batalhas — time dos 3 iniciais evoluídos (%s)', (regionName, regionDef) => {
   const gen1 = loadSpecies(regionDef.dataUrl)
 
