@@ -890,7 +890,9 @@ function App() {
           {regionSave.championBeaten && (
             <div className="rebirth-banner">
               <p>Você já venceu o Campeão nesta run. Farme mais um pouco, ou faça rebirth quando quiser.</p>
-              <button onClick={handleRebirth}>Rebirth</button>
+              <button className="btn-action btn-action--gold" onClick={handleRebirth}>
+                Rebirth
+              </button>
             </div>
           )}
           <LocationNav
@@ -913,8 +915,12 @@ function App() {
                 Um {wildEntry.name} selvagem apareceu! Nv.{wildEncounter.level} ({RARITY_LABELS[wildEncounter.tier]})
               </p>
               <div className="wild-encounter-actions">
-                <button onClick={handleBattleWild}>Batalhar</button>
-                <button onClick={handleIgnoreWild}>Ignorar</button>
+                <button className="btn-action btn-action--red" onClick={handleBattleWild}>
+                  Batalhar
+                </button>
+                <button className="btn-action btn-action--grey" onClick={handleIgnoreWild}>
+                  Ignorar
+                </button>
               </div>
             </div>
           )}
@@ -924,7 +930,9 @@ function App() {
                 Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
                 {formatBigNumber(offlineSummary.candiesEarned)} doces.
               </p>
-              <button onClick={() => setOfflineSummary(null)}>Continuar</button>
+              <button className="btn-action btn-action--blue" onClick={() => setOfflineSummary(null)}>
+                Continuar
+              </button>
             </div>
           )}
           <div className="candy-counter">

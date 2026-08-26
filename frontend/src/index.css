@@ -5,9 +5,16 @@
 }
 
 :root {
+  /* Widgets "funcionais" que ficam de propósito escuros ainda (barras de
+     HP/energia, QTEs, linhas de upgrade, cena dos geradores) — o HUD de
+     batalha de verdade também é escuro/colorido, não branco, então isso
+     não é "esquecer" essas telas, é uma escolha: só telas de MENU/CARTÃO
+     (diálogo, escolha, detalhe) viram claras (--gba-*), leitores de dado
+     denso continuam escuros com a MESMA linguagem de forma (corte
+     diagonal, borda grossa, sombra dura). */
   --panel-bg: #1e1a2e;
-  --panel-border: #8a5a2b;
-  --panel-border-strong: #e0645a;
+  --panel-border: #1c2b45;
+  --panel-border-strong: #ef4a3f;
   --text-light: #f0ecff;
   --text-dim: #cbb69a;
   --accent-yellow: #f8d030;
@@ -15,23 +22,21 @@
 
   /* Repaginação "menu de batalha" (referência: telas de batalha DS/3DS —
      FIGHT/BAG/POKÉMON/RUN em blocos coloridos por função, cantos cortados,
-     borda grossa, sombra dura) — deliberadamente isolada do resto da
-     paleta acima em vez de reaproveitar --panel-*: essas variáveis só
-     alimentam main-nav / region-select / roster / location-nav por
-     enquanto (pedido do dono do projeto de mexer só nessas 4 telas
-     primeiro); trocar --panel-bg direto mudaria TUDO que reusa o seletor
-     "pixel panel" (loja, pokédex, telas de starter etc.) antes da hora.
-     Se o resto do app adotar esse visual depois, é migrar pra cá. */
-  --gba-bg: linear-gradient(#fdfefe, #e4edf7);
-  --gba-bg-solid: #eef5ff;
+     borda grossa, sombra dura) — cartões de menu/diálogo/escolha (region
+     select, roster, location-nav, pokédex, tela de inicial, banners) usam
+     essa paleta clara; feedback do dono do projeto: o tom inicial (quase
+     branco) incomodava, então agora é um azul mais encorpado, não um
+     "papel em branco". */
+  --gba-bg: linear-gradient(#dbe7f6, #b6cce7);
+  --gba-bg-solid: #cfe0f2;
   --gba-border: #1c2b45;
   --gba-border-inset: #ffffff;
   --gba-text: #1c2b45;
-  --gba-text-dim: #5b7096;
+  --gba-text-dim: #4c6084;
   --gba-accent: #ffcc33;
   --gba-accent-strong: #2f6fb0;
-  --gba-locked-bg: #c7ceda;
-  --gba-locked-text: #6e7890;
+  --gba-locked-bg: #aab8ce;
+  --gba-locked-text: #566b8f;
 
   /* Um par (clara/escura) por "função" de botão, igual FIGHT=vermelho,
      BAG=laranja, POKÉMON=verde, RUN=azul nos jogos — cor já diz o que o
@@ -128,25 +133,32 @@ select {
   font-size: 0.7rem;
 }
 
+/* Botão "neutro" default — mesma família de forma do resto da repaginação
+   (canto cortado, borda grossa, sombra dura), mas sem cor de função:
+   serve pra qualquer botão dentro de um cartão claro (pokédex, tela de
+   inicial, admin, login) que não precisa de destaque próprio. */
 button,
 select {
   font-family: inherit;
-  color: var(--text-light);
-  background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 6px;
+  font-weight: bold;
+  color: var(--gba-text);
+  background: var(--gba-bg);
+  border: 3px solid var(--gba-border);
+  border-radius: 4px 12px 4px 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   padding: 0.5rem 0.75rem;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  transition: transform 0.08s ease;
 }
 
 button:not(:disabled):hover {
-  border-color: var(--panel-border-strong);
+  transform: translateY(-2px);
 }
 
 button:not(:disabled):active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
 }
 
 button:disabled {
@@ -154,16 +166,31 @@ button:disabled {
   cursor: default;
 }
 
-/* Shared "pixel panel" look for cards, banners and detail boxes. */
+/* Cartões de menu/diálogo/detalhe (referência: caixas de escolha e texto
+   dos jogos DS/3DS) — mesma família clara de main-nav/region-card/roster,
+   canto cortado + sombra dura. Widgets DENSOS/funcionais (linha de
+   upgrade, barras de HP/energia, QTEs) ficam de fora de propósito — ver
+   nota no :root. */
 .offline-banner,
 .pokemon-detail,
 .starter-choice,
-.pokedex-entry,
+.pokedex-entry {
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 3px solid var(--gba-border);
+  border-radius: 4px 16px 4px 16px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Linha de upgrade fica escura de propósito (leitor de dado denso, não
+   cartão de escolha) — só ganha borda grossa navy + canto cortado sutil
+   pra acompanhar a linguagem nova sem virar cartão claro. */
 .upgrades-panel li {
   background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--panel-border);
+  border-radius: 4px 10px 4px 10px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
 }
 
 /* Repaginação "menu de batalha" — cada botão é um bloco colorido por
@@ -248,13 +275,63 @@ button:disabled {
   filter: brightness(0.85) saturate(1.2);
 }
 
+/* Utilitário reaproveitável pra qualquer botão de ação importante fora da
+   nav (Batalhar/Ignorar do encontro selvagem, Rebirth, Continuar do
+   banner offline etc.) — mesmo bloco colorido por função + canto cortado. */
+.btn-action {
+  color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 3px solid var(--btn-color-dark, var(--pkc-grey-dark));
+  border-radius: 4px 12px 4px 12px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  background: linear-gradient(160deg, var(--btn-color, var(--pkc-grey)), var(--btn-color-dark, var(--pkc-grey-dark)));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    4px 4px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.btn-action--red {
+  --btn-color: var(--pkc-red);
+  --btn-color-dark: var(--pkc-red-dark);
+}
+.btn-action--green {
+  --btn-color: var(--pkc-green);
+  --btn-color-dark: var(--pkc-green-dark);
+}
+.btn-action--gold {
+  --btn-color: var(--pkc-gold);
+  --btn-color-dark: var(--pkc-gold-dark);
+}
+.btn-action--blue {
+  --btn-color: var(--pkc-blue);
+  --btn-color-dark: var(--pkc-blue-dark);
+}
+.btn-action--purple {
+  --btn-color: var(--pkc-purple);
+  --btn-color-dark: var(--pkc-purple-dark);
+}
+.btn-action--grey {
+  --btn-color: var(--pkc-grey);
+  --btn-color-dark: var(--pkc-grey-dark);
+}
+
+.btn-action:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+/* Placar de doces — chip escuro (leitor de dado, não cartão de escolha),
+   mesmo corte diagonal do resto. */
 .candy-counter {
   display: inline-block;
-  background: var(--panel-bg);
+  background: linear-gradient(160deg, #2a2440, var(--panel-bg));
   border: 3px solid var(--panel-border);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
-  padding: 0.5rem 1rem;
+  border-radius: 4px 14px 4px 14px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+  padding: 0.6rem 1.1rem;
   color: var(--accent-yellow);
   margin-bottom: 1rem;
 }
@@ -584,10 +661,12 @@ button:disabled {
   margin: 0 auto 1rem;
   max-width: 320px;
   padding: 0.75rem 1rem;
-  background: var(--panel-bg);
+  background: var(--gba-bg);
+  color: var(--gba-text);
   border: 3px solid var(--panel-border-strong);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 4px 18px 4px 18px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 .wild-encounter-banner img {
@@ -622,16 +701,16 @@ button:disabled {
   margin: 0 auto 1rem;
   max-width: 320px;
   padding: 0.75rem 1rem;
-  background: var(--panel-bg);
-  border: 3px solid var(--accent-yellow);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 3px solid var(--pkc-gold-dark);
+  border-radius: 4px 18px 4px 18px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
 }
 
-.rebirth-banner button {
+.rebirth-banner .btn-action {
   margin-top: 0.5rem;
-  border-color: var(--accent-yellow);
-  color: var(--accent-yellow);
 }
 
 .victory-road-list {
@@ -1705,22 +1784,54 @@ button:disabled {
   margin: 0 auto;
 }
 
+/* Mesma "cartão de liga" do .region-card (cabeçalho azul + canto
+   cortado) — os dois são cards de escolha de modo/região, mesma família. */
 .mode-card {
-  background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
-  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  background: var(--gba-bg);
+  color: var(--gba-text);
+  border: 3px solid var(--gba-border);
+  border-radius: 4px 20px 4px 20px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  padding: 0;
   text-align: center;
+  transition: transform 0.08s ease;
+  overflow: hidden;
+}
+
+.mode-card h3 {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background: linear-gradient(160deg, var(--pkc-blue), var(--pkc-blue-dark));
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.mode-card p {
+  margin: 0.6rem 0.75rem 0.75rem;
+}
+
+.mode-card:not(:disabled):hover {
+  transform: translateY(-3px);
 }
 
 .mode-card--locked {
-  opacity: 0.5;
+  background: var(--gba-locked-bg);
+  opacity: 1;
   cursor: default;
 }
 
+.mode-card--locked h3 {
+  color: var(--gba-locked-text);
+  background: var(--pkc-grey-dark);
+}
+
 .mode-card-locked {
-  color: var(--text-dim);
+  color: var(--gba-locked-text);
   font-size: 0.6rem;
 }
 
