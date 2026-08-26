@@ -804,7 +804,7 @@ function App() {
   }
 
   return (
-    <main className={view === 'clicker' ? 'view-clicker' : ''}>
+    <main>
       {evolutionFromSpecies && evolutionToSpecies && (
         <EvolutionScene
           fromSpecies={evolutionFromSpecies}
@@ -944,20 +944,20 @@ function App() {
               </button>
             </div>
           )}
-          <div className="candy-counter">
-            Saldo: {formatBigNumber(regionSave.candies)}
-            <br />
-            Acumulado: {formatBigNumber(regionSave.lifetimeCandies)}
-          </div>
-          {isFrenzyActive(regionSave, Date.now()) && <p className="frenzy-banner">🔥 Frenzia! Clique e doces/s x7</p>}
-          {clickerEntry && clickerMember && (
-            <p>
-              {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
-              {xpForNextLevel(clickerMember.level)} XP)
-            </p>
-          )}
           <div className="game-area">
             <div className="click-stage">
+              <div className="candy-counter">
+                Saldo: {formatBigNumber(regionSave.candies)}
+                <br />
+                Acumulado: {formatBigNumber(regionSave.lifetimeCandies)}
+              </div>
+              {isFrenzyActive(regionSave, Date.now()) && <p className="frenzy-banner">🔥 Frenzia! Clique e doces/s x7</p>}
+              {clickerEntry && clickerMember && (
+                <p>
+                  {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
+                  {xpForNextLevel(clickerMember.level)} XP)
+                </p>
+              )}
               <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
                 {clickerEntry && <img className="click-ball" src={`/items/${equippedBallId}.png`} alt={equippedBallId} />}
                 {candyPops.map((pop) => (
@@ -966,9 +966,6 @@ function App() {
                   </span>
                 ))}
               </button>
-            </div>
-            <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
-            <div className="side-column">
               <ClickUpgradesGrid
                 regionDef={activeRegionDef}
                 region={regionSave}
@@ -976,6 +973,9 @@ function App() {
                 onBuy={handleBuyUpgrade}
                 costMultiplier={upgradeCostMultiplier(team)}
               />
+            </div>
+            <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
+            <div className="side-column">
               <UpgradesPanel
                 regionDef={activeRegionDef}
                 region={regionSave}

@@ -967,15 +967,22 @@ button:disabled {
    a IDEIA: um radial-gradient escuro nas bordas faz a bola ser o ponto
    de luz da faixa, sem precisar de asset novo. Borda mais grossa (8px,
    era 4px) + friso claro por dentro pra não ficar uma linha seca. */
+/* Coluna de clique — feedback: o contador de doces (e o resto da UI do
+   clique) devia ficar DENTRO dela, em cima da bola, igual o cookie e o
+   contador do Cookie Clicker moram na mesma coluna — não espalhado acima
+   de .game-area inteiro. Virou flex em COLUNA (empilha contador → nome
+   do ativo → bola → quadrados de upgrade de clique), não mais uma linha
+   centralizando só a bola. */
 .click-stage {
   grid-column: 1;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   padding: 2rem 1.5rem;
   box-sizing: border-box;
   background:
-    radial-gradient(circle at 50% 32%, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.55) 60%, rgba(0, 0, 0, 0.85) 100%),
+    radial-gradient(circle at 50% 40%, transparent 0%, transparent 30%, rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0.85) 100%),
     linear-gradient(160deg, #2c1420, var(--panel-bg));
   border-right: 8px solid var(--pkc-red-dark);
   box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.12);
@@ -989,10 +996,17 @@ button:disabled {
    `1fr` puro não deixa a trilha encolher abaixo do min-content dos filhos
    (os 74px fixos de .click-upgrade-square), e a grade inteira vazava pra
    fora de .side-column numa tela de ~375px. */
+/* width:100% — agora que essa grade mora dentro de .click-stage (flex
+   column, align-items:center), sem isso ela só ocupa o tamanho natural
+   do conteúdo (~320px) em vez de encolher quando a coluna é mais estreita
+   que isso, e os quadrados voltam a vazar (mesmo bug já corrigido pro
+   celular, mas essa grade mudou de container). */
 .click-upgrades-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  width: 100%;
+  max-width: 320px;
 }
 
 /* Cor de identidade "clique" (vermelho, mesma família de Clicker na nav e
@@ -2230,51 +2244,11 @@ button:disabled {
   }
 }
 
-/* Feedback (2ª vez): as faixas coloridas ainda não iam até o TOPO DE
-   VERDADE da tela — só até o topo do .game-area, que fica bem abaixo do
-   nav/candy-counter. Tirar o padding do .game-area não resolve isso: o
-   nav e o resto continuam ocupando espaço ACIMA dele no fluxo normal da
-   página. É assim que o Cookie Clicker faz de verdade (inspecionado ao
-   vivo): as faixas de fundo são `position: fixed`, presas na tela inteira
-   (top:0, height:100vh), e o conteúdo real (nav, cartões, o jogo) ROLA
-   POR CIMA delas. Aqui: dois pseudo-elementos fixos em `<main
-   className="view-clicker">` (só existe essa classe na view do clicker)
-   com a MESMA cor/vinheta/borda de .click-stage/.side-column — o efeito é
-   a cor "vazando" por trás de tudo, sem precisar mexer onde o nav mora no
-   DOM. Só desktop (>860px): no celular tudo já é uma coluna só, empilhada
-   de verdade, não faz sentido ter uma tarja de cor fixa atrás disso. */
-@media (min-width: 861px) {
-  .view-clicker {
-    position: relative;
-  }
-
-  .view-clicker::before,
-  .view-clicker::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    height: 100vh;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .view-clicker::before {
-    left: 0;
-    width: max(220px, 30vw);
-    background:
-      radial-gradient(circle at 50% 32%, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.55) 60%, rgba(0, 0, 0, 0.85) 100%),
-      linear-gradient(160deg, #2c1420, var(--panel-bg));
-    border-right: 8px solid var(--pkc-red-dark);
-    box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.12);
-  }
-
-  .view-clicker::after {
-    right: 0;
-    width: 320px;
-    background:
-      radial-gradient(circle at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.4) 70%),
-      linear-gradient(160deg, #2c2410, var(--panel-bg));
-    border-left: 8px solid var(--pkc-gold-dark);
-    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.12);
-  }
-}
+/* Tentativa anterior (fundo fixo em position:fixed, separado do painel
+   real do grid) foi revertida — dava um bug de emenda visível: a faixa
+   fixa e o painel real do grid calculavam a própria largura de formas
+   diferentes (vw vs % do grid) e nunca alinhavam exatamente, criando uma
+   borda duplicada. Em vez disso, o contador de doces (e o resto da UI de
+   clique) MUDOU DE LUGAR pra dentro de .click-stage — ver App.tsx — o que
+   já ajuda a preencher o painel de cima a baixo sem precisar de uma
+   segunda camada de fundo desalinhada. */
