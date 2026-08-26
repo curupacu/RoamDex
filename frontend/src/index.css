@@ -774,22 +774,58 @@ button:disabled {
    0037) — encosta na janela, não no <main> centralizado. Sem altura fixa
    e sem overflow interno — quem rola é a página inteira. */
 /* Repaginação: as 3 colunas viram 3 FAIXAS de tela cheia (referência do
-   Cookie Clicker que o dono do projeto mandou — o fundo psicodélico da
-   esquerda e o de madeira da direita cobrem a faixa INTEIRA, de cima a
-   baixo, sem "cartão" flutuando no meio). `align-items: stretch` (em vez
-   de `start`) faz as 3 colunas terem a MESMA altura (a da maior, que é o
-   meio); `column-gap: 0` tira o vão entre elas — a própria cor de cada
-   faixa já separa uma da outra, uma borda fina no encontro é suficiente. */
+   Cookie Clicker que o dono do projeto mandou). Fui inspecionar o CSS de
+   verdade do Cookie Clicker (orteil.dashnet.org) pra acertar a mão:
+   #sectionLeft lá é `width: 30%` (fluido, não pixel fixo!) — é POR ISSO
+   que o "cookie acompanha o tamanho da tela": o container é proporcional,
+   a arte por dentro só fica com mais ou menos respiro ao redor. Espelhado
+   aqui: esquerda fluida (30%), direita fixa (é uma lista de texto, precisa
+   de largura estável pra não quebrar linha toda hora), meio = o resto.
+   `align-items: stretch` faz as 3 terem a MESMA altura (a do meio, que é
+   a maior); `column-gap: 0` — a cor de cada faixa já separa uma da outra. */
 .game-area {
   position: relative;
   display: grid;
-  grid-template-columns: 320px 1fr 380px;
+  grid-template-columns: minmax(220px, 30%) 1fr 320px;
   column-gap: 0;
   align-items: stretch;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
   padding: 2rem 0;
+}
+
+/* Celular (o dono do projeto só testa pelo link, no telefone): sem isso,
+   as 3 faixas força uma largura mínima enorme (220px + 320px + conteúdo
+   do meio) numa tela de ~380px e o jogo fica espremido/ilegível — achado
+   inspecionando esse commit, não pedido explícito, mas bloqueava o teste
+   no celular. Empilha as 3 faixas na vertical em vez de lado a lado; cada
+   uma continua com o próprio fundo colorido, só a borda muda de lado
+   (embaixo em vez de do lado, já que agora é empilhado). */
+@media (max-width: 860px) {
+  .game-area {
+    /* minmax(0, 1fr), não só 1fr — mesmo motivo do .click-upgrades-grid:
+       sem isso a trilha não encolhe abaixo do min-content de filhos com
+       largura fixa (.upgrade-scene é 560px), e a faixa toda vaza. */
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem 0;
+  }
+
+  .click-stage,
+  .upgrade-scene,
+  .side-column {
+    grid-column: 1;
+  }
+
+  .click-stage {
+    border-right: none;
+    border-bottom: 4px solid var(--pkc-red-dark);
+  }
+
+  .side-column {
+    border-left: none;
+    border-top: 4px solid var(--pkc-gold-dark);
+  }
 }
 
 /* Decisão 0034/0037: coluna direita — grid de clique empilhado em cima
@@ -965,9 +1001,13 @@ button:disabled {
    perto do Pokémon e foi pro topo da coluna direita (.side-column), junto
    com a loja — pedido direto do dono do projeto (desenho de referência).
    Largura toda da coluna disponível agora, então 4 colunas em vez de 2. */
+/* minmax(0, 1fr), não só 1fr — achado testando em viewport de celular: um
+   `1fr` puro não deixa a trilha encolher abaixo do min-content dos filhos
+   (os 74px fixos de .click-upgrade-square), e a grade inteira vazava pra
+   fora de .side-column numa tela de ~375px. */
 .click-upgrades-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -976,8 +1016,9 @@ button:disabled {
    fixa, sem precisar de modificador por item como .upgrade-row. */
 .click-upgrade-square {
   position: relative;
-  width: 74px;
-  height: 74px;
+  width: 100%;
+  max-width: 74px;
+  aspect-ratio: 1;
   padding: 6px;
   display: flex;
   align-items: center;
@@ -1204,9 +1245,16 @@ button:disabled {
    image-rendering: pixelated pra não borrar). Sobe de tier sozinha
    conforme a melhor bola que você tem em estoque agora (App.tsx's
    equippedBallId), sem CSS extra por variante — é só trocar o arquivo. */
+/* clamp em vw, não %, porque .click-area (o botão) não tem largura
+   própria definida — % encolheria contra um container sem base real. Same
+   ideia da descoberta olhando o Cookie Clicker de verdade (o container
+   deles é fluido — 30% da tela — mesmo a arte sendo um PNG de tamanho
+   fixo): aqui a bola encolhe de verdade em telas estreitas (celular) em
+   vez de forçar overflow, sem passar de 200px em telas largas. */
 .click-ball {
-  width: 200px;
-  height: 200px;
+  width: clamp(90px, 25vw, 200px);
+  height: auto;
+  aspect-ratio: 1;
   image-rendering: pixelated;
   user-select: none;
   -webkit-user-drag: none;
