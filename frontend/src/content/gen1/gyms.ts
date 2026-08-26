@@ -20,6 +20,16 @@ export interface GymDefinition {
   // pra 320px de altura antes de entrar no repo. Opcional: regiões futuras
   // podem não ter isso ainda.
   trainerSprite?: string
+  // Ginásio de Unova (Striaton) tem 3 líderes intercambiáveis — o jogo
+  // original escala automaticamente por inicial escolhido (Snivy->Chili,
+  // Tepig->Cress, Oshawott->Cilan), sem tela de escolha. Quando presente,
+  // systems/gyms/gymProgress.ts's resolveGym troca leaderName/team pelo
+  // valor certo (chave = starter root id, mesma convenção de
+  // championTeamByStarter); `id`/`badgeName`/`locationId`/`trainerSprite`
+  // continuam fixos — é literalmente "o mesmo ginásio", só o oponente
+  // muda. Opcional: nenhuma outra região precisa disso.
+  teamByStarter?: Record<number, GymTeamMember[]>
+  leaderNameByStarter?: Record<number, string>
 }
 
 // Sources: https://bulbapedia.bulbagarden.net/wiki/Brock and the equivalent

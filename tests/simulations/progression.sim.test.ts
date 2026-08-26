@@ -64,4 +64,12 @@ describe('progressão — valores de produção (Sprint 25)', () => {
   it('Kalos, SÓ batalha (Treinamento nunca comprado)', () => {
     report('KALOS só batalha', REGIONS.kalos, false)
   })
+
+  it('Unova, com XP idle (Treinamento) + batalha', () => {
+    report('UNOVA com idle', REGIONS.unova, true)
+  })
+
+  it('Unova, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('UNOVA só batalha', REGIONS.unova, false)
+  })
 })

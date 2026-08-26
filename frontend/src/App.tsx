@@ -42,7 +42,7 @@ import { ballCount, buyBall, captureOptions, spendBall } from './systems/capture
 import { pokeballById, POKEBALLS } from './content/pokeballs'
 import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
-import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
+import { awardBadge, gymForLocation, hasBadge, resolveGym } from './systems/gyms/gymProgress'
 import { locationById, nextLocationOf, prevLocationOf, travelTo } from './systems/gyms/locations'
 import { performRebirth, unlockNextRegion, victoryRoadSnapshot } from './systems/rebirth/rebirth'
 import {
@@ -154,13 +154,19 @@ function App() {
   const currentLocation = activeRegionDef && regionSave ? locationById(activeRegionDef, regionSave.currentLocationId) : null
   const prevLocation = activeRegionDef && regionSave ? prevLocationOf(activeRegionDef, regionSave.currentLocationId) : null
   const nextLocation = activeRegionDef && regionSave ? nextLocationOf(activeRegionDef, regionSave.currentLocationId) : null
-  const gymHere = activeRegionDef && regionSave ? gymForLocation(activeRegionDef.gyms, regionSave.currentLocationId) : null
+  // resolveGym: no-op pra toda região sem GymDefinition.teamByStarter — só
+  // Unova's Striaton (3 líderes por trás do mesmo local) precisa disso.
+  const gymHereRaw = activeRegionDef && regionSave ? gymForLocation(activeRegionDef.gyms, regionSave.currentLocationId) : null
+  const gymHere =
+    gymHereRaw && activeRegionDef && regionSave && gen1 ? resolveGym(activeRegionDef, gymHereRaw, regionSave, gen1) : gymHereRaw
 
   // Which fight BattleScreen is showing: an explicit gym or Elite Four
   // challenge wins over a pending wild encounter (none of these should
   // normally coexist), which wins over the Sprint 13 fixed test dummy
   // (Admin-only fallback).
-  const activeGym = activeGymId ? (activeRegionDef?.gyms.find((gym) => gym.id === activeGymId) ?? null) : null
+  const activeGymRaw = activeGymId ? (activeRegionDef?.gyms.find((gym) => gym.id === activeGymId) ?? null) : null
+  const activeGym =
+    activeGymRaw && activeRegionDef && regionSave && gen1 ? resolveGym(activeRegionDef, activeGymRaw, regionSave, gen1) : activeGymRaw
   const battleEncounter: BattleEncounter | null =
     view !== 'battle'
       ? null

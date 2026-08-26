@@ -18,6 +18,7 @@ describe.each([
   ['Sinnoh', REGIONS.sinnoh],
   ['Hoenn', REGIONS.hoenn],
   ['Kalos', REGIONS.kalos],
+  ['Unova', REGIONS.unova],
 ] as const)('efeito por doce gasto (%s)', (regionName, regionDef) => {
   it('upgrades "lendários" (escalam com roster) precisam de um roster realista pra valer a pena', () => {
     const legendaryClick = regionDef.upgrades.find((d) => d.scalesWith === 'rosterSize' && d.kind === 'click')!

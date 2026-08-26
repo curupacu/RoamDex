@@ -1,8 +1,26 @@
 import type { GymDefinition } from '../../content/gen1/gyms'
 import type { RegionSave } from '../../engine/save'
+import type { RegionDefinition } from '../../content/regions'
+import type { SpeciesEntry } from '../../content/gen1/types'
+import { currentStarterRoot } from './champion'
 
 export function gymForLocation(gyms: GymDefinition[], locationId: string): GymDefinition | null {
   return gyms.find((gym) => gym.locationId === locationId) ?? null
+}
+
+// Ginásio de Unova (Striaton) tem 3 líderes por trás do mesmo `id`/local —
+// esta função troca leaderName/team pelo par certo (ver GymDefinition's
+// teamByStarter/leaderNameByStarter) antes de qualquer tela ou batalha
+// mostrar o ginásio. Sem `teamByStarter` (todas as outras regiões), é um
+// no-op — devolve `gym` como veio.
+export function resolveGym(region: RegionDefinition, gym: GymDefinition, save: RegionSave, gen1: SpeciesEntry[]): GymDefinition {
+  if (!gym.teamByStarter) return gym
+  const rootId = currentStarterRoot(region, save, gen1) ?? region.defaultStarterId
+  return {
+    ...gym,
+    team: gym.teamByStarter[rootId] ?? gym.team,
+    leaderName: gym.leaderNameByStarter?.[rootId] ?? gym.leaderName,
+  }
 }
 
 export function hasBadge(save: RegionSave, gymId: string): boolean {

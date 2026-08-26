@@ -39,11 +39,20 @@ import {
 } from './gen6/eliteFour'
 import { UPGRADES as KALOS_UPGRADES } from './gen6/upgrades'
 import { STARTER_IDS as KALOS_STARTER_IDS, STARTER_LEVEL as KALOS_STARTER_LEVEL } from './gen6/starters'
+import { GYMS as UNOVA_GYMS } from './gen5/gyms'
+import { UNOVA_LOCATIONS } from './gen5/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as UNOVA_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as UNOVA_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as UNOVA_ELITE_FOUR,
+} from './gen5/eliteFour'
+import { UPGRADES as UNOVA_UPGRADES } from './gen5/upgrades'
+import { STARTER_IDS as UNOVA_STARTER_IDS, STARTER_LEVEL as UNOVA_STARTER_LEVEL } from './gen5/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
 // Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
-export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos']
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'unova']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -53,10 +62,11 @@ export interface UpcomingRegion {
   name: string
 }
 
-// Vazio por enquanto — Unova precisa de uma micro-decisão de design (qual
-// dos 3 líderes de Striaton vira o oficial) e Alola/Galar/Paldea têm
-// rupturas estruturais maiores (docs/PESQUISA-GEN3-9-ESQUELETO.md), nenhuma
-// é "drop-in" como Hoenn/Sinnoh/Kalos foram.
+// Vazio por enquanto — Alola/Galar/Paldea têm rupturas estruturais maiores
+// (docs/PESQUISA-GEN3-9-ESQUELETO.md: sem ginásio tradicional/sem Elite
+// Four fixa), nenhuma é "drop-in" como Unova foi (a única pendência dela,
+// o trio de Striaton, já tinha solução real no próprio jogo — ver
+// content/gen5/gyms.ts).
 export const UPCOMING_REGIONS: UpcomingRegion[] = []
 
 // Everything a system/screen needs to run a region, bundled — replaces the
@@ -145,5 +155,18 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: KALOS_UPGRADES,
     starterIds: KALOS_STARTER_IDS,
     starterLevel: KALOS_STARTER_LEVEL,
+  },
+  unova: {
+    id: 'unova',
+    name: 'Unova',
+    dataUrl: '/data/gen5.json',
+    locations: UNOVA_LOCATIONS,
+    gyms: UNOVA_GYMS,
+    eliteFour: UNOVA_ELITE_FOUR,
+    championTeamByStarter: UNOVA_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: UNOVA_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: UNOVA_UPGRADES,
+    starterIds: UNOVA_STARTER_IDS,
+    starterLevel: UNOVA_STARTER_LEVEL,
   },
 }
