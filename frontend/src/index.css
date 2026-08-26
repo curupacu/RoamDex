@@ -792,7 +792,13 @@ button:disabled {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  padding: 2rem 0;
+  /* Sem padding vertical — feedback: as faixas coloridas não iam até em
+     cima/embaixo, sobrava um respiro de fundo escuro comum antes delas.
+     O espaçamento da própria cena do meio (.upgrade-scene) e das laterais
+     (.click-stage/.side-column têm padding interno próprio) já dá
+     respiro pro conteúdo sem deixar vazio ENTRE o fim de uma seção e o
+     começo da faixa colorida. */
+  padding: 0;
 }
 
 /* Celular (o dono do projeto só testa pelo link, no telefone): sem isso,
@@ -819,12 +825,14 @@ button:disabled {
 
   .click-stage {
     border-right: none;
-    border-bottom: 4px solid var(--pkc-red-dark);
+    border-bottom: 8px solid var(--pkc-red-dark);
+    box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.12);
   }
 
   .side-column {
     border-left: none;
-    border-top: 4px solid var(--pkc-gold-dark);
+    border-top: 8px solid var(--pkc-gold-dark);
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -841,8 +849,11 @@ button:disabled {
   gap: 1.25rem;
   box-sizing: border-box;
   padding: 1.5rem 1.25rem;
-  background: linear-gradient(160deg, #2c2410, var(--panel-bg));
-  border-left: 4px solid var(--pkc-gold-dark);
+  background:
+    radial-gradient(circle at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.4) 70%),
+    linear-gradient(160deg, #2c2410, var(--panel-bg));
+  border-left: 8px solid var(--pkc-gold-dark);
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.12);
 }
 
 
@@ -986,6 +997,11 @@ button:disabled {
    o grid (que posiciona por ORDEM no DOM) empurra a loja pra faixa do
    meio (1fr) assim que o meio some, em vez de ficar na faixa da direita
    (380px) onde deveria. Faixas fixas resolvem isso pra sempre. */
+/* Vinheta escura ao redor da bola (referência: o brilho/escurecido atrás
+   do cookie no Cookie Clicker) — não copia o estilo de madeira deles, só
+   a IDEIA: um radial-gradient escuro nas bordas faz a bola ser o ponto
+   de luz da faixa, sem precisar de asset novo. Borda mais grossa (8px,
+   era 4px) + friso claro por dentro pra não ficar uma linha seca. */
 .click-stage {
   grid-column: 1;
   display: flex;
@@ -993,8 +1009,11 @@ button:disabled {
   justify-content: center;
   padding: 2rem 1.5rem;
   box-sizing: border-box;
-  background: linear-gradient(160deg, #2c1420, var(--panel-bg));
-  border-right: 4px solid var(--pkc-red-dark);
+  background:
+    radial-gradient(circle at 50% 32%, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.55) 60%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(160deg, #2c1420, var(--panel-bg));
+  border-right: 8px solid var(--pkc-red-dark);
+  box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.12);
 }
 
 /* Quadradinhos de upgrade de clique (decisão 0028). Decisão 0034: saiu de
