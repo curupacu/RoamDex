@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { makeRegionSave } from '../../engine/save.testUtils'
-import { buyUpgrade, globalMultiplierBonus, isUnlocked, nextLocked, ownedCount, totalClickBonus, totalCps, upgradeCost } from './upgrades'
+import {
+  buildingBoostMultiplier,
+  buyUpgrade,
+  globalMultiplierBonus,
+  isUnlocked,
+  nextLocked,
+  ownedCount,
+  totalClickBonus,
+  totalCps,
+  upgradeCost,
+} from './upgrades'
 import { UPGRADES } from '../../content/gen1/upgrades'
 import { REGIONS } from '../../content/regions'
 
@@ -163,6 +173,61 @@ describe('requiresSynergy (Padrão 3, sinergia)', () => {
     })
 
     expect(isUnlocked(def, save, [teamType])).toBe(true)
+  })
+})
+
+// Padrão 5 (cadeia de upgrade POR PRÉDIO, pedido do dono do projeto —
+// referência Cookie Clicker: cada prédio tem sua própria fileira de
+// upgrades de tier). Diferente do Padrão 3, o gate é só quantidade
+// possuída de um prédio — sem checagem de tipo de time.
+describe('requiresBuildingOwned (Padrão 5, cadeia por prédio)', () => {
+  it('stays locked without enough copies of the targeted building', () => {
+    const def = UPGRADES.find((u) => u.requiresBuildingOwned !== undefined)!
+    const { buildingId, count } = def.requiresBuildingOwned!
+    const save = makeRegionSave({ lifetimeCandies: def.unlockAt, upgrades: { [buildingId]: count - 1 } })
+
+    expect(isUnlocked(def, save)).toBe(false)
+  })
+
+  it('unlocks once the building count is reached', () => {
+    const def = UPGRADES.find((u) => u.requiresBuildingOwned !== undefined)!
+    const { buildingId, count } = def.requiresBuildingOwned!
+    const save = makeRegionSave({ lifetimeCandies: def.unlockAt, upgrades: { [buildingId]: count } })
+
+    expect(isUnlocked(def, save)).toBe(true)
+  })
+})
+
+describe('buildingBoostMultiplier (Padrão 5)', () => {
+  it('is 1 (no-op) with none owned', () => {
+    const save = makeRegionSave()
+    const def = UPGRADES.find((u) => u.kind === 'buildingBoost')!
+    expect(buildingBoostMultiplier(kanto, save, def.boostsBuilding!)).toBe(1)
+  })
+
+  it('sums the effect of every buildingBoost upgrade owned that targets this building, and only this building', () => {
+    const boosts = UPGRADES.filter((u) => u.kind === 'buildingBoost' && u.boostsBuilding === 'volunteer-helper')
+    expect(boosts.length).toBeGreaterThan(1) // garante que o teste cobre mais de 1 tier
+    const otherBoost = UPGRADES.find((u) => u.kind === 'buildingBoost' && u.boostsBuilding !== 'volunteer-helper')!
+
+    const save = makeRegionSave({
+      upgrades: { ...Object.fromEntries(boosts.map((d) => [d.id, 1])), [otherBoost.id]: 1 },
+    })
+
+    const expected = 1 + boosts.reduce((total, d) => total + d.effect, 0)
+    expect(buildingBoostMultiplier(kanto, save, 'volunteer-helper')).toBeCloseTo(expected)
+  })
+
+  it('folds into totalCps: the boosted building produces MORE than effect × owned alone', () => {
+    const building = UPGRADES.find((u) => u.id === 'volunteer-helper')!
+    const boost = UPGRADES.find((u) => u.id === 'volunteer-broom')!
+    const owned = 10
+
+    const withoutBoost = makeRegionSave({ upgrades: { [building.id]: owned } })
+    const withBoost = makeRegionSave({ upgrades: { [building.id]: owned, [boost.id]: 1 } })
+
+    expect(totalCps(kanto, withoutBoost)).toBeCloseTo(building.effect * owned)
+    expect(totalCps(kanto, withBoost)).toBeCloseTo(building.effect * owned * (1 + boost.effect))
   })
 })
 

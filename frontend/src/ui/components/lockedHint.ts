@@ -22,5 +22,10 @@ export function lockedHint(def: UpgradeDefinition, regionDef: RegionDefinition, 
     const typeName = TYPES.find((type) => type.id === teamType)?.name ?? teamType
     return `desbloqueia com ${count}x ${sourceName} e um Pokémon de tipo ${typeName} no time ativo`
   }
+  if (def.requiresBuildingOwned) {
+    const { buildingId, count } = def.requiresBuildingOwned
+    const buildingName = regionDef.upgrades.find((candidate) => candidate.id === buildingId)?.name ?? buildingId
+    return `desbloqueia com ${count}x ${buildingName}`
+  }
   return `desbloqueia com ${formatBigNumber(def.unlockAt)} doces acumulados`
 }

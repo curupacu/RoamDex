@@ -877,6 +877,9 @@ button:disabled {
 .upgrade-row--globalMultiplier {
   --row-color: var(--pkc-purple);
 }
+.upgrade-row--buildingBoost {
+  --row-color: var(--pkc-gold);
+}
 
 .upgrade-row:not(:disabled) {
   opacity: 1;

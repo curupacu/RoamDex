@@ -19,6 +19,10 @@ export function isUnlocked(def: UpgradeDefinition, save: RegionSave, activeTypes
     if (ownedCount(save, upgradeId) < count) return false
     if (!activeTypes.includes(teamType)) return false
   }
+  if (def.requiresBuildingOwned) {
+    const { buildingId, count } = def.requiresBuildingOwned
+    if (ownedCount(save, buildingId) < count) return false
+  }
   return true
 }
 
@@ -67,23 +71,38 @@ function scaleValue(save: RegionSave, scalesWith: UpgradeDefinition['scalesWith'
   }
 }
 
+// Padrão 5 (cadeia de upgrade por prédio) — soma a fração de todo upgrade
+// kind:'buildingBoost' já comprado que mira este `buildingId` (por id, não
+// por kind — vários prédios diferentes podem cada um ter sua própria
+// cadeia). Mesma convenção de globalMultiplierBonus (1 + soma de frações),
+// só que escopada a UM prédio em vez do jogo inteiro.
+export function buildingBoostMultiplier(region: RegionDefinition, save: RegionSave, buildingId: string): number {
+  return (
+    1 +
+    region.upgrades
+      .filter((def) => def.kind === 'buildingBoost' && def.boostsBuilding === buildingId && ownedCount(save, def.id) > 0)
+      .reduce((total, def) => total + def.effect, 0)
+  )
+}
+
 // One definition's own share of its kind's total, before the caller's
 // economy multiplier — same math sumEffect sums across a whole region, kept
 // separate so callers can attribute output to a specific upgrade instead of
 // just the region total (the "já rendeu X" line on the upgrade hover card,
 // ui/components/UpgradeCard.tsx, and the tick handlers in App.tsx that feed
 // systems/economy/upgradeEarnings.ts).
-export function upgradeContribution(save: RegionSave, def: UpgradeDefinition): number {
+export function upgradeContribution(region: RegionDefinition, save: RegionSave, def: UpgradeDefinition): number {
   const owned = ownedCount(save, def.id)
   if (owned === 0) return 0
   const multiplier = def.scalesWith ? scaleValue(save, def.scalesWith) : owned
-  return def.effect * multiplier
+  const boost = def.kind === 'buildingBoost' ? 1 : buildingBoostMultiplier(region, save, def.id)
+  return def.effect * multiplier * boost
 }
 
 function sumEffect(region: RegionDefinition, save: RegionSave, kind: UpgradeDefinition['kind']): number {
   return region.upgrades
     .filter((def) => def.kind === kind)
-    .reduce((total, def) => total + upgradeContribution(save, def), 0)
+    .reduce((total, def) => total + upgradeContribution(region, save, def), 0)
 }
 
 // Per-definition breakdown for one kind, owned-only — id/amount pairs ready
@@ -96,7 +115,7 @@ export function contributionsByKind(
 ): { id: string; amount: number }[] {
   return region.upgrades
     .filter((def) => def.kind === kind)
-    .map((def) => ({ id: def.id, amount: upgradeContribution(save, def) }))
+    .map((def) => ({ id: def.id, amount: upgradeContribution(region, save, def) }))
     .filter((entry) => entry.amount > 0)
 }
 

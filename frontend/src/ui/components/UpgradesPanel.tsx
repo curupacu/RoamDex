@@ -3,7 +3,7 @@ import type { RegionSave } from '../../engine/save'
 import type { RegionDefinition } from '../../content/regions'
 import type { TypeName } from '../../content/types'
 import { formatBigNumber } from '../../engine/numberFormat'
-import { isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
+import { buildingBoostMultiplier, isUnlocked, nextLocked, ownedCount, upgradeCost } from '../../systems/economy/upgrades'
 import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
 import type { UpgradeDefinition } from '../../content/gen1/upgrades'
 import { lockedHint } from './lockedHint'
@@ -34,7 +34,7 @@ export function UpgradesPanel({ regionDef, region, activeTypes = [], onBuy, cost
       <h2>Upgrades</h2>
       <ul>
         {visible.map((def) => (
-          <UpgradeRow key={def.id} def={def} region={region} onBuy={onBuy} costMultiplier={costMultiplier} />
+          <UpgradeRow key={def.id} def={def} regionDef={regionDef} region={region} onBuy={onBuy} costMultiplier={costMultiplier} />
         ))}
         {upcoming && (
           <li>
@@ -56,32 +56,44 @@ export function UpgradesPanel({ regionDef, region, activeTypes = [], onBuy, cost
   )
 }
 
-function tickAmount(def: UpgradeDefinition, region: RegionSave): number {
-  return def.scalesWith === 'rosterSize' ? def.effect * region.roster.length : def.effect
+// Inclui o boost do Padrão 5 (buildingBoostMultiplier) — sem isso, o "+N"
+// que aparece flutuando de vez em quando (flourish cosmético) ficava
+// desatualizado assim que o prédio ganhava um upgrade de tier, mostrando
+// menos do que a linha realmente rende por unidade agora.
+function tickAmount(regionDef: RegionDefinition, def: UpgradeDefinition, region: RegionSave): number {
+  const base = def.scalesWith === 'rosterSize' ? def.effect * region.roster.length : def.effect
+  return base * buildingBoostMultiplier(regionDef, region, def.id)
 }
 
 function UpgradeRow({
   def,
+  regionDef,
   region,
   onBuy,
   costMultiplier,
 }: {
   def: UpgradeDefinition
+  regionDef: RegionDefinition
   region: RegionSave
   onBuy: (id: string) => void
   costMultiplier: number
 }) {
   const owned = ownedCount(region, def.id)
   const cost = upgradeCost(def, owned, costMultiplier)
-  const amount = tickAmount(def, region)
+  const amount = tickAmount(regionDef, def, region)
+  const boostedBuildingName = def.boostsBuilding
+    ? (regionDef.upgrades.find((candidate) => candidate.id === def.boostsBuilding)?.name ?? def.boostsBuilding)
+    : undefined
   const effectLabel =
-    def.scalesWith === 'rosterSize'
-      ? `+${def.effect} doces/s por Pokémon capturado`
-      : def.kind === 'cps'
-        ? `+${def.effect} doces/s`
-        : def.kind === 'globalMultiplier'
-          ? `+${(def.effect * 100).toFixed(0)}% em doces/clique e doces/s, permanente`
-          : `+${def.effect} XP/s pro time`
+    def.kind === 'buildingBoost'
+      ? `+${(def.effect * 100).toFixed(0)}% na produção de ${boostedBuildingName}, permanente`
+      : def.scalesWith === 'rosterSize'
+        ? `+${def.effect} doces/s por Pokémon capturado`
+        : def.kind === 'cps'
+          ? `+${def.effect} doces/s`
+          : def.kind === 'globalMultiplier'
+            ? `+${(def.effect * 100).toFixed(0)}% em doces/clique e doces/s, permanente`
+            : `+${def.effect} XP/s pro time`
   const soldOut = def.maxPurchases !== undefined && owned >= def.maxPurchases
 
   // Small idle-life flourish: once owned, this row periodically pops its
@@ -103,10 +115,13 @@ function UpgradeRow({
 
   const affordable = !soldOut && region.candies >= cost
   const earnedUnit = def.kind === 'xp' ? 'XP' : 'doces'
-  // globalMultiplier (Padrão 4) não passa por contributionsByKind — nunca
-  // acumula "já rendeu" próprio, é um multiplicador em cima do resto.
+  // globalMultiplier (Padrão 4) e buildingBoost (Padrão 5) não passam por
+  // contributionsByKind — nenhum dos dois acumula "já rendeu" próprio, são
+  // multiplicadores em cima do resto (o jogo inteiro, ou só um prédio).
   const earnedLabel =
-    def.kind === 'globalMultiplier' ? undefined : `Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${earnedUnit}`
+    def.kind === 'globalMultiplier' || def.kind === 'buildingBoost'
+      ? undefined
+      : `Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${earnedUnit}`
 
   return (
     <li>

@@ -9,7 +9,15 @@ export interface UpgradeDefinition {
   // globalMultiplierBonus, aplicada em cima de doces/clique E CPS — não
   // entra nos somatórios de totalClickBonus/totalCps (esses só somam
   // 'click'/'cps'), então nunca é contado em dobro.
-  kind: 'click' | 'cps' | 'xp' | 'globalMultiplier'
+  // 'buildingBoost' — Padrão 5 (pedido do dono do projeto, referência
+  // Cookie Clicker real: cada prédio tem sua própria cadeia de upgrades
+  // de tier, tipo "Faísca +1%" -> "Raio +2%" pra fábrica do Zapdos):
+  // `effect` é uma fração igual globalMultiplier, mas só multiplica a
+  // contribuição do prédio em `boostsBuilding` (por id), não tudo — ver
+  // systems/economy/upgrades.ts's buildingBoostMultiplier. Não entra no
+  // somatório de nenhum kind (não produz CPS/clique próprio, só amplifica
+  // outro upgrade já existente).
+  kind: 'click' | 'cps' | 'xp' | 'globalMultiplier' | 'buildingBoost'
   baseCost: number
   effect: number
   // Lifetime candies (see SaveDataV2) required before the upgrade shows up.
@@ -37,6 +45,15 @@ export interface UpgradeDefinition {
   // o efeito é permanente mesmo que o time mude depois, igual qualquer
   // outro upgrade de tier único.
   requiresSynergy?: { upgradeId: string; count: number; teamType: TypeName }
+  // Padrão 5 (cadeia de upgrade POR PRÉDIO) — além do unlockAt de doces,
+  // exige N cópias já compradas de um prédio de CPS/clique ilimitado
+  // específico (por id). Sem checagem de tipo de time (diferente de
+  // requiresSynergy) — é só "possua N desse prédio".
+  requiresBuildingOwned?: { buildingId: string; count: number }
+  // Só usado com kind:'buildingBoost' — qual upgrade (normalmente um
+  // prédio de CPS ilimitado) esse upgrade amplifica. Ver nota do kind
+  // acima e systems/economy/upgrades.ts's buildingBoostMultiplier.
+  boostsBuilding?: string
   // Frase de efeito curta (decisão 0030) — escalando de mundano pra
   // absurdo conforme o tier, mesmo truque do Cookie Clicker (Cursor →
   // Vovó → ... → Torre Mágica) de dar personalidade sem custar arte nova.
@@ -120,6 +137,114 @@ export const UPGRADES: UpgradeDefinition[] = [
     requiresSynergy: { upgradeId: 'candy-conveyor', count: 15, teamType: 'grass' },
     effect: 60, // +60 CPS, permanente
     flavor: 'As Esteiras de Doces produzem mais quando um Pokémon de Grama cuida da plantação por perto.',
+  },
+
+  // --- Padrão 5 (cadeia de upgrade POR PRÉDIO, pedido do dono do
+  // projeto — referência: Cookie Clicker de verdade, onde cada prédio
+  // tem sua própria fileira de upgrades, tipo "Faísca +1%" -> "Raio +2%").
+  // Cada um dos 4 prédios de CPS ilimitados (Ajudante Voluntário, Posto de
+  // Coleta, Esteira de Doces, Fábrica de Doces) ganha 2 tiers, cada um
+  // amplificando só a PRODUÇÃO DAQUELE PRÉDIO (buildingBoostMultiplier),
+  // desbloqueados por QUANTIDADE POSSUÍDA daquele prédio (não por doces
+  // acumuladas — unlockAt fica em 0, o gate real é requiresBuildingOwned).
+  // Modo história tem só esses 2 tiers por prédio de propósito — o modo
+  // infinito (ainda não existe) é onde a cadeia completa (~10+ tiers por
+  // prédio, igual o Cookie Clicker real) entra. ---
+  {
+    id: 'volunteer-broom',
+    name: 'Vassoura Nova',
+    kind: 'buildingBoost',
+    boostsBuilding: 'volunteer-helper',
+    baseCost: 500,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'volunteer-helper', count: 10 },
+    effect: 0.05, // +5% na produção do Ajudante Voluntário
+    flavor: 'Cisca o dobro, reclama a metade.',
+  },
+  {
+    id: 'volunteer-badge',
+    name: 'Crachá de Confiança',
+    kind: 'buildingBoost',
+    boostsBuilding: 'volunteer-helper',
+    baseCost: 5_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'volunteer-helper', count: 25 },
+    effect: 0.08, // +8% na produção do Ajudante Voluntário
+    flavor: 'Agora ele acha que manda no lugar.',
+  },
+  {
+    id: 'collection-basket',
+    name: 'Cesta Reforçada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'collection-post',
+    baseCost: 3_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'collection-post', count: 10 },
+    effect: 0.05, // +5% na produção do Posto de Coleta
+    flavor: 'Vime trançado à mão, cabe mais doce.',
+  },
+  {
+    id: 'collection-route',
+    name: 'Rota Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'collection-post',
+    baseCost: 30_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'collection-post', count: 25 },
+    effect: 0.08, // +8% na produção do Posto de Coleta
+    flavor: 'Passa por mais esquinas, junta mais doce.',
+  },
+  {
+    id: 'conveyor-oil',
+    name: 'Correia Lubrificada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'candy-conveyor',
+    baseCost: 35_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'candy-conveyor', count: 10 },
+    effect: 0.05, // +5% na produção da Esteira de Doces
+    flavor: 'Sem ranger, sem travar, só doce.',
+  },
+  {
+    id: 'conveyor-turbo',
+    name: 'Motor Turbo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'candy-conveyor',
+    baseCost: 350_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'candy-conveyor', count: 25 },
+    effect: 0.08, // +8% na produção da Esteira de Doces
+    flavor: 'Ninguém sabe de onde vem essa velocidade toda.',
+  },
+  {
+    id: 'factory-double-shift',
+    name: 'Turno Duplo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'candy-factory',
+    baseCost: 400_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'candy-factory', count: 10 },
+    effect: 0.05, // +5% na produção da Fábrica de Doces
+    flavor: 'A chaminé não descansa, e ninguém reclama.',
+  },
+  {
+    id: 'factory-automation',
+    name: 'Automação da Linha',
+    kind: 'buildingBoost',
+    boostsBuilding: 'candy-factory',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'candy-factory', count: 25 },
+    effect: 0.08, // +8% na produção da Fábrica de Doces
+    flavor: 'A esteira roda sozinha; o vidro é só decoração.',
   },
 
   // --- Padrão 4 (multiplicador global por marco) — desbloqueado por
