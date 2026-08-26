@@ -275,6 +275,20 @@ export function BattleScreen({
   // fights (gym, Elite Four member), never a 1-Pokémon wild encounter.
   const trainerBalls = currentTrainerBalls(battle)
 
+  // Retrato do treinador humano (pedido do dono do projeto: "spritezinho do
+  // Brock na batalha do Brock") — só existe hoje pra Kanto (ver content/
+  // gen1/gyms.ts's GymDefinition.trainerSprite). Ginásio: vem direto do
+  // encounter (não passa por trainerBoundaries — buildEnemyRoster não marca
+  // trainerName pra 'gym', só a Elite Four usa isso). Elite Four: casa o
+  // nome que currentTrainerProgress devolve com o membro certo em
+  // regionDef.eliteFour pra achar o sprite de QUEM está lutando agora.
+  const trainerSprite =
+    frozenEncounter.kind === 'gym'
+      ? frozenEncounter.gym.trainerSprite
+      : frozenEncounter.kind === 'elite-four' && trainerProgress
+        ? regionDef.eliteFour.find((member) => member.name === trainerProgress.name)?.trainerSprite
+        : undefined
+
   return (
     <div className="battle-screen">
       {/* Always mounted (min-height reserved in CSS) — unmounting this when
@@ -285,6 +299,13 @@ export function BattleScreen({
       <div
         className={`battle-enemy${introPlaying ? ' battle-enemy--intro' : ''}${telegraph ? ' battle-enemy--telegraph' : ''}${capturePhase === 'shaking' ? ' battle-enemy--capturing' : ''}`}
       >
+        {trainerSprite && (
+          <img
+            className="battle-trainer-portrait"
+            src={trainerSprite}
+            alt={trainerProgress?.name ?? (frozenEncounter.kind === 'gym' ? frozenEncounter.gym.leaderName : '')}
+          />
+        )}
         <img src={activeEnemyEntry.sprite.local} alt={activeEnemyEntry.name} />
         <p>
           {activeEnemyEntry.name} Nv.{activeEnemyUnit.level}

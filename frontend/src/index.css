@@ -1591,6 +1591,26 @@ button:disabled {
   image-rendering: pixelated;
 }
 
+/* Retrato do treinador humano (líder de ginásio / membro da Elite Four) —
+   canto superior-esquerdo do Pokémon inimigo, tamanho MENOR que o sprite
+   principal (nunca compete com ele), sem pixelated (é arte moderna
+   colorida, não pixel art) e com o mesmo corte diagonal + sombra dura do
+   resto da repaginação. */
+.battle-enemy .battle-trainer-portrait {
+  position: absolute;
+  top: -12px;
+  left: -18px;
+  width: 64px;
+  height: auto;
+  image-rendering: auto;
+  border: 3px solid var(--panel-border);
+  border-radius: 4px 12px 4px 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  background: var(--panel-bg);
+  z-index: 1;
+}
+
 .battle-enemy--telegraph img {
   animation: battle-telegraph-shake 0.3s infinite;
 }

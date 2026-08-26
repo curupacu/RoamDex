@@ -13,6 +13,13 @@ export interface GymDefinition {
   // docs/ROTAS-KANTO.md. Fought as one continuous battle: no heal between
   // the leader's own Pokémon, same as the real games (that's Elite Four-only).
   team: GymTeamMember[]
+  // Retrato do líder mostrado ao lado do Pokémon inimigo durante a luta
+  // (pedido do dono do projeto). Sprite oficial "Let's Go Pikachu/Eevee" da
+  // Bulbapedia (frontend/public/trainers/kanto/*.png) — mesmo espírito
+  // fan-made dos sprites de Pokémon já usados no projeto, redimensionado
+  // pra 320px de altura antes de entrar no repo. Opcional: regiões futuras
+  // podem não ter isso ainda.
+  trainerSprite?: string
 }
 
 // Sources: https://bulbapedia.bulbagarden.net/wiki/Brock and the equivalent
@@ -27,6 +34,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 74, level: 12 }, // Geodude
       { speciesId: 95, level: 14 }, // Onix
     ],
+    trainerSprite: '/trainers/kanto/brock.png',
   },
   {
     id: 'misty',
@@ -37,6 +45,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 120, level: 18 }, // Staryu
       { speciesId: 121, level: 21 }, // Starmie
     ],
+    trainerSprite: '/trainers/kanto/misty.png',
   },
   {
     id: 'lt-surge',
@@ -48,6 +57,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 25, level: 18 }, // Pikachu
       { speciesId: 26, level: 24 }, // Raichu
     ],
+    trainerSprite: '/trainers/kanto/lt-surge.png',
   },
   {
     id: 'erika',
@@ -59,6 +69,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 114, level: 24 }, // Tangela
       { speciesId: 45, level: 29 }, // Vileplume
     ],
+    trainerSprite: '/trainers/kanto/erika.png',
   },
   {
     id: 'koga',
@@ -71,6 +82,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 109, level: 37 }, // Koffing
       { speciesId: 110, level: 43 }, // Weezing
     ],
+    trainerSprite: '/trainers/kanto/koga.png',
   },
   {
     id: 'sabrina',
@@ -83,6 +95,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 49, level: 38 }, // Venomoth
       { speciesId: 65, level: 43 }, // Alakazam
     ],
+    trainerSprite: '/trainers/kanto/sabrina.png',
   },
   {
     id: 'blaine',
@@ -95,6 +108,7 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 78, level: 42 }, // Rapidash
       { speciesId: 59, level: 47 }, // Arcanine
     ],
+    trainerSprite: '/trainers/kanto/blaine.png',
   },
   {
     id: 'giovanni',
@@ -108,5 +122,6 @@ export const GYMS: GymDefinition[] = [
       { speciesId: 34, level: 45 }, // Nidoking
       { speciesId: 112, level: 50 }, // Rhydon
     ],
+    trainerSprite: '/trainers/kanto/giovanni.png',
   },
 ]

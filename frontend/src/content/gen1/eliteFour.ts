@@ -5,6 +5,8 @@ export interface EliteFourMember {
   id: string
   name: string
   team: GymTeamMember[]
+  // Ver nota em content/gen1/gyms.ts's GymDefinition.trainerSprite.
+  trainerSprite?: string
 }
 
 // Provisional — Sprint 25 tunes this for real. Bumped after playtest: the
@@ -44,6 +46,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       { speciesId: 124, level: 56 + LEVEL_BUMP }, // Jynx
       { speciesId: 131, level: 56 + LEVEL_BUMP }, // Lapras
     ],
+    trainerSprite: '/trainers/kanto/lorelei.png',
   },
   {
     id: 'bruno',
@@ -55,6 +58,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       { speciesId: 95, level: 56 + LEVEL_BUMP }, // Onix
       { speciesId: 68, level: 58 + LEVEL_BUMP }, // Machamp
     ],
+    trainerSprite: '/trainers/kanto/bruno.png',
   },
   {
     id: 'agatha',
@@ -66,6 +70,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       { speciesId: 24, level: 58 + LEVEL_BUMP }, // Arbok
       { speciesId: 94, level: 60 + LEVEL_BUMP }, // Gengar
     ],
+    trainerSprite: '/trainers/kanto/agatha.png',
   },
   {
     id: 'lance',
@@ -77,6 +82,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       { speciesId: 142, level: 60 + LEVEL_BUMP }, // Aerodactyl
       { speciesId: 149, level: 62 + LEVEL_BUMP }, // Dragonite
     ],
+    trainerSprite: '/trainers/kanto/lance.png',
   },
 ]
 
