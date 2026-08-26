@@ -38,8 +38,8 @@ import { detectEvolutions, gainMemberXp, gainTeamXp, xpForNextLevel } from './sy
 import { addToRoster, isCaptured, rosterMember, toggleActiveTeamMember } from './systems/team/roster'
 import { rollCapture } from './systems/capture/capture'
 import { applyLoot, rollLoot } from './systems/capture/loot'
-import { buyBall, captureOptions, spendBall } from './systems/capture/pokeballs'
-import { pokeballById } from './content/pokeballs'
+import { ballCount, buyBall, captureOptions, spendBall } from './systems/capture/pokeballs'
+import { pokeballById, POKEBALLS } from './content/pokeballs'
 import { RARITY_LABELS, rarityTier } from './systems/capture/rarityTier'
 import { BASE_SPAWN_INTERVAL_MS, IGNORE_TIMEOUT_MS, spawnWildEncounter, type WildEncounter } from './systems/capture/wildEncounter'
 import { awardBadge, gymForLocation, hasBadge } from './systems/gyms/gymProgress'
@@ -125,6 +125,15 @@ function App() {
   // Index 0 is the one you click/battle with (roadmap section 4, "1v1 com troca").
   const clickerEntry = gen1?.find((entry) => entry.id === regionSave?.activeTeamIds[0]) ?? null
   const clickerMember = clickerEntry && regionSave ? rosterMember(regionSave, clickerEntry.id) : null
+  // Alvo de clique (pedido do dono do projeto): a Pokébola de melhor tier
+  // que você tem em estoque AGORA — não o Pokémon ativo. Reaproveita o
+  // estoque de captura que já existe (content/pokeballs.ts), sem estado
+  // novo: sobe de tier conforme você compra/acha bolas melhores, volta pro
+  // tier base se elas acabarem (mesmo estoque real de captura).
+  const bestOwnedBall = regionSave
+    ? [...POKEBALLS].reverse().find((def) => def.cost === undefined || ballCount(regionSave, def.id) > 0)
+    : undefined
+  const equippedBallId = bestOwnedBall?.id ?? 'poke-ball'
   const wildEntry = wildEncounter ? (gen1?.find((entry) => entry.id === wildEncounter.speciesId) ?? null) : null
   const team: TeamMember[] = (regionSave?.activeTeamIds ?? [])
     .map((id) => gen1?.find((entry) => entry.id === id))
@@ -950,7 +959,11 @@ function App() {
           <div className="game-area">
             <div className="click-stage">
               <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
-                {clickerEntry && <img src={clickerEntry.sprite.local} alt={clickerEntry.name} />}
+                {clickerEntry && (
+                  <span className={`click-ball click-ball--${equippedBallId}`}>
+                    <span className="click-ball-shine" />
+                  </span>
+                )}
                 {candyPops.map((pop) => (
                   <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
                     +{formatBigNumber(pop.gain)}

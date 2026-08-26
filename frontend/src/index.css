@@ -786,12 +786,22 @@ button:disabled {
 }
 
 /* Decisão 0034/0037: coluna direita — grid de clique empilhado em cima
-   da loja. Cresce naturalmente com o conteúdo, sem scroll próprio. */
+   da loja. Cresce naturalmente com o conteúdo, sem scroll próprio.
+   Repaginação: painel próprio (acento dourado, mesma cor do botão "Loja"
+   da nav) pra separar visualmente da coluna do meio, que continua
+   mostrando o fundo de localização (scene-lane) sem alteração nenhuma. */
 .side-column {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  box-sizing: border-box;
+  padding: 1rem;
+  background: linear-gradient(160deg, #2c2410, var(--panel-bg));
+  border: 3px solid var(--pkc-gold-dark);
+  border-radius: 4px 20px 4px 20px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
 }
+
 
 .upgrades-panel {
   text-align: left;
@@ -829,6 +839,7 @@ button:disabled {
   border: none;
   border-left: 8px solid var(--row-color);
   border-radius: 0;
+  clip-path: none;
   box-shadow: none;
   background: none;
   opacity: 0.55;
@@ -923,11 +934,20 @@ button:disabled {
   animation: candy-pop-float 0.9s ease-out forwards;
 }
 
+/* Coluna esquerda — painel próprio (acento vermelho, cor do botão
+   "Clicker" da nav): é a "zona de ação", separada visualmente da coluna
+   do meio (que continua mostrando o fundo de localização sem alteração). */
 .click-stage {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background: linear-gradient(160deg, #2c1420, var(--panel-bg));
+  border: 3px solid var(--pkc-red-dark);
+  border-radius: 4px 20px 4px 20px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Quadradinhos de upgrade de clique (decisão 0028). Decisão 0034: saiu de
@@ -1123,6 +1143,7 @@ button:disabled {
   border: none;
   background: none;
   box-shadow: none;
+  clip-path: none;
   z-index: 5;
   animation: golden-pulse 1.2s ease-in-out infinite;
 }
@@ -1155,6 +1176,7 @@ button:disabled {
   background: none;
   border: none;
   box-shadow: none;
+  clip-path: none;
   padding: 0;
 }
 
@@ -1162,16 +1184,69 @@ button:disabled {
   border: none;
 }
 
-.click-area img {
+/* Alvo de clique = Pokébola, não o Pokémon (pedido do dono do projeto) —
+   desenhada em CSS puro, mesma técnica de .capture-pokeball, só maior e
+   com 3 variantes de cor por tier (sobe conforme a melhor bola que você
+   tem em estoque agora, ver App.tsx's equippedBallId). */
+.click-ball {
+  display: block;
+  position: relative;
   width: 200px;
   height: 200px;
-  image-rendering: pixelated;
-  user-select: none;
-  -webkit-user-drag: none;
+  border-radius: 50%;
+  border: 6px solid #1a1a1a;
   filter: drop-shadow(4px 6px 0 rgba(0, 0, 0, 0.4));
+  transition: scale 0.05s ease;
 }
 
-.click-area:not(:disabled):active img {
+.click-ball::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, var(--ball-top, #ef4a3f) 0%, var(--ball-top, #ef4a3f) 44%, #1a1a1a 44%, #1a1a1a 56%, var(--ball-bottom, #f0ecff) 56%, var(--ball-bottom, #f0ecff) 100%);
+}
+
+.click-ball::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 25%;
+  height: 25%;
+  border-radius: 50%;
+  background: var(--ball-bottom, #f0ecff);
+  border: 5px solid #1a1a1a;
+  transform: translate(-50%, -50%);
+}
+
+.click-ball-shine {
+  position: absolute;
+  top: 18%;
+  left: 22%;
+  width: 22%;
+  height: 12%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: rotate(-30deg);
+}
+
+.click-ball--poke-ball {
+  --ball-top: #ef4a3f;
+  --ball-bottom: #f0ecff;
+}
+
+.click-ball--great-ball {
+  --ball-top: #3b6ea5;
+  --ball-bottom: #ef4a3f;
+}
+
+.click-ball--ultra-ball {
+  --ball-top: #2a2a2a;
+  --ball-bottom: #f5a623;
+}
+
+.click-area:not(:disabled):active .click-ball {
   scale: 0.94;
 }
 
@@ -1753,6 +1828,7 @@ button:disabled {
   background: none;
   border: none;
   box-shadow: none;
+  clip-path: none;
   padding: 0;
 }
 
