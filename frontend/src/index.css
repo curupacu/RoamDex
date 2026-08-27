@@ -1372,11 +1372,11 @@ button:disabled {
    elemento juntos ao redor do mesmo ponto — "baixo" (a barriga do sprite
    parado) sempre acaba apontando pro centro, não importa o ângulo, sem
    precisar de nenhum flip extra. --layer empurra o raio pra fora a cada
-   anel cheio (RING_CAPACITY no componente) — o incremento (34px) precisa
-   ser maior que o próprio ícone (26px no máximo) pra os anéis não se
-   misturarem visualmente uns nos outros (feedback: "o jeito que eles
-   estão espalhados tá ruim" — anterior tinha só 22px de incremento com
-   12 por anel, ficava apertado e confuso). */
+   anel cheio; a capacidade de cada anel é calculada em JS por geometria
+   (circunferência / espaçamento — ver HelperRing.tsx), não um número
+   fixo, pra caber vários peixinhos pequenos bem grudados um no outro
+   (feedback), com o valor de raio aqui em CSS espelhando a mesma
+   constante base do componente. */
 .helper-ring {
   position: absolute;
   inset: 0;
@@ -1388,11 +1388,11 @@ button:disabled {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(14px, 5vw, 22px);
-  height: clamp(14px, 5vw, 22px);
-  margin: calc(clamp(14px, 5vw, 22px) / -2) 0 0 calc(clamp(14px, 5vw, 22px) / -2);
+  width: clamp(9px, 3vw, 13px);
+  height: clamp(9px, 3vw, 13px);
+  margin: calc(clamp(9px, 3vw, 13px) / -2) 0 0 calc(clamp(9px, 3vw, 13px) / -2);
   image-rendering: pixelated;
-  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px)));
+  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px)));
   animation: helper-belly-flop 2.6s ease-in-out infinite;
   animation-delay: var(--delay);
 }
@@ -1401,10 +1401,10 @@ button:disabled {
   0%,
   78%,
   100% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px))) scale(1);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px))) scale(1);
   }
   88% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px - 10px))) scale(1.2);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px - 6px))) scale(1.25);
   }
 }
 
