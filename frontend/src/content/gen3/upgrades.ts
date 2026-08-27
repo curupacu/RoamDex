@@ -5,10 +5,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // flavor. Same 9 base buildings + the two "cadeia de tier" chains (decisão
 // 0026) + Padrão 3/4 (decisão 0035) — no new upgrade shape invented here.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'devon-scope-fingers', name: 'Dedos do Devon Scope', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Enxerga até Pokémon fantasma, quanto mais um clique.' },
-  { id: 'running-shoes-glove', name: 'Luva dos Tênis de Corrida', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Corre até quando está parada.' },
-  { id: 'go-goggles-strike', name: 'Golpe dos Go-Goggles', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Atravessa a tempestade de areia sem perder o ritmo.' },
-  { id: 'legendary-trio-fury', name: 'Fúria do Trio do Tempo', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Chove, faz sol e treme tudo ao mesmo tempo.' },
+  { id: 'devon-scope-fingers', name: 'Dedos do Devon Scope', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Enxerga até Pokémon fantasma, quanto mais um clique.' },
+  { id: 'running-shoes-glove', name: 'Luva dos Tênis de Corrida', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Corre até quando está parada.' },
+  { id: 'go-goggles-strike', name: 'Golpe dos Go-Goggles', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Atravessa a tempestade de areia sem perder o ritmo.' },
+  { id: 'legendary-trio-fury', name: 'Fúria do Trio do Tempo', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Chove, faz sol e treme tudo ao mesmo tempo.' },
   { id: 'contest-volunteer', name: 'Ajudante de Concurso', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Aplaude qualquer performance, mesmo sem entender bem o que rolou.' },
   { id: 'devon-collection-post', name: 'Posto de Coleta da Devon', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'A caixa de sugestões só recebe pedidos de mais doce.' },
   { id: 'berry-conveyor', name: 'Esteira de Bagas', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Baga entra madura, doce sai pronto.' },

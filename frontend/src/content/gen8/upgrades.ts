@@ -4,10 +4,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // de Galar. 9 prédios base + as 2 cadeias de tier (decisão 0026) + Padrão
 // 3/4 (decisão 0035) — nenhum formato novo de upgrade inventado aqui.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'rotom-phone-taps', name: 'Toques no Rotom Phone', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Notificação de doce a cada rota de Galar.' },
-  { id: 'league-card-glove', name: 'Luva do Cartão da Liga', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cada foto no Estádio croca mais forte.' },
-  { id: 'curry-pot-strike', name: 'Golpe da Panela de Curry', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Berry picante, punho ainda mais.' },
-  { id: 'legendary-dogs-fury', name: 'Fúria dos Cães Lendários', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Espada e escudo golpeando juntos.' },
+  { id: 'rotom-phone-taps', name: 'Toques no Rotom Phone', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Notificação de doce a cada rota de Galar.' },
+  { id: 'league-card-glove', name: 'Luva do Cartão da Liga', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cada foto no Estádio croca mais forte.' },
+  { id: 'curry-pot-strike', name: 'Golpe da Panela de Curry', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Berry picante, punho ainda mais.' },
+  { id: 'legendary-dogs-fury', name: 'Fúria dos Cães Lendários', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Espada e escudo golpeando juntos.' },
   { id: 'digging-duo-volunteer', name: 'Ajudante da Dupla Cavadora', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Cava fóssil, acha doce.' },
   { id: 'wishing-piece-post', name: 'Posto do Fragmento dos Desejos', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Toda Toca Max esconde uma cesta de doce.' },
   { id: 'wild-area-conveyor', name: 'Esteira da Área Selvagem', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Entra Wishing Piece, sai doce quentinho.' },

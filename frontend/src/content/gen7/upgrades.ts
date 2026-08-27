@@ -4,10 +4,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // de Alola. 9 prédios base + as 2 cadeias de tier (decisão 0026) + Padrão
 // 3/4 (decisão 0035) — nenhum formato novo de upgrade inventado aqui.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'rotom-dex-taps', name: 'Toques no Rotom Dex', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Ele comenta cada clique, mas ajuda mesmo assim.' },
-  { id: 'z-ring-glove', name: 'Luva do Z-Ring', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Não solta Z-Move, mas croca com pose.' },
-  { id: 'poke-ride-strike', name: 'Golpe do Poké Ride', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Tauros puxa a carroça, o croque vai junto.' },
-  { id: 'tapu-fury', name: 'Fúria dos Tapu', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'As 4 divindades-guardiãs de Alola num soco só.' },
+  { id: 'rotom-dex-taps', name: 'Toques no Rotom Dex', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Ele comenta cada clique, mas ajuda mesmo assim.' },
+  { id: 'z-ring-glove', name: 'Luva do Z-Ring', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Não solta Z-Move, mas croca com pose.' },
+  { id: 'poke-ride-strike', name: 'Golpe do Poké Ride', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Tauros puxa a carroça, o croque vai junto.' },
+  { id: 'tapu-fury', name: 'Fúria dos Tapu', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'As 4 divindades-guardiãs de Alola num soco só.' },
   { id: 'malasada-volunteer', name: 'Ajudante da Malasada', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Doce frito, doce de verdade — os dois rendem.' },
   { id: 'festival-plaza-post', name: 'Posto do Festival Plaza', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Toda missão da Praça esconde um Doce Nice.' },
   { id: 'hano-beach-conveyor', name: 'Esteira de Hano Beach', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Entra maré, sai doce quentinho.' },

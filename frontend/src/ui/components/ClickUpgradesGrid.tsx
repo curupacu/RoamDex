@@ -45,6 +45,7 @@ export function ClickUpgradesGrid({ regionDef, region, activeTypes = [], onBuy, 
             effectLabel={soldOut ? `${effectLabel} (comprado)` : `${effectLabel} — ${formatBigNumber(cost)} doces`}
             flavor={def.flavor}
             earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} doces`}
+            className="upgrade-hover-wrap--below"
           >
             <button className="click-upgrade-square" onClick={() => onBuy(def.id)} disabled={soldOut || region.candies < cost}>
               <UpgradeIcon id={def.id} alt={def.name} />

@@ -9,10 +9,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // convention-based (decisão 0028/0031) — see
 // ui/components/UpgradeIcon.tsx, no per-entry field needed.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'sprout-gloves', name: 'Luvas de Broto', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Cheiram a terra molhada.' },
-  { id: 'apricorn-satchel', name: 'Bolsa de Bagas Apricô', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Sempre sobra uma baga no fundo.' },
-  { id: 'pokegear-clicker', name: 'Pokégear de Combate', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'A tela range, mas nunca trava.' },
-  { id: 'legendary-beast-fury', name: 'Fúria das Feras Lendárias', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Um rosnado que atravessa três rotas.' },
+  { id: 'sprout-gloves', name: 'Luvas de Broto', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Cheiram a terra molhada.' },
+  { id: 'apricorn-satchel', name: 'Bolsa de Bagas Apricô', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Sempre sobra uma baga no fundo.' },
+  { id: 'pokegear-clicker', name: 'Pokégear de Combate', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'A tela range, mas nunca trava.' },
+  { id: 'legendary-beast-fury', name: 'Fúria das Feras Lendárias', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Um rosnado que atravessa três rotas.' },
   { id: 'bug-catching-helper', name: 'Ajudante do Concurso de Insetos', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Trocaria qualquer prêmio por mais um Caterpie.' },
   { id: 'goldenrod-post', name: 'Posto de Coleta de Goldenrod', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'A fila nunca anda, mas o estoque sempre cresce.' },
   { id: 'gs-ball-conveyor', name: 'Esteira da GS Ball', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Ninguém sabe abrir, mas ela rende do mesmo jeito.' },

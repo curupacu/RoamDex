@@ -7,10 +7,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // aqui. Padrão 5 (upgrade por prédio, decisão 0048) fica pra uma leva
 // futura, igual as outras regiões ainda não têm.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'xtransceiver-taps', name: 'Toques no Xtransceiver', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Vídeo-chamada de qualquer rota de Unova.' },
-  { id: 'roller-skate-glove', name: 'Luva de Patins', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Desliza rápido, croca mais rápido ainda.' },
-  { id: 'join-avenue-strike', name: 'Golpe da Join Avenue', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Toda loja da avenida vende um croque de brinde.' },
-  { id: 'legendary-trio-fury', name: 'Fúria do Trio Lendário', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Verdade, ideais e vontade num soco só.' },
+  { id: 'xtransceiver-taps', name: 'Toques no Xtransceiver', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Vídeo-chamada de qualquer rota de Unova.' },
+  { id: 'roller-skate-glove', name: 'Luva de Patins', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Desliza rápido, croca mais rápido ainda.' },
+  { id: 'join-avenue-strike', name: 'Golpe da Join Avenue', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Toda loja da avenida vende um croque de brinde.' },
+  { id: 'legendary-trio-fury', name: 'Fúria do Trio Lendário', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Verdade, ideais e vontade num soco só.' },
   { id: 'nurse-assistant-volunteer', name: 'Ajudante do Centro Pokémon', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Cura Pokémon de graça, cobra doce por fora.' },
   { id: 'battle-subway-post', name: 'Posto do Battle Subway', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'A fila anda devagar, o doce rende rápido.' },
   { id: 'unova-conveyor', name: 'Esteira de Doces Unova', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Doce entra congelado, sai quentinho igual em Nimbasa.' },

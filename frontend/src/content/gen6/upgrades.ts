@@ -6,10 +6,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // base buildings + the two "cadeia de tier" chains (decisão 0026) + Padrão
 // 3/4 (decisão 0035) — no new upgrade shape invented here.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'holo-caster-taps', name: 'Toques no Holo Caster', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Chamada em vídeo de qualquer rota de Kalos.' },
-  { id: 'roller-skate-glove', name: 'Luva do Patins', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Desliza rápido, croca mais rápido ainda.' },
-  { id: 'furfrou-trim-strike', name: 'Golpe do Corte do Furfrou', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Nove estilos, um croque só.' },
-  { id: 'legendary-trio-fury', name: 'Fúria do Trio Lendário', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Vida, mente e corpo num soco só.' },
+  { id: 'holo-caster-taps', name: 'Toques no Holo Caster', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Chamada em vídeo de qualquer rota de Kalos.' },
+  { id: 'roller-skate-glove', name: 'Luva do Patins', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Desliza rápido, croca mais rápido ainda.' },
+  { id: 'furfrou-trim-strike', name: 'Golpe do Corte do Furfrou', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Nove estilos, um croque só.' },
+  { id: 'legendary-trio-fury', name: 'Fúria do Trio Lendário', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Vida, mente e corpo num soco só.' },
   { id: 'sushi-high-roller-volunteer', name: 'Ajudante do Sushi Alto', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Serve doce em vez de peixe, ninguém reclama.' },
   { id: 'lumiose-cafe-post', name: 'Posto do Café de Lumiose', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Todo café da cidade tem uma mesa reservada pro doce.' },
   { id: 'patisserie-conveyor-kalos', name: 'Esteira da Patisserie Kalos', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Croissant entra cru, doce sai quentinho.' },

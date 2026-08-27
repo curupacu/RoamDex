@@ -81,7 +81,12 @@ describe('buyUpgrade', () => {
 
 describe('totalClickBonus / totalCps', () => {
   it('sums effect × owned across upgrades of each kind', () => {
-    const clickDef = UPGRADES.find((u) => u.kind === 'click' && u.maxPurchases === undefined)!
+    // Click upgrades are all one-time now (feedback: upgrade de verdade é
+    // sempre compra única, quem escala infinito é o PRÉDIO/CPS — ver
+    // content/gen1/upgrades.ts) — a soma em si não liga pra maxPurchases,
+    // só pra `owned`, então testar com owned:3 (mesmo que isso nunca
+    // aconteça de verdade num upgrade de clique) ainda prova a fórmula.
+    const clickDef = UPGRADES.find((u) => u.kind === 'click')!
     const cpsDef = UPGRADES.find((u) => u.kind === 'cps' && u.maxPurchases === undefined)!
     const save = makeRegionSave({ upgrades: { [clickDef.id]: 3, [cpsDef.id]: 2 } })
 

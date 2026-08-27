@@ -6,10 +6,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 // "cadeia de tier" chains (decisão 0026) + Padrão 3/4 (decisão 0035) — no
 // new upgrade shape invented here.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'poketch-fingers', name: 'Dedos do Poketch', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'App novo a cada semana, dedo sempre no mesmo ritmo.' },
-  { id: 'explorer-kit-glove', name: 'Luva do Kit de Exploração', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a caverna e a Monte Coronet.' },
-  { id: 'vs-seeker-strike', name: 'Golpe do VS Seeker', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Encontra treinador com vontade de brigar em qualquer rota.' },
-  { id: 'lake-trio-fury', name: 'Fúria do Trio dos Lagos', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Conhecimento, emoção e vontade num soco só.' },
+  { id: 'poketch-fingers', name: 'Dedos do Poketch', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'App novo a cada semana, dedo sempre no mesmo ritmo.' },
+  { id: 'explorer-kit-glove', name: 'Luva do Kit de Exploração', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a caverna e a Monte Coronet.' },
+  { id: 'vs-seeker-strike', name: 'Golpe do VS Seeker', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Encontra treinador com vontade de brigar em qualquer rota.' },
+  { id: 'lake-trio-fury', name: 'Fúria do Trio dos Lagos', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Conhecimento, emoção e vontade num soco só.' },
   { id: 'underground-volunteer', name: 'Ajudante do Subterrâneo', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Cava sem parar atrás de esfera não sabe bem de quê.' },
   { id: 'solaceon-collection-post', name: 'Posto de Coleta de Solaceon', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'As ruínas guardam mais doce que segredo antigo.' },
   { id: 'berry-conveyor-sinnoh', name: 'Esteira de Bagas Sinnoh', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Baga entra congelada, doce sai quentinho.' },

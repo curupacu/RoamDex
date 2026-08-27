@@ -1167,6 +1167,17 @@ button:disabled {
   width: 100%;
 }
 
+/* Feedback: os quadradinhos de clique moraram pro topo de .side-column
+   (uma coluna com overflow-y:auto agora) — o card, que sempre abria pra
+   CIMA do quadrado, ficava cortado/invisível pra quadrados da 1ª linha
+   (nada de espaço acima dentro da área que rola). Essa variante abre pra
+   BAIXO em vez de cima; só usada onde o gatilho já nasce colado no topo
+   do próprio container. */
+.upgrade-hover-wrap--below .upgrade-hover-card {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
 .upgrade-hover-card {
   display: none;
   position: absolute;

@@ -70,11 +70,23 @@ export interface UpgradeDefinition {
 
 // Provisional costs/effects — Sprint 25 ("Balanceamento") is where these get
 // tuned against real play-simulation data, per docs/decisoes/0001-*.md.
+//
+// Feedback: os 4 upgrades de clique base eram compráveis infinitas vezes
+// (sem maxPurchases, custo composto a cada compra) — igual um PRÉDIO de
+// Cookie Clicker, não um upgrade. No jogo real, upgrade é sempre compra
+// única (o que escala infinitamente é o PRÉDIO/CPS, nunca um upgrade);
+// clique ganha força através de uma cadeia curta de upgrades de 1 compra
+// só, cada um desbloqueando o próximo por doce acumulado — exatamente
+// como a cadeia "Cursor" da wiki (Reinforced index finger -> Carpal
+// tunnel -> Ambidextrous -> Thousand fingers...). Ganharam
+// `maxPurchases: 1` pra bater com isso; `unlockAt` já fazia o papel de
+// gatilho progressivo, não precisou mudar. Os 4 de CPS (linhas abaixo)
+// continuam infinitos de propósito — são PRÉDIOS de verdade.
 export const UPGRADES: UpgradeDefinition[] = [
-  { id: 'quick-fingers', name: 'Dedos Ligeiros', kind: 'click', baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Seus dedos já decoraram o caminho até o Pokémon.' },
-  { id: 'battle-glove', name: 'Luva de Treino', kind: 'click', baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a couro e determinação.' },
-  { id: 'critical-strike', name: 'Golpe Crítico', kind: 'click', baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Às vezes dói só de ver.' },
-  { id: 'pokemon-fury', name: 'Fúria Pokémon', kind: 'click', baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Ninguém sabe explicar de onde vem essa raiva.' },
+  { id: 'quick-fingers', name: 'Dedos Ligeiros', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Seus dedos já decoraram o caminho até o Pokémon.' },
+  { id: 'battle-glove', name: 'Luva de Treino', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a couro e determinação.' },
+  { id: 'critical-strike', name: 'Golpe Crítico', kind: 'click', maxPurchases: 1, baseCost: 1_100, effect: 25, unlockAt: 500, flavor: 'Às vezes dói só de ver.' },
+  { id: 'pokemon-fury', name: 'Fúria Pokémon', kind: 'click', maxPurchases: 1, baseCost: 12_000, effect: 150, unlockAt: 5_000, flavor: 'Ninguém sabe explicar de onde vem essa raiva.' },
   { id: 'volunteer-helper', name: 'Ajudante Voluntário', kind: 'cps', baseCost: 15, effect: 0.3, unlockAt: 0, flavor: 'Cisca o chão sem parar, nem sabe bem por quê.' },
   { id: 'collection-post', name: 'Posto de Coleta', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Uma cesta que nunca fica vazia por muito tempo.' },
   { id: 'candy-conveyor', name: 'Esteira de Doces', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Doce entra, doce sai, ninguém pergunta como.' },
