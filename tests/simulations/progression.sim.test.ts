@@ -88,4 +88,12 @@ describe('progressão — valores de produção (Sprint 25)', () => {
   it('Alola, SÓ batalha (Treinamento nunca comprado)', () => {
     report('ALOLA só batalha', REGIONS.alola, false)
   })
+
+  it('Paldea, com XP idle (Treinamento) + batalha', () => {
+    report('PALDEA com idle', REGIONS.paldea, true)
+  })
+
+  it('Paldea, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('PALDEA só batalha', REGIONS.paldea, false)
+  })
 })
