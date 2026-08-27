@@ -77,7 +77,9 @@ export function UpgradeScene({ regionDef, region }: UpgradeSceneProps) {
           >
             <div
               className={`scene-lane${isFull ? ' scene-lane--full' : ''}`}
-              style={{ backgroundImage: `linear-gradient(rgba(10, 10, 20, 0.45), rgba(10, 10, 20, 0.45)), url(/backgrounds/${background})` }}
+              style={{
+                backgroundImage: `linear-gradient(rgba(30, 26, 46, 0.72), rgba(30, 26, 46, 0.72)), url(/backgrounds/${background})`,
+              }}
             >
               {Array.from({ length: filled }, (_, i) => {
                 const seed = `${def.id}-${i}`

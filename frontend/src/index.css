@@ -105,17 +105,51 @@ main {
      as telas de menu/login (essas continuam com card centralizado, só
      ganham mais respiro ao redor; nada nelas depende de main ser estreito). */
   max-width: 1040px;
-  padding: 1.5rem 1rem 3rem;
+  padding: 0.75rem 1rem 3rem;
   text-align: center;
   line-height: 1.8;
 }
 
+/* Achado jogando o Cookie Clicker de verdade (pedido do dono do projeto):
+   é um app de viewport FIXO — a página em si não rola, só uma barra fina
+   no topo (nosso .top-hud) em fluxo normal, e o resto (.game-area) ocupa
+   exatamente o resto da tela, cada coluna rolando por dentro de si mesma.
+   Flexbox em coluna, não `height: calc(100vh - Xrem)` — testado ao vivo:
+   um valor chutado sempre sobra/falta uns pixels (o nav pode ter 1 ou 2
+   linhas dependendo da largura, muda o quanto o header realmente ocupa).
+   flex:1 no .game-area preenche exatamente o que sobra, sempre exato,
+   não importa a altura real do .top-hud. Só na view clicker — as outras
+   telas (menu, Pokédex etc.) continuam sendo páginas normais que rolam
+   inteiras. */
+main.view-clicker {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0;
+}
+
+/* Feedback: a barra do menu ocupava a largura toda de <main> (1040px),
+   bem mais larga que o cartão de rota logo abaixo dela (dentro de
+   .upgrade-column, ~560px) — criava um "degrau" com espaço vazio nas
+   pontas, sem nada, mas ainda lendo como uma barra própria. Estreitando
+   pra bater com a mesma largura do resto do conteúdo do meio, os dois
+   viram uma coisa só, visualmente "junto". */
+main.view-clicker .top-hud {
+  flex: none;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Repaginação (feedback: "a navbar + título + cartão de rota ocupam meia
+   tela antes do jogo de verdade aparecer") — título/nav/cartão de rota
+   viram uma faixa fina no topo, igual o cabeçalho compacto do Cookie
+   Clicker, em vez de 3 cartões grandes empilhados. */
 h1 {
-  font-size: 1.5rem;
+  font-size: 0.75rem;
   color: var(--accent-yellow);
-  text-shadow: 3px 3px 0 #7a2a2a;
+  text-shadow: 2px 2px 0 #7a2a2a;
   letter-spacing: 1px;
-  margin-bottom: 1.25rem;
+  margin: 0 0 0.4rem;
 }
 
 h2 {
@@ -202,15 +236,24 @@ button:disabled {
    diz o que o botão faz antes de ler o texto; a aba ATIVA (view atual)
    fica "afundada" — sem sombra, deslocada 2px, borda clara por dentro —
    como se estivesse pressionada. */
+/* .top-hud (App.tsx): barra fina em fluxo normal, igual o #topBar de
+   verdade do Cookie Clicker — tentei flutuar ela por cima do jogo antes
+   (position:absolute), mas isso sempre dependia de adivinhar até onde ela
+   ia cobrir, e vazava sobre .click-stage/.side-column em telas mais
+   estreitas. Em fluxo normal é impossível sobrepor por definição; o resto
+   do espaço (.game-area) só precisa saber a altura dela pra ocupar
+   exatamente o que sobra (ver .game-area's height, medida ao vivo via
+   App.tsx's hudRef/ResizeObserver). */
+
 .main-nav {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 auto 1.5rem;
+  gap: 0.3rem;
+  margin: 0 auto 0.6rem;
   max-width: 760px;
-  padding: 0.75rem;
+  padding: 0.3rem;
 }
 
 .main-nav-btn {
@@ -221,14 +264,15 @@ button:disabled {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 0.6rem 1rem;
+  font-size: 0.5rem;
+  padding: 0.3rem 0.55rem;
   background: linear-gradient(160deg, var(--btn-color), var(--btn-color-dark));
-  border: 3px solid var(--btn-color-dark);
-  border-radius: 10px 4px 10px 4px;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  border: 2px solid var(--btn-color-dark);
+  border-radius: 8px 3px 8px 3px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.35),
-    4px 4px 0 rgba(0, 0, 0, 0.35);
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    2px 2px 0 rgba(0, 0, 0, 0.35);
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
   transition: transform 0.08s ease;
 }
@@ -505,14 +549,14 @@ button:disabled {
    texto solto. */
 .location-nav {
   position: relative;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.5rem;
   max-width: 420px;
-  padding: 0.85rem 1rem;
+  padding: 0.4rem 0.6rem;
   background: var(--gba-bg);
   color: var(--gba-text);
-  border: 3px solid var(--gba-border);
-  border-radius: 4px 18px 4px 18px;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--gba-border);
+  border-radius: 4px 14px 4px 14px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Botão de chances de encontro selvagem (canto superior direito do painel
@@ -602,27 +646,27 @@ button:disabled {
 .location-nav-row h2 {
   flex: 1;
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   color: #ffffff;
   text-transform: uppercase;
   text-align: center;
-  padding: 0.45rem 0.25rem;
+  padding: 0.3rem 0.25rem;
   background: linear-gradient(160deg, var(--pkc-blue), var(--pkc-blue-dark));
   border: 2px solid var(--gba-border);
-  border-radius: 4px 12px 4px 12px;
+  border-radius: 4px 10px 4px 10px;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .location-nav-row button {
   flex-shrink: 0;
   font-weight: bold;
-  font-size: 0.55rem;
-  padding: 0.45rem 0.55rem;
+  font-size: 0.45rem;
+  padding: 0.3rem 0.4rem;
   color: #ffffff;
   background: linear-gradient(160deg, var(--pkc-grey), var(--pkc-grey-dark));
   border: 2px solid var(--pkc-grey-dark);
-  border-radius: 4px 10px 4px 10px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  border-radius: 4px 8px 4px 8px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   transition: transform 0.08s ease;
 }
 
@@ -631,28 +675,29 @@ button:disabled {
 }
 
 .location-locked-hint {
-  margin: 0.6rem 0 0;
-  font-size: 0.55rem;
+  margin: 0.4rem 0 0;
+  font-size: 0.5rem;
   color: var(--gba-text-dim);
   text-align: center;
 }
 
 .location-gym-button {
-  margin-top: 0.6rem;
+  margin-top: 0.4rem;
   width: 100%;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 0.65rem;
+  font-size: 0.5rem;
+  padding: 0.4rem;
   background: linear-gradient(160deg, var(--pkc-red), var(--pkc-red-dark));
-  border: 3px solid var(--pkc-red-dark);
-  border-radius: 4px 16px 4px 16px;
-  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  border: 2px solid var(--pkc-red-dark);
+  border-radius: 4px 12px 4px 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   color: #ffffff;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.35),
-    4px 4px 0 rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    2px 2px 0 rgba(0, 0, 0, 0.3);
   transition: transform 0.08s ease;
 }
 
@@ -661,28 +706,36 @@ button:disabled {
 }
 
 .wild-encounter-banner {
-  margin: 0 auto 1rem;
-  max-width: 320px;
-  padding: 0.75rem 1rem;
+  margin: 0 auto 0.5rem;
+  max-width: 300px;
+  padding: 0.45rem 0.7rem;
   background: var(--gba-bg);
   color: var(--gba-text);
-  border: 3px solid var(--panel-border-strong);
-  border-radius: 4px 18px 4px 18px;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--panel-border-strong);
+  border-radius: 4px 14px 4px 14px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 .wild-encounter-banner img {
-  width: 72px;
-  height: 72px;
+  width: 44px;
+  height: 44px;
   image-rendering: pixelated;
 }
 
 .wild-encounter-actions {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.wild-encounter-actions .btn-action,
+.rebirth-banner .btn-action,
+.offline-banner .btn-action {
+  font-size: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  border-width: 2px;
 }
 
 /* HUD de escolha de bola pós-vitória (sistema de Pokébolas) — uma linha por
@@ -695,25 +748,25 @@ button:disabled {
 }
 
 .offline-banner {
-  margin: 0 auto 1rem;
-  max-width: 320px;
-  padding: 0.75rem 1rem;
+  margin: 0 auto 0.5rem;
+  max-width: 300px;
+  padding: 0.45rem 0.7rem;
 }
 
 .rebirth-banner {
-  margin: 0 auto 1rem;
-  max-width: 320px;
-  padding: 0.75rem 1rem;
+  margin: 0 auto 0.5rem;
+  max-width: 300px;
+  padding: 0.45rem 0.7rem;
   background: var(--gba-bg);
   color: var(--gba-text);
-  border: 3px solid var(--pkc-gold-dark);
-  border-radius: 4px 18px 4px 18px;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--pkc-gold-dark);
+  border-radius: 4px 14px 4px 14px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 .rebirth-banner .btn-action {
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
 }
 
 .victory-road-list {
@@ -770,9 +823,7 @@ button:disabled {
    o .upgrade-scene tem largura FIXA em px e margin:auto pra ficar
    centralizada NESSA faixa sem esticar conforme o tamanho da tela (era
    flex:1 antes, esticava; pedido explícito pra ser tamanho fixo).
-   320px = loja, presa na borda direita. Full-bleed continua (decisão
-   0037) — encosta na janela, não no <main> centralizado. Sem altura fixa
-   e sem overflow interno — quem rola é a página inteira. */
+   320px = loja, presa na borda direita. */
 /* Repaginação: as 3 colunas viram 3 FAIXAS de tela cheia (referência do
    Cookie Clicker que o dono do projeto mandou). Fui inspecionar o CSS de
    verdade do Cookie Clicker (orteil.dashnet.org) pra acertar a mão:
@@ -781,38 +832,75 @@ button:disabled {
    a arte por dentro só fica com mais ou menos respiro ao redor. Espelhado
    aqui: esquerda fluida (30%), direita fixa (é uma lista de texto, precisa
    de largura estável pra não quebrar linha toda hora), meio = o resto.
-   `align-items: stretch` faz as 3 terem a MESMA altura (a do meio, que é
-   a maior); `column-gap: 0` — a cor de cada faixa já separa uma da outra. */
+   `align-items: stretch` faz as 3 terem a MESMA altura; `column-gap: 0` —
+   a cor de cada faixa já separa uma da outra. */
+/* Feedback: coluna direita (loja) MUITO mais estreita que a esquerda
+   (clique) num monitor largo — 320px fixo vs 30% fluido virava uma
+   diferença grande demais. As duas viram a MESMA fração fluida agora,
+   só o meio (prédios) fica com o resto. */
+/* Achado jogando o Cookie Clicker de verdade: #game lá é `position:
+   absolute; overflow:hidden`, altura FIXA (viewport menos a barra fina do
+   topo) — a página em si não rola, cada seção (#sectionLeft/Middle/Right)
+   rola por dentro de si mesma. Copiado aqui via flexbox (main.view-clicker
+   é `display:flex; flex-direction:column`, ver index.css acima): flex:1
+   faz .game-area ocupar exatamente o que sobra depois do .top-hud, sem
+   precisar adivinhar a altura dele em rem nem medir nada em JS. */
 .game-area {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(220px, 30%) 1fr 320px;
+  grid-template-columns: minmax(220px, 28%) 1fr minmax(220px, 28%);
   column-gap: 0;
   align-items: stretch;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  /* Sem padding vertical — feedback: as faixas coloridas não iam até em
-     cima/embaixo, sobrava um respiro de fundo escuro comum antes delas.
-     O espaçamento da própria cena do meio (.upgrade-scene) e das laterais
-     (.click-stage/.side-column têm padding interno próprio) já dá
-     respiro pro conteúdo sem deixar vazio ENTRE o fim de uma seção e o
-     começo da faixa colorida. */
   padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Coluna do meio de verdade — o card de rota/banners (App.tsx's
+   .upgrade-column) mora em FLUXO NORMAL aqui, ANTES de <UpgradeScene>.
+   Chegamos aqui depois de tentar 2 abordagens que davam problema:
+   1) medir a altura do card via ResizeObserver e usar como padding-top —
+      nunca disparava de forma confiável (testado tanto no navegador
+      sandbox quanto num Chrome real via automação).
+   2) position:absolute (overlay) — mesmo só cobrindo a faixa decorativa
+      do meio, o dono do projeto queria ZERO sobreposição, nem aí.
+   Fluxo normal resolve os dois: impossível sobrepor por definição, sem
+   medir nada — o card só empurra as faixas de prédio pra baixo. */
+.upgrade-column {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-bottom: 1rem;
 }
 
 /* Decisão 0034/0037: coluna direita — grid de clique empilhado em cima
-   da loja. Cresce naturalmente com o conteúdo, sem scroll próprio.
-   Repaginação: faixa própria (acento dourado, mesma cor do botão "Loja"
-   da nav) cobrindo a coluna inteira, separada da coluna do meio (que
-   continua mostrando o fundo de localização/scene-lane sem alteração) só
-   por uma borda — não é mais um cartão com respiro ao redor. */
+   da loja. Repaginação: faixa própria (acento dourado, mesma cor do botão
+   "Loja" da nav) cobrindo a coluna inteira, separada da coluna do meio
+   (que continua mostrando o fundo de localização/scene-lane sem
+   alteração) só por uma borda — não é mais um cartão com respiro ao
+   redor. Achado no Cookie Clicker de verdade: #sectionRight lá rola por
+   dentro de si mesma (overflow-y:scroll) — `.game-area` agora tem altura
+   fixa (ver acima), então essa coluna precisa da MESMA coisa, senão o
+   conteúdo (loja inteira) simplesmente cortaria no fim da tela.
+   min-height:0 é o que deixa um item de grid encolher abaixo do
+   min-content dos filhos, senão overflow-y:auto não faz nada. */
 .side-column {
   grid-column: 3;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   box-sizing: border-box;
+  min-height: 0;
+  overflow-y: auto;
   padding: 1.5rem 1.25rem;
   background:
     radial-gradient(circle at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.4) 70%),
@@ -964,7 +1052,7 @@ button:disabled {
    (UpgradeScene.tsx's `if (owned.length === 0) return null`) — sem isso,
    o grid (que posiciona por ORDEM no DOM) empurra a loja pra faixa do
    meio (1fr) assim que o meio some, em vez de ficar na faixa da direita
-   (380px) onde deveria. Faixas fixas resolvem isso pra sempre. */
+   onde deveria. Faixas fixas resolvem isso pra sempre. */
 /* Vinheta escura ao redor da bola (referência: o brilho/escurecido atrás
    do cookie no Cookie Clicker) — não copia o estilo de madeira deles, só
    a IDEIA: um radial-gradient escuro nas bordas faz a bola ser o ponto
@@ -984,6 +1072,8 @@ button:disabled {
   gap: 0.75rem;
   padding: 2rem 1.5rem;
   box-sizing: border-box;
+  min-height: 0;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 50% 40%, transparent 0%, transparent 30%, rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0.85) 100%),
     linear-gradient(160deg, #2c1420, var(--panel-bg));
@@ -991,25 +1081,21 @@ button:disabled {
   box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.12);
 }
 
-/* Quadradinhos de upgrade de clique (decisão 0028). Decisão 0034: saiu de
-   perto do Pokémon e foi pro topo da coluna direita (.side-column), junto
-   com a loja — pedido direto do dono do projeto (desenho de referência).
-   Largura toda da coluna disponível agora, então 4 colunas em vez de 2. */
+/* Quadradinhos de upgrade de clique (decisão 0028). Feedback: tem que
+   ficar em cima da LOJA de verdade (.side-column), não da cena decorativa
+   do meio nem espremido perto do Pokémon — mesmo espírito da decisão
+   0034. Largura toda da coluna disponível, então 4 colunas em vez de 2. */
 /* minmax(0, 1fr), não só 1fr — achado testando em viewport de celular: um
    `1fr` puro não deixa a trilha encolher abaixo do min-content dos filhos
    (os 74px fixos de .click-upgrade-square), e a grade inteira vazava pra
    fora de .side-column numa tela de ~375px. */
-/* width:100% — agora que essa grade mora dentro de .click-stage (flex
-   column, align-items:center), sem isso ela só ocupa o tamanho natural
-   do conteúdo (~320px) em vez de encolher quando a coluna é mais estreita
-   que isso, e os quadrados voltam a vazar (mesmo bug já corrigido pro
-   celular, mas essa grade mudou de container). */
 .click-upgrades-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   width: 100%;
   max-width: 320px;
+  margin: 0 auto;
 }
 
 /* Cor de identidade "clique" (vermelho, mesma família de Clicker na nav e
@@ -1136,17 +1222,20 @@ button:disabled {
 }
 
 /* Cena dos geradores de CPS possuídos (decisão 0029/0030/0033/0034/0036/
-   0037, UpgradeScene.tsx) — coluna do MEIO do game-area (entre o clique e
-   a loja), igual o jardim do Cookie Clicker de referência, faixas largas
-   empilhadas (uma por upgrade). Decisão 0038: largura FIXA (não mais
-   flex:1 esticando) + margin:0 auto pra ficar centralizada na faixa do
-   meio do grid sem depender do tamanho da tela. SEM scroll próprio
-   (decisão 0037) — cresce com o conteúdo, é a página que rola. */
+   0037, UpgradeScene.tsx) — dentro de .upgrade-column (coluna do meio,
+   junto do card de rota/banners, que fica ANTES dela em fluxo normal —
+   ver App.tsx). largura FIXA (não mais flex:1 esticando) + margin:0 auto
+   pra ficar centralizada sem depender do tamanho da tela. Quem rola e tem
+   min-height:0 agora é o wrapper (.upgrade-column), não ela. */
+/* Repaginação (feedback: "sobra um respiro escuro comum entre as faixas,
+   quebra a ilusão de trilha contínua igual o Cookie Clicker real") — gap
+   quase zero + .scene-lane sem cantos arredondados faz elas colarem
+   borda a borda; só a borda de cada uma marca a separação, igual a
+   referência. */
 .upgrade-scene {
-  grid-column: 2;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2px;
   width: 560px;
   max-width: 100%;
   margin: 0 auto;
@@ -1165,8 +1254,9 @@ button:disabled {
   width: 100%;
   min-height: 190px;
   flex: none;
-  border: 2px solid var(--panel-border);
-  border-radius: 6px;
+  border: none;
+  border-bottom: 2px solid var(--panel-border);
+  border-radius: 0;
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -2212,7 +2302,7 @@ button:disabled {
    as 3 faixas do .game-area forçam uma largura mínima enorme (220px +
    320px + conteúdo do meio) numa tela de ~380px e o jogo fica espremido.
    DE PROPÓSITO no fim do arquivo, não perto de onde .game-area é
-   definido: .side-column/.upgrade-scene têm suas próprias regras de
+   definido: .side-column/.upgrade-column têm suas próprias regras de
    `grid-column` incondicionais (sem media query) mais abaixo no arquivo
    — cascata do CSS empata em especificidade entre uma regra dentro de
    @media e uma incondicional, e quem vem DEPOIS no arquivo vence, celular
@@ -2220,18 +2310,36 @@ button:disabled {
    sobrescrito por elas mesmo quando a condição bate; só resolve ficando
    depois de TUDO. */
 @media (max-width: 860px) {
+  /* Celular fica com a página inteira rolando (jeito antigo), não o
+     viewport-fixo-com-scroll-por-coluna do desktop — as 3 faixas empilham
+     verticalmente aqui, então "altura = 100vh menos o header" não faz
+     sentido por seção (cada uma viraria uma fatia arbitrária da tela);
+     é mais previsível cada uma crescer com o próprio conteúdo e a página
+     rolar, como sempre funcionou no celular. Desfaz o flex-column de
+     main.view-clicker também — sem isso `height:100vh` continuava
+     forçando a página a um viewport fixo aqui. */
+  main.view-clicker {
+    display: block;
+    height: auto;
+  }
+
   .game-area {
     /* minmax(0, 1fr), não só 1fr — mesmo motivo do .click-upgrades-grid:
        sem isso a trilha não encolhe abaixo do min-content de filhos com
        largura fixa (.upgrade-scene é 560px), e a faixa toda vaza. */
     grid-template-columns: minmax(0, 1fr);
     padding: 1rem 0;
+    flex: none;
+    height: auto;
+    overflow: visible;
   }
 
   .click-stage,
-  .upgrade-scene,
+  .upgrade-column,
   .side-column {
     grid-column: 1;
+    min-height: 0;
+    overflow-y: visible;
   }
 
   .click-stage {

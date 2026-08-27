@@ -7,22 +7,27 @@ interface UpgradeIconProps {
   style?: CSSProperties
 }
 
-// Tenta .png primeiro, cai pra .gif se não existir, esconde de vez se
-// nenhum dos dois existir (decisão 0028/0030/0031) — assim tanto arte
-// estática quanto animada funciona com a mesma convenção de nome
-// (frontend/public/icons/upgrades/{id}.png ou .gif), sem o código
-// precisar saber de antemão qual delas o dono do projeto vai usar.
+// Tenta .png primeiro, cai pra .gif se não existir. Achado revisando as
+// telas: só Kanto (gen1) tem arte própria pra cada upgrade — Johto até
+// Unova têm dezenas de ids sem nenhum arquivo em
+// frontend/public/icons/upgrades/, então as faixas de prédio dessas
+// regiões renderizavam vazias (nenhum ícone, mas a contagem tava certa).
+// Em vez de esconder (`return null`), cai numa pokébola genérica: garante
+// que toda faixa sempre tem ALGO visível representando a quantidade
+// possuída, sem depender de arte nova por região/upgrade.
+const FALLBACK_SRC = '/items/poke-ball.png'
+
 export function UpgradeIcon({ id, alt, className, style }: UpgradeIconProps) {
-  const [ext, setExt] = useState<'png' | 'gif' | null>('png')
-  if (!ext) return null
+  const [stage, setStage] = useState<'png' | 'gif' | 'fallback'>('png')
+  const src = stage === 'fallback' ? FALLBACK_SRC : `/icons/upgrades/${id}.${stage}`
 
   return (
     <img
-      src={`/icons/upgrades/${id}.${ext}`}
+      src={src}
       alt={alt}
       className={className}
       style={style}
-      onError={() => setExt((current) => (current === 'png' ? 'gif' : null))}
+      onError={() => setStage((current) => (current === 'png' ? 'gif' : 'fallback'))}
     />
   )
 }

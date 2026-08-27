@@ -809,15 +809,16 @@ function App() {
     )
   }
 
-  return (
-    <main>
-      {evolutionFromSpecies && evolutionToSpecies && (
-        <EvolutionScene
-          fromSpecies={evolutionFromSpecies}
-          toSpecies={evolutionToSpecies}
-          onDone={() => setEvolutionQueue((current) => current.slice(1))}
-        />
-      )}
+  // Feedback: os botões (main-nav) ficavam FORA de .game-area, então
+  // empurravam .click-stage/.side-column pra baixo mesmo depois de tudo
+  // mais já estar em fluxo normal dentro da coluna do meio — sobrava um
+  // respiro sem o fundo escuro do clique no topo da tela. Extraído numa
+  // variável pra poder morar em 2 lugares diferentes dependendo da view:
+  // no topo normal da página (Time/Pokédex/Loja/etc, que não têm
+  // .game-area) ou DENTRO de .upgrade-column, junto dos pop-ups de
+  // batalha/rota (só na view clicker, onde precisa não empurrar nada).
+  const navBar = (
+    <>
       <h1>PokéIdle</h1>
       <nav className="main-nav">
         <button className="main-nav-btn main-nav-btn--action" onClick={() => setView('clicker')} disabled={view === 'clicker'}>
@@ -854,6 +855,22 @@ function App() {
           </button>
         )}
       </nav>
+    </>
+  )
+
+  return (
+    <main className={view === 'clicker' ? 'view-clicker' : ''}>
+      {evolutionFromSpecies && evolutionToSpecies && (
+        <EvolutionScene
+          fromSpecies={evolutionFromSpecies}
+          toSpecies={evolutionToSpecies}
+          onDone={() => setEvolutionQueue((current) => current.slice(1))}
+        />
+      )}
+      {/* Só fica no topo normal da página fora da view clicker — dentro
+          dela, o navBar mora em .upgrade-column (ver mais abaixo), pra
+          .click-stage/.side-column ficarem de verdade encostados no topo. */}
+      {!(view === 'clicker' && currentLocation) && <div className="top-hud">{navBar}</div>}
 
       {view === 'backup' && <SaveBackupScreen exportedSave={exportSave(save)} onImport={handleImportSave} />}
       {view === 'admin' && import.meta.env.DEV && (
@@ -902,54 +919,6 @@ function App() {
 
       {view === 'clicker' && currentLocation && (
         <>
-          {regionSave.championBeaten && (
-            <div className="rebirth-banner">
-              <p>Você já venceu o Campeão nesta run. Farme mais um pouco, ou faça rebirth quando quiser.</p>
-              <button className="btn-action btn-action--gold" onClick={handleRebirth}>
-                Rebirth
-              </button>
-            </div>
-          )}
-          <LocationNav
-            location={currentLocation}
-            prevLocation={prevLocation}
-            nextLocation={nextLocation}
-            lifetimeCandies={regionSave.lifetimeCandies}
-            onTravel={handleTravel}
-            gym={gymHere}
-            hasBadge={gymHere ? hasBadge(regionSave, gymHere.id) : false}
-            onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
-            eliteFourAvailable={currentLocation.id === activeRegionDef.locations[activeRegionDef.locations.length - 1].id}
-            onChallengeEliteFour={handleChallengeEliteFour}
-            gen1={gen1}
-          />
-          {wildEncounter && wildEntry && (
-            <div className="wild-encounter-banner">
-              <img src={wildEntry.sprite.local} alt={wildEntry.name} />
-              <p>
-                Um {wildEntry.name} selvagem apareceu! Nv.{wildEncounter.level} ({RARITY_LABELS[wildEncounter.tier]})
-              </p>
-              <div className="wild-encounter-actions">
-                <button className="btn-action btn-action--red" onClick={handleBattleWild}>
-                  Batalhar
-                </button>
-                <button className="btn-action btn-action--grey" onClick={handleIgnoreWild}>
-                  Ignorar
-                </button>
-              </div>
-            </div>
-          )}
-          {offlineSummary && (
-            <div className="offline-banner">
-              <p>
-                Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
-                {formatBigNumber(offlineSummary.candiesEarned)} doces.
-              </p>
-              <button className="btn-action btn-action--blue" onClick={() => setOfflineSummary(null)}>
-                Continuar
-              </button>
-            </div>
-          )}
           <div className="game-area">
             <div className="click-stage">
               <div className="candy-counter">
@@ -972,6 +941,72 @@ function App() {
                   </span>
                 ))}
               </button>
+            </div>
+            {/* Coluna do meio de verdade: o card de rota/banners fica em
+                FLUXO NORMAL aqui dentro (não mais position:absolute) —
+                feedback: "quando ele virou um card/div, ficou por cima dos
+                cardzinhos das construções, tem que ter um padding pra não
+                ficar por cima". Fluxo normal resolve isso de vez: ele só
+                empurra as faixas de prédio pra baixo, nunca sobrepõe nada,
+                sem precisar medir altura nenhuma (nem em JS, nem chutada
+                em CSS). Rola junto com a .upgrade-scene (mesmo
+                overflow-y — ver .upgrade-column). */}
+            <div className="upgrade-column">
+              <div className="top-hud">{navBar}</div>
+              {regionSave.championBeaten && (
+                <div className="rebirth-banner">
+                  <p>Você já venceu o Campeão nesta run. Farme mais um pouco, ou faça rebirth quando quiser.</p>
+                  <button className="btn-action btn-action--gold" onClick={handleRebirth}>
+                    Rebirth
+                  </button>
+                </div>
+              )}
+              <LocationNav
+                location={currentLocation}
+                prevLocation={prevLocation}
+                nextLocation={nextLocation}
+                lifetimeCandies={regionSave.lifetimeCandies}
+                onTravel={handleTravel}
+                gym={gymHere}
+                hasBadge={gymHere ? hasBadge(regionSave, gymHere.id) : false}
+                onChallengeGym={() => gymHere && handleChallengeGym(gymHere.id)}
+                eliteFourAvailable={currentLocation.id === activeRegionDef.locations[activeRegionDef.locations.length - 1].id}
+                onChallengeEliteFour={handleChallengeEliteFour}
+                gen1={gen1}
+              />
+              {wildEncounter && wildEntry && (
+                <div className="wild-encounter-banner">
+                  <img src={wildEntry.sprite.local} alt={wildEntry.name} />
+                  <p>
+                    Um {wildEntry.name} selvagem apareceu! Nv.{wildEncounter.level} ({RARITY_LABELS[wildEncounter.tier]})
+                  </p>
+                  <div className="wild-encounter-actions">
+                    <button className="btn-action btn-action--red" onClick={handleBattleWild}>
+                      Batalhar
+                    </button>
+                    <button className="btn-action btn-action--grey" onClick={handleIgnoreWild}>
+                      Ignorar
+                    </button>
+                  </div>
+                </div>
+              )}
+              {offlineSummary && (
+                <div className="offline-banner">
+                  <p>
+                    Enquanto você estava fora ({formatDuration(offlineSummary.elapsedMs)}), você ganhou{' '}
+                    {formatBigNumber(offlineSummary.candiesEarned)} doces.
+                  </p>
+                  <button className="btn-action btn-action--blue" onClick={() => setOfflineSummary(null)}>
+                    Continuar
+                  </button>
+                </div>
+              )}
+              <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
+            </div>
+            {/* Feedback: os quadradinhos de upgrade de clique tinham que
+                ficar em cima da LOJA de verdade (coluna da direita), não
+                da cena decorativa do meio. */}
+            <div className="side-column">
               <ClickUpgradesGrid
                 regionDef={activeRegionDef}
                 region={regionSave}
@@ -979,9 +1014,6 @@ function App() {
                 onBuy={handleBuyUpgrade}
                 costMultiplier={upgradeCostMultiplier(team)}
               />
-            </div>
-            <UpgradeScene regionDef={activeRegionDef} region={regionSave} />
-            <div className="side-column">
               <UpgradesPanel
                 regionDef={activeRegionDef}
                 region={regionSave}
@@ -989,6 +1021,21 @@ function App() {
                 onBuy={handleBuyUpgrade}
                 costMultiplier={upgradeCostMultiplier(team)}
               />
+              {/* Movido pra dentro da coluna que rola (era depois de
+                  .game-area, fora da área de viewport fixo — ver
+                  .game-area's height/overflow — e ficava fora da tela
+                  sem um scroll de página que não existe mais). */}
+              {bonusBreakdown(team).length > 0 && (
+                <ul className="type-bonuses">
+                  {bonusBreakdown(team).map((entry) => (
+                    <li key={entry.typeId}>
+                      <TypeBadge type={entry.typeId} /> +{(entry.percent * 100).toFixed(0)}%{' '}
+                      {entry.isLive ? '' : '(em breve) '}
+                      {BONUS_KIND_LABELS[entry.bonusKind]}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             {goldenEncounter && (
               <GoldenEncounter
@@ -999,17 +1046,6 @@ function App() {
               />
             )}
           </div>
-          {bonusBreakdown(team).length > 0 && (
-            <ul className="type-bonuses">
-              {bonusBreakdown(team).map((entry) => (
-                <li key={entry.typeId}>
-                  <TypeBadge type={entry.typeId} /> +{(entry.percent * 100).toFixed(0)}%{' '}
-                  {entry.isLive ? '' : '(em breve) '}
-                  {BONUS_KIND_LABELS[entry.bonusKind]}
-                </li>
-              ))}
-            </ul>
-          )}
         </>
       )}
     </main>
