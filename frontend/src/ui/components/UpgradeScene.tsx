@@ -49,7 +49,12 @@ function seededRandom(seed: string): number {
 // enche conforme você compra mais cópias (até LANE_CAPACITY, aí ganha o
 // brilho de "completo"). Ícone reaproveita o mesmo da decisão 0028.
 export function UpgradeScene({ regionDef, region }: UpgradeSceneProps) {
-  const owned = regionDef.upgrades.filter((def) => def.kind === 'cps' && ownedCount(region, def.id) > 0)
+  // Feedback: "Ajudante Voluntário" já aparece em volta da Pokébola
+  // (ui/components/HelperRing.tsx) — a faixa cheia de Magikarp aqui no
+  // meio virou redundante pra ele, então some.
+  const owned = regionDef.upgrades.filter(
+    (def) => def.kind === 'cps' && def.id !== 'volunteer-helper' && ownedCount(region, def.id) > 0,
+  )
   if (owned.length === 0) return null
 
   return (

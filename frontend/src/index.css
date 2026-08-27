@@ -1426,6 +1426,17 @@ button:disabled {
   z-index: 2;
 }
 
+/* Feedback: o botão inteiro (.click-area) treme no clique/segurar porque
+   herda o `transform: translate(2px,2px)` genérico de todo botão — isso
+   arrastava o anel de Magikarp junto, não só a bola. Zera esse transform
+   aqui e deixa só a bolinha encolher (scale já não é `transform`, é uma
+   propriedade CSS separada — não afeta os filhos do jeito que translate
+   afetaria), pra ser uma mexidinha leve e só na bola. */
+.click-area:not(:disabled):active {
+  transform: none;
+  box-shadow: none;
+}
+
 .click-area:not(:disabled):active .click-ball {
   scale: 0.94;
 }
@@ -1853,9 +1864,9 @@ button:disabled {
    resto da repaginação. */
 .battle-enemy .battle-trainer-portrait {
   position: absolute;
-  top: -12px;
-  left: -18px;
-  width: 64px;
+  top: -18px;
+  left: -26px;
+  width: 88px;
   height: auto;
   image-rendering: auto;
   border: 3px solid var(--panel-border);
@@ -2010,6 +2021,15 @@ button:disabled {
   box-shadow: none;
   clip-path: none;
   padding: 0;
+}
+
+/* Feedback: aparecia uma borda preta ao clicar/segurar pra atacar — o
+   `box-shadow` genérico de todo botão no :active (button:not(:disabled):
+   active, lá em cima no arquivo) tinha mais especificidade que o reset
+   acima, então voltava a aparecer só nesse estado. */
+.battle-tap-area:not(:disabled):active {
+  box-shadow: none;
+  transform: none;
 }
 
 .battle-tap-area img {
