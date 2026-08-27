@@ -16,9 +16,9 @@ interface HelperRingProps {
 // posição E o elemento juntos ao redor do mesmo ponto, então "baixo" (a
 // barriga do sprite parado) sempre aponta pro centro, não importa o
 // ângulo, sem precisar de flip extra.
-const BASE_RADIUS_PX = 30
-const RADIUS_STEP_PX = 13
-const SPACING_PX = 11
+const BASE_RADIUS_PX = 58
+const RADIUS_STEP_PX = 15
+const SPACING_PX = 14
 const MAX_ICONS = 90
 
 function layerCapacity(radius: number): number {

@@ -1384,15 +1384,20 @@ button:disabled {
   z-index: 0;
 }
 
+/* Raio base tem que ficar FORA da borda da bola (.click-ball tem raio
+   clamp(45px, 12.5vw, 100px) — metade de clamp(90px, 25vw, 200px)) —
+   feedback: com um raio menor os peixinhos entravam por cima da bola.
+   58px/15vw/112px dá uma folga de ~13px além da borda em qualquer
+   tamanho de tela. */
 .helper-ring__icon {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(9px, 3vw, 13px);
-  height: clamp(9px, 3vw, 13px);
-  margin: calc(clamp(9px, 3vw, 13px) / -2) 0 0 calc(clamp(9px, 3vw, 13px) / -2);
+  width: clamp(11px, 3.5vw, 16px);
+  height: clamp(11px, 3.5vw, 16px);
+  margin: calc(clamp(11px, 3.5vw, 16px) / -2) 0 0 calc(clamp(11px, 3.5vw, 16px) / -2);
   image-rendering: pixelated;
-  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px)));
+  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(58px, 15vw, 112px) + var(--layer) * 15px)));
   animation: helper-belly-flop 2.6s ease-in-out infinite;
   animation-delay: var(--delay);
 }
@@ -1401,10 +1406,10 @@ button:disabled {
   0%,
   78%,
   100% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px))) scale(1);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(58px, 15vw, 112px) + var(--layer) * 15px))) scale(1);
   }
   88% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(30px, 9vw, 60px) + var(--layer) * 13px - 6px))) scale(1.25);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(58px, 15vw, 112px) + var(--layer) * 15px - 6px))) scale(1.25);
   }
 }
 
