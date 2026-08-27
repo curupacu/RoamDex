@@ -89,11 +89,9 @@ export interface UpcomingRegion {
   name: string
 }
 
-// Vazio por enquanto — Alola/Paldea ainda têm rupturas estruturais maiores
-// (docs/PESQUISA-GEN3-9-ESQUELETO.md: sem ginásio tradicional/sem Elite
-// Four fixa) que precisam de pesquisa antes de virar conteúdo. Galar (2
-// ginásios version-exclusive) já entrou — ver content/gen8/gyms.ts's
-// teamByVersion + RegionSave.versionVariant.
+// Vazio — todas as 9 regiões planejadas (Kanto/Johto/Hoenn/Sinnoh/Kalos/
+// Unova/Galar/Alola/Paldea) já têm conteúdo completo. Sem região nova
+// pendente de pesquisa no momento.
 export const UPCOMING_REGIONS: UpcomingRegion[] = []
 
 // Everything a system/screen needs to run a region, bundled — replaces the
