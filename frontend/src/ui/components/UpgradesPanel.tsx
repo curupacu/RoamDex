@@ -9,6 +9,7 @@ import type { UpgradeDefinition } from '../../content/gen1/upgrades'
 import { lockedHint } from './lockedHint'
 import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
+import { upgradeEffectLabel } from './upgradeEffectLabel'
 
 interface UpgradesPanelProps {
   regionDef: RegionDefinition
@@ -18,13 +19,14 @@ interface UpgradesPanelProps {
   costMultiplier?: number
 }
 
-// "Store" list — the CPS/XP generators (docs/decisoes/0028-*.md), plus the
-// Padrão 3/4 upgrades (sinergia/marco global) which aren't 'click' either.
-// Click upgrades live in the separate ClickUpgradesGrid corner instead, same
-// split the reference screenshot the project owner brought shows (buildings
-// list vs. a compact icon row).
+// "Store" list — só prédios de VERDADE agora (sem maxPurchases, compra
+// repetida, custo composto — Ajudante Voluntário, Posto de Coleta etc.).
+// Feedback: os upgrades de compra única (Padrão 5/buildingBoost,
+// multiplicadores globais, e agora também os de clique) foram todos pro
+// grid de quadradinhos (ClickUpgradesGrid) — mesma separação
+// buildings-vs-upgrades do Cookie Clicker real, não mais "click vs resto".
 export function UpgradesPanel({ regionDef, region, activeTypes = [], onBuy, costMultiplier = 1 }: UpgradesPanelProps) {
-  const storeDefs = regionDef.upgrades.filter((def) => def.kind !== 'click')
+  const storeDefs = regionDef.upgrades.filter((def) => def.maxPurchases === undefined)
   const visible = storeDefs.filter((def) => isUnlocked(def, region, activeTypes))
   const upcoming = nextLocked(storeDefs, region, activeTypes)
   if (visible.length === 0 && !upcoming) return null
@@ -81,19 +83,7 @@ function UpgradeRow({
   const owned = ownedCount(region, def.id)
   const cost = upgradeCost(def, owned, costMultiplier)
   const amount = tickAmount(regionDef, def, region)
-  const boostedBuildingName = def.boostsBuilding
-    ? (regionDef.upgrades.find((candidate) => candidate.id === def.boostsBuilding)?.name ?? def.boostsBuilding)
-    : undefined
-  const effectLabel =
-    def.kind === 'buildingBoost'
-      ? `+${(def.effect * 100).toFixed(0)}% na produção de ${boostedBuildingName}, permanente`
-      : def.scalesWith === 'rosterSize'
-        ? `+${def.effect} doces/s por Pokémon capturado`
-        : def.kind === 'cps'
-          ? `+${def.effect} doces/s`
-          : def.kind === 'globalMultiplier'
-            ? `+${(def.effect * 100).toFixed(0)}% em doces/clique e doces/s, permanente`
-            : `+${def.effect} XP/s pro time`
+  const effectLabel = upgradeEffectLabel(regionDef, def)
   const soldOut = def.maxPurchases !== undefined && owned >= def.maxPurchases
 
   // Small idle-life flourish: once owned, this row periodically pops its

@@ -7,6 +7,7 @@ import { upgradeEarned } from '../../systems/economy/upgradeEarnings'
 import { lockedHint } from './lockedHint'
 import { UpgradeCard } from './UpgradeCard'
 import { UpgradeIcon } from './UpgradeIcon'
+import { upgradeEffectLabel } from './upgradeEffectLabel'
 
 interface ClickUpgradesGridProps {
   regionDef: RegionDefinition
@@ -16,15 +17,18 @@ interface ClickUpgradesGridProps {
   costMultiplier?: number
 }
 
-// Small square icon buttons in the corner of the click stage — separate
-// from the CPS "Store" list (UpgradesPanel), matching the split in the
-// reference screenshot the project owner brought (docs/decisoes/0028-*.md).
-// UpgradeCard (hover card) carries name/cost/effect/earned since there's no
-// room for text in a small square.
+// Small square icon buttons — agora é QUALQUER upgrade de compra única
+// (maxPurchases definido), não só 'kind: click' — feedback:
+// os itens do Padrão 5 (buildingBoost) e os multiplicadores globais têm
+// que ficar aqui, junto dos quadradinhos, não na lista de prédios
+// (UpgradesPanel). A lista fica só pra prédio de verdade (compra
+// repetida, sem maxPurchases) — mesma separação buildings/upgrades do
+// Cookie Clicker real. UpgradeCard (hover card) carries name/cost/effect/
+// earned since there's no room for text in a small square.
 export function ClickUpgradesGrid({ regionDef, region, activeTypes = [], onBuy, costMultiplier = 1 }: ClickUpgradesGridProps) {
-  const clickDefs = regionDef.upgrades.filter((def) => def.kind === 'click')
-  const visible = clickDefs.filter((def) => isUnlocked(def, region, activeTypes))
-  const upcoming = nextLocked(clickDefs, region, activeTypes)
+  const oneTimeDefs = regionDef.upgrades.filter((def) => def.maxPurchases !== undefined)
+  const visible = oneTimeDefs.filter((def) => isUnlocked(def, region, activeTypes))
+  const upcoming = nextLocked(oneTimeDefs, region, activeTypes)
   if (visible.length === 0 && !upcoming) return null
 
   return (
@@ -33,10 +37,14 @@ export function ClickUpgradesGrid({ regionDef, region, activeTypes = [], onBuy, 
         const owned = ownedCount(region, def.id)
         const cost = upgradeCost(def, owned, costMultiplier)
         const soldOut = def.maxPurchases !== undefined && owned >= def.maxPurchases
-        const effectLabel =
-          def.scalesWith === 'rosterSize'
-            ? `+${def.effect} doces/clique por Pokémon capturado`
-            : `+${def.effect} doces/clique`
+        const effectLabel = upgradeEffectLabel(regionDef, def)
+        // globalMultiplier/buildingBoost não acumulam "já rendeu" próprio
+        // (multiplicam o resto, não produzem nada sozinhos) — mesma regra
+        // de UpgradesPanel.tsx's UpgradeRow.
+        const earnedLabel =
+          def.kind === 'globalMultiplier' || def.kind === 'buildingBoost'
+            ? undefined
+            : `Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} ${def.kind === 'xp' ? 'XP' : 'doces'}`
 
         return (
           <UpgradeCard
@@ -44,7 +52,7 @@ export function ClickUpgradesGrid({ regionDef, region, activeTypes = [], onBuy, 
             name={def.name}
             effectLabel={soldOut ? `${effectLabel} (comprado)` : `${effectLabel} — ${formatBigNumber(cost)} doces`}
             flavor={def.flavor}
-            earnedLabel={`Já rendeu ${formatBigNumber(upgradeEarned(region, def.id))} doces`}
+            earnedLabel={earnedLabel}
             className="upgrade-hover-wrap--below"
           >
             <button className="click-upgrade-square" onClick={() => onBuy(def.id)} disabled={soldOut || region.candies < cost}>
