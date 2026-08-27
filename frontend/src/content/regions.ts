@@ -57,11 +57,20 @@ import {
 } from './gen8/eliteFour'
 import { UPGRADES as GALAR_UPGRADES } from './gen8/upgrades'
 import { STARTER_IDS as GALAR_STARTER_IDS, STARTER_LEVEL as GALAR_STARTER_LEVEL } from './gen8/starters'
+import { GYMS as ALOLA_GYMS } from './gen7/gyms'
+import { ALOLA_LOCATIONS } from './gen7/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as ALOLA_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as ALOLA_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as ALOLA_ELITE_FOUR,
+} from './gen7/eliteFour'
+import { UPGRADES as ALOLA_UPGRADES } from './gen7/upgrades'
+import { STARTER_IDS as ALOLA_STARTER_IDS, STARTER_LEVEL as ALOLA_STARTER_LEVEL } from './gen7/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
 // Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
-export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'unova', 'galar']
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'unova', 'galar', 'alola']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -190,5 +199,18 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: GALAR_UPGRADES,
     starterIds: GALAR_STARTER_IDS,
     starterLevel: GALAR_STARTER_LEVEL,
+  },
+  alola: {
+    id: 'alola',
+    name: 'Alola',
+    dataUrl: '/data/gen7.json',
+    locations: ALOLA_LOCATIONS,
+    gyms: ALOLA_GYMS,
+    eliteFour: ALOLA_ELITE_FOUR,
+    championTeamByStarter: ALOLA_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: ALOLA_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: ALOLA_UPGRADES,
+    starterIds: ALOLA_STARTER_IDS,
+    starterLevel: ALOLA_STARTER_LEVEL,
   },
 }

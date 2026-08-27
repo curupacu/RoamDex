@@ -155,7 +155,7 @@ export interface SaveDataV9 {
 // only content/regions.ts knows what a RegionId actually contains — engine/
 // stays content-agnostic, same rule that already kept 'pallet-town' a plain
 // string literal instead of an import.
-export type RegionId = 'kanto' | 'johto' | 'hoenn' | 'sinnoh' | 'kalos' | 'unova' | 'galar'
+export type RegionId = 'kanto' | 'johto' | 'hoenn' | 'sinnoh' | 'kalos' | 'unova' | 'galar' | 'alola'
 
 // Everything that resets on THAT region's rebirth. One run's worth of
 // progress — a player with two unlocked regions has two of these, entirely

@@ -80,4 +80,12 @@ describe('progressão — valores de produção (Sprint 25)', () => {
   it('Galar, SÓ batalha (Treinamento nunca comprado)', () => {
     report('GALAR só batalha', REGIONS.galar, false)
   })
+
+  it('Alola, com XP idle (Treinamento) + batalha', () => {
+    report('ALOLA com idle', REGIONS.alola, true)
+  })
+
+  it('Alola, SÓ batalha (Treinamento nunca comprado)', () => {
+    report('ALOLA só batalha', REGIONS.alola, false)
+  })
 })
