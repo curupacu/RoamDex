@@ -2,11 +2,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 
 // Provisional — same shape and cost curve as content/gen1/upgrades.ts
 // (docs/decisoes/0001-*.md), renamed for Johto flavor. Sprint 6's original
-// 9 are still the plain building pattern; the "cadeia de tier" chains below
-// (decisão 0026) are the first real answer to "Upgrades genéricos demais"
-// (docs/BACKLOG.md) — more patterns from
-// docs/PESQUISA-UPGRADES-COOKIE-CLICKER.md are still to come. Icon art is
-// convention-based (decisão 0028/0031) — see
+// 9 are still the plain building pattern (plus 2 more CPS buildings added
+// later); the "cadeia de tier" chains below (decisão 0026), Padrão 3/4
+// (decisão 0035) and Padrão 5 (upgrade por prédio, decisão 0048) round out
+// the rest. Icon art is convention-based (decisão 0028/0031) — see
 // ui/components/UpgradeIcon.tsx, no per-entry field needed.
 export const UPGRADES: UpgradeDefinition[] = [
   { id: 'sprout-gloves', name: 'Luvas de Broto', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Cheiram a terra molhada.' },
@@ -17,6 +16,8 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'goldenrod-post', name: 'Posto de Coleta de Goldenrod', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'A fila nunca anda, mas o estoque sempre cresce.' },
   { id: 'gs-ball-conveyor', name: 'Esteira da GS Ball', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Ninguém sabe abrir, mas ela rende do mesmo jeito.' },
   { id: 'radio-tower-factory', name: 'Fábrica da Torre de Rádio', kind: 'cps', baseCost: 22_000, effect: 140, unlockAt: 15_000, flavor: 'Transmite estática e doce em partes iguais.' },
+  { id: 'elm-lab', name: 'Laboratório do Professor Elm', kind: 'cps', baseCost: 240_000, effect: 560, unlockAt: 165_000, flavor: 'Tecnologia de ponta, só que pra fazer doce.' },
+  { id: 'mahogany-power-plant', name: 'Usina Elétrica de Mahogany', kind: 'cps', baseCost: 2_600_000, effect: 2_240, unlockAt: 1_800_000, flavor: 'O zumbido nunca para, nem de noite.' },
   { id: 'day-care-training', name: 'Treinamento da Creche', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'Ninguém contou pros ovos que isso não é oficial.' },
 
   // --- Cadeia "Treinador Lendário" (clique) — mesmo formato/números de
@@ -65,6 +66,155 @@ export const UPGRADES: UpgradeDefinition[] = [
     requiresSynergy: { upgradeId: 'gs-ball-conveyor', count: 15, teamType: 'grass' },
     effect: 60, // +60 CPS, permanente
     flavor: 'As Esteiras da GS Ball rendem mais perto da floresta, com um Pokémon de Grama por perto.',
+  },
+
+  // --- Padrão 5 (cadeia de upgrade POR PRÉDIO, decisão 0048) — mesmo
+  // formato de content/gen1/upgrades.ts, sabor de Johto. Cada um dos 6
+  // prédios de CPS ilimitados ganha 2 tiers, desbloqueados por quantidade
+  // possuída daquele prédio (unlockAt fica em 0). ---
+  {
+    id: 'bug-catching-net',
+    name: 'Rede Nova',
+    kind: 'buildingBoost',
+    boostsBuilding: 'bug-catching-helper',
+    baseCost: 500,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'bug-catching-helper', count: 10 },
+    effect: 0.05,
+    flavor: 'Pega até Caterpie teimoso.',
+  },
+  {
+    id: 'bug-catching-badge',
+    name: 'Crachá de Confiança',
+    kind: 'buildingBoost',
+    boostsBuilding: 'bug-catching-helper',
+    baseCost: 5_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'bug-catching-helper', count: 25 },
+    effect: 0.08,
+    flavor: 'Agora ele acha que manda no lugar.',
+  },
+  {
+    id: 'goldenrod-basket',
+    name: 'Cesta Reforçada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'goldenrod-post',
+    baseCost: 3_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'goldenrod-post', count: 10 },
+    effect: 0.05,
+    flavor: 'Vime trançado à mão, cabe mais doce.',
+  },
+  {
+    id: 'goldenrod-route',
+    name: 'Rota Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'goldenrod-post',
+    baseCost: 30_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'goldenrod-post', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa por mais esquinas, junta mais doce.',
+  },
+  {
+    id: 'gs-ball-oil',
+    name: 'Correia Lubrificada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'gs-ball-conveyor',
+    baseCost: 35_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'gs-ball-conveyor', count: 10 },
+    effect: 0.05,
+    flavor: 'Sem ranger, sem travar, só doce.',
+  },
+  {
+    id: 'gs-ball-turbo',
+    name: 'Motor Turbo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'gs-ball-conveyor',
+    baseCost: 350_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'gs-ball-conveyor', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém sabe de onde vem essa velocidade toda.',
+  },
+  {
+    id: 'radio-tower-shift',
+    name: 'Turno Duplo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'radio-tower-factory',
+    baseCost: 400_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'radio-tower-factory', count: 10 },
+    effect: 0.05,
+    flavor: 'A chaminé não descansa, e ninguém reclama.',
+  },
+  {
+    id: 'radio-tower-automation',
+    name: 'Automação da Linha',
+    kind: 'buildingBoost',
+    boostsBuilding: 'radio-tower-factory',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'radio-tower-factory', count: 25 },
+    effect: 0.08,
+    flavor: 'A esteira roda sozinha; o vidro é só decoração.',
+  },
+  {
+    id: 'elm-network',
+    name: 'Rede Elm',
+    kind: 'buildingBoost',
+    boostsBuilding: 'elm-lab',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'elm-lab', count: 10 },
+    effect: 0.05,
+    flavor: 'Cada filial manda um pouco de doce pra matriz.',
+  },
+  {
+    id: 'elm-patent',
+    name: 'Patente Exclusiva',
+    kind: 'buildingBoost',
+    boostsBuilding: 'elm-lab',
+    baseCost: 43_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'elm-lab', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém mais tem permissão de copiar essa fórmula.',
+  },
+  {
+    id: 'mahogany-turbine',
+    name: 'Turbina Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'mahogany-power-plant',
+    baseCost: 44_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'mahogany-power-plant', count: 10 },
+    effect: 0.05,
+    flavor: 'Mais watts, mais doce — a conta simplesmente fecha.',
+  },
+  {
+    id: 'mahogany-overload',
+    name: 'Sobrecarga Controlada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'mahogany-power-plant',
+    baseCost: 468_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'mahogany-power-plant', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
   // --- Padrão 4 (multiplicador global por marco) — mesmo formato de

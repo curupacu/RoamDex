@@ -2,9 +2,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 
 // Provisional — same shape and cost curve as content/gen1/upgrades.ts /
 // content/gen2/upgrades.ts / content/gen3/upgrades.ts (docs/decisoes/
-// 0001-*.md), renamed for Sinnoh flavor. Same 9 base buildings + the two
-// "cadeia de tier" chains (decisão 0026) + Padrão 3/4 (decisão 0035) — no
-// new upgrade shape invented here.
+// 0001-*.md), renamed for Sinnoh flavor. Same 9 base buildings (plus 2
+// more CPS buildings added later) + the two "cadeia de tier" chains
+// (decisão 0026) + Padrão 3/4 (decisão 0035) + Padrão 5 (upgrade por
+// prédio, decisão 0048) — no new upgrade shape invented here.
 export const UPGRADES: UpgradeDefinition[] = [
   { id: 'poketch-fingers', name: 'Dedos do Poketch', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'App novo a cada semana, dedo sempre no mesmo ritmo.' },
   { id: 'explorer-kit-glove', name: 'Luva do Kit de Exploração', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Cheira a caverna e a Monte Coronet.' },
@@ -14,6 +15,8 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'solaceon-collection-post', name: 'Posto de Coleta de Solaceon', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'As ruínas guardam mais doce que segredo antigo.' },
   { id: 'berry-conveyor-sinnoh', name: 'Esteira de Bagas Sinnoh', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Baga entra congelada, doce sai quentinho.' },
   { id: 'canalave-library-factory', name: 'Fábrica da Biblioteca de Canalave', kind: 'cps', baseCost: 22_000, effect: 140, unlockAt: 15_000, flavor: 'Todo livro tem uma receita de doce escondida no rodapé.' },
+  { id: 'rowan-lab', name: 'Laboratório do Professor Rowan', kind: 'cps', baseCost: 240_000, effect: 560, unlockAt: 165_000, flavor: 'Tecnologia de ponta, só que pra fazer doce.' },
+  { id: 'valley-windworks-plant', name: 'Usina Eólica do Vale', kind: 'cps', baseCost: 2_600_000, effect: 2_240, unlockAt: 1_800_000, flavor: 'O vento nunca para, nem de noite.' },
   { id: 'trainers-school-training', name: 'Treinamento da Escola de Treinadores', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'A prova é fácil, o resultado não é.' },
 
   // --- Cadeia "Treinador Lendário" (clique) — mesmo formato/números de
@@ -61,6 +64,155 @@ export const UPGRADES: UpgradeDefinition[] = [
     requiresSynergy: { upgradeId: 'berry-conveyor-sinnoh', count: 15, teamType: 'grass' },
     effect: 60, // +60 CPS, permanente
     flavor: 'As Esteiras de Baga de Sinnoh rendem mais com um Pokémon de Grama vigiando a estufa.',
+  },
+
+  // --- Padrão 5 (cadeia de upgrade POR PRÉDIO, decisão 0048) — mesmo
+  // formato de content/gen1/upgrades.ts, sabor de Sinnoh. Cada um dos 6
+  // prédios de CPS ilimitados ganha 2 tiers, desbloqueados por quantidade
+  // possuída daquele prédio (unlockAt fica em 0). ---
+  {
+    id: 'underground-pickaxe',
+    name: 'Picareta Nova',
+    kind: 'buildingBoost',
+    boostsBuilding: 'underground-volunteer',
+    baseCost: 500,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'underground-volunteer', count: 10 },
+    effect: 0.05,
+    flavor: 'Cava mais fundo, acha mais doce.',
+  },
+  {
+    id: 'underground-badge',
+    name: 'Crachá de Confiança',
+    kind: 'buildingBoost',
+    boostsBuilding: 'underground-volunteer',
+    baseCost: 5_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'underground-volunteer', count: 25 },
+    effect: 0.08,
+    flavor: 'Agora ele acha que manda no lugar.',
+  },
+  {
+    id: 'solaceon-basket',
+    name: 'Cesta Reforçada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'solaceon-collection-post',
+    baseCost: 3_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'solaceon-collection-post', count: 10 },
+    effect: 0.05,
+    flavor: 'Vime trançado à mão, cabe mais doce.',
+  },
+  {
+    id: 'solaceon-route',
+    name: 'Rota Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'solaceon-collection-post',
+    baseCost: 30_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'solaceon-collection-post', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa por mais esquinas, junta mais doce.',
+  },
+  {
+    id: 'berry-conveyor-sinnoh-oil',
+    name: 'Correia Lubrificada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'berry-conveyor-sinnoh',
+    baseCost: 35_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'berry-conveyor-sinnoh', count: 10 },
+    effect: 0.05,
+    flavor: 'Sem ranger, sem travar, só doce.',
+  },
+  {
+    id: 'berry-conveyor-sinnoh-turbo',
+    name: 'Motor Turbo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'berry-conveyor-sinnoh',
+    baseCost: 350_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'berry-conveyor-sinnoh', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém sabe de onde vem essa velocidade toda.',
+  },
+  {
+    id: 'canalave-shift',
+    name: 'Turno Duplo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'canalave-library-factory',
+    baseCost: 400_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'canalave-library-factory', count: 10 },
+    effect: 0.05,
+    flavor: 'A chaminé não descansa, e ninguém reclama.',
+  },
+  {
+    id: 'canalave-automation',
+    name: 'Automação da Linha',
+    kind: 'buildingBoost',
+    boostsBuilding: 'canalave-library-factory',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'canalave-library-factory', count: 25 },
+    effect: 0.08,
+    flavor: 'A esteira roda sozinha; o vidro é só decoração.',
+  },
+  {
+    id: 'rowan-network',
+    name: 'Rede Rowan',
+    kind: 'buildingBoost',
+    boostsBuilding: 'rowan-lab',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'rowan-lab', count: 10 },
+    effect: 0.05,
+    flavor: 'Cada filial manda um pouco de doce pra matriz.',
+  },
+  {
+    id: 'rowan-patent',
+    name: 'Patente Exclusiva',
+    kind: 'buildingBoost',
+    boostsBuilding: 'rowan-lab',
+    baseCost: 43_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'rowan-lab', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém mais tem permissão de copiar essa fórmula.',
+  },
+  {
+    id: 'windworks-turbine',
+    name: 'Turbina Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'valley-windworks-plant',
+    baseCost: 44_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'valley-windworks-plant', count: 10 },
+    effect: 0.05,
+    flavor: 'Mais vento, mais doce — a conta simplesmente fecha.',
+  },
+  {
+    id: 'windworks-overload',
+    name: 'Sobrecarga Controlada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'valley-windworks-plant',
+    baseCost: 468_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'valley-windworks-plant', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
   // --- Padrão 4 (multiplicador global por marco) — mesmo formato,

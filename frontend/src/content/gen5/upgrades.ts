@@ -2,10 +2,10 @@ import type { UpgradeDefinition } from '../gen1/upgrades'
 
 // Provisional — mesmo shape e curva de custo de content/gen1/upgrades.ts /
 // gen2/gen3/gen4/gen6 (docs/decisoes/0001-*.md), renomeado pro sabor de
-// Unova. Mesmos 9 prédios base + as duas cadeias de "tier" (decisão 0026)
-// + Padrão 3/4 (decisão 0035) — nenhuma forma nova de upgrade inventada
-// aqui. Padrão 5 (upgrade por prédio, decisão 0048) fica pra uma leva
-// futura, igual as outras regiões ainda não têm.
+// Unova. Mesmos 11 prédios base (os 4 originais + 2 novos) + as duas
+// cadeias de "tier" (decisão 0026) + Padrão 3/4 (decisão 0035) + Padrão 5
+// (upgrade por prédio, decisão 0048) — nenhuma forma nova de upgrade
+// inventada aqui.
 export const UPGRADES: UpgradeDefinition[] = [
   { id: 'xtransceiver-taps', name: 'Toques no Xtransceiver', kind: 'click', maxPurchases: 1, baseCost: 10, effect: 1, unlockAt: 0, flavor: 'Vídeo-chamada de qualquer rota de Unova.' },
   { id: 'roller-skate-glove', name: 'Luva de Patins', kind: 'click', maxPurchases: 1, baseCost: 100, effect: 5, unlockAt: 50, flavor: 'Desliza rápido, croca mais rápido ainda.' },
@@ -15,6 +15,8 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'battle-subway-post', name: 'Posto do Battle Subway', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'A fila anda devagar, o doce rende rápido.' },
   { id: 'unova-conveyor', name: 'Esteira de Doces Unova', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Doce entra congelado, sai quentinho igual em Nimbasa.' },
   { id: 'castelia-cone-factory', name: 'Fábrica do Cone de Castelia', kind: 'cps', baseCost: 22_000, effect: 140, unlockAt: 15_000, flavor: 'A fila do food truck dá volta no quarteirão inteiro.' },
+  { id: 'juniper-lab', name: 'Laboratório da Professora Juniper', kind: 'cps', baseCost: 240_000, effect: 560, unlockAt: 165_000, flavor: 'Tecnologia de ponta, só que pra fazer doce.' },
+  { id: 'chargestone-power-plant', name: 'Usina da Chargestone Cave', kind: 'cps', baseCost: 2_600_000, effect: 2_240, unlockAt: 1_800_000, flavor: 'O zumbido nunca para, nem de noite.' },
   { id: 'trainers-school-training', name: 'Treinamento da Escola de Treinadores', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'A prova é fácil, o resultado não é.' },
 
   // --- Cadeia "Treinador Lendário" (clique) — mesmo formato/números de
@@ -61,6 +63,155 @@ export const UPGRADES: UpgradeDefinition[] = [
     requiresSynergy: { upgradeId: 'unova-conveyor', count: 15, teamType: 'grass' },
     effect: 60, // +60 CPS, permanente
     flavor: 'A Esteira de Unova rende mais com um Pokémon de Grama cuidando da fila.',
+  },
+
+  // --- Padrão 5 (cadeia de upgrade POR PRÉDIO, decisão 0048) — mesmo
+  // formato de content/gen1/upgrades.ts, sabor de Unova. Cada um dos 6
+  // prédios de CPS ilimitados ganha 2 tiers, desbloqueados por quantidade
+  // possuída daquele prédio (unlockAt fica em 0). ---
+  {
+    id: 'nurse-coat',
+    name: 'Jaleco Novo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'nurse-assistant-volunteer',
+    baseCost: 500,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'nurse-assistant-volunteer', count: 10 },
+    effect: 0.05,
+    flavor: 'Passa confiança até no Pokémon mais nervoso.',
+  },
+  {
+    id: 'nurse-badge',
+    name: 'Crachá de Confiança',
+    kind: 'buildingBoost',
+    boostsBuilding: 'nurse-assistant-volunteer',
+    baseCost: 5_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'nurse-assistant-volunteer', count: 25 },
+    effect: 0.08,
+    flavor: 'Agora ele acha que manda no lugar.',
+  },
+  {
+    id: 'battle-subway-basket',
+    name: 'Cesta Reforçada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'battle-subway-post',
+    baseCost: 3_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'battle-subway-post', count: 10 },
+    effect: 0.05,
+    flavor: 'Vime trançado à mão, cabe mais doce.',
+  },
+  {
+    id: 'battle-subway-route',
+    name: 'Rota Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'battle-subway-post',
+    baseCost: 30_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'battle-subway-post', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa por mais esquinas, junta mais doce.',
+  },
+  {
+    id: 'unova-conveyor-oil',
+    name: 'Correia Lubrificada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'unova-conveyor',
+    baseCost: 35_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'unova-conveyor', count: 10 },
+    effect: 0.05,
+    flavor: 'Sem ranger, sem travar, só doce.',
+  },
+  {
+    id: 'unova-conveyor-turbo',
+    name: 'Motor Turbo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'unova-conveyor',
+    baseCost: 350_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'unova-conveyor', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém sabe de onde vem essa velocidade toda.',
+  },
+  {
+    id: 'castelia-shift',
+    name: 'Turno Duplo',
+    kind: 'buildingBoost',
+    boostsBuilding: 'castelia-cone-factory',
+    baseCost: 400_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'castelia-cone-factory', count: 10 },
+    effect: 0.05,
+    flavor: 'A chaminé não descansa, e ninguém reclama.',
+  },
+  {
+    id: 'castelia-automation',
+    name: 'Automação da Linha',
+    kind: 'buildingBoost',
+    boostsBuilding: 'castelia-cone-factory',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'castelia-cone-factory', count: 25 },
+    effect: 0.08,
+    flavor: 'A esteira roda sozinha; o vidro é só decoração.',
+  },
+  {
+    id: 'juniper-network',
+    name: 'Rede Juniper',
+    kind: 'buildingBoost',
+    boostsBuilding: 'juniper-lab',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'juniper-lab', count: 10 },
+    effect: 0.05,
+    flavor: 'Cada filial manda um pouco de doce pra matriz.',
+  },
+  {
+    id: 'juniper-patent',
+    name: 'Patente Exclusiva',
+    kind: 'buildingBoost',
+    boostsBuilding: 'juniper-lab',
+    baseCost: 43_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'juniper-lab', count: 25 },
+    effect: 0.08,
+    flavor: 'Ninguém mais tem permissão de copiar essa fórmula.',
+  },
+  {
+    id: 'chargestone-turbine',
+    name: 'Turbina Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'chargestone-power-plant',
+    baseCost: 44_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'chargestone-power-plant', count: 10 },
+    effect: 0.05,
+    flavor: 'Mais watts, mais doce — a conta simplesmente fecha.',
+  },
+  {
+    id: 'chargestone-overload',
+    name: 'Sobrecarga Controlada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'chargestone-power-plant',
+    baseCost: 468_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'chargestone-power-plant', count: 25 },
+    effect: 0.08,
+    flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
   // --- Padrão 4 (multiplicador global por marco) — mesmo formato,
