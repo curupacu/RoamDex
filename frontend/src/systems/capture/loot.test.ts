@@ -8,8 +8,9 @@ const kanto = REGIONS.kanto
 
 describe('rollLoot', () => {
   it('rolls candies scaled by enemy level when the upgrade roll misses', () => {
+    const save = makeRegionSave()
     vi.spyOn(Math, 'random').mockReturnValue(0.99)
-    const result = rollLoot(kanto, makeRegionSave(), 10)
+    const result = rollLoot(kanto, save, 10)
     vi.restoreAllMocks()
 
     expect(result).toEqual({ kind: 'candies', amount: 20 + 10 * 5 })
@@ -17,8 +18,9 @@ describe('rollLoot', () => {
 
   it('rolls an unlocked upgrade when the upgrade roll hits', () => {
     const unlockedDef = UPGRADES.find((def) => def.unlockAt === 0)!
+    const save = makeRegionSave()
     vi.spyOn(Math, 'random').mockReturnValueOnce(0).mockReturnValueOnce(0)
-    const result = rollLoot(kanto, makeRegionSave(), 10)
+    const result = rollLoot(kanto, save, 10)
     vi.restoreAllMocks()
 
     expect(result.kind).toBe('upgrade')
@@ -35,8 +37,9 @@ describe('rollLoot', () => {
   })
 
   it('rolls a pokeball when the upgrade roll misses but the pokeball roll hits', () => {
+    const save = makeRegionSave()
     vi.spyOn(Math, 'random').mockReturnValueOnce(0.99).mockReturnValueOnce(0)
-    const result = rollLoot(kanto, makeRegionSave(), 5)
+    const result = rollLoot(kanto, save, 5)
     vi.restoreAllMocks()
 
     expect(result.kind).toBe('pokeball')

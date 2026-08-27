@@ -30,6 +30,16 @@ export interface GymDefinition {
   // muda. Opcional: nenhuma outra região precisa disso.
   teamByStarter?: Record<number, GymTeamMember[]>
   leaderNameByStarter?: Record<number, string>
+  // Galar tem 2 pares de ginásio version-exclusive (Bea/Allister,
+  // Gordie/Melony) — diferente do trio de Unova, aqui não depende do
+  // inicial: o jogo real só mostra UM lado (Sword ou Shield) por cópia do
+  // jogo. Decisão do dono do projeto: sorteado uma vez na criação do save
+  // (engine/save.ts's emptyRegionSave) e fica fixo dali pra frente
+  // (RegionSave.versionVariant). systems/gyms/gymProgress.ts's resolveGym
+  // troca team/leaderName pelo lado sorteado; `id`/`badgeName`/
+  // `locationId` continuam fixos, mesmo espírito de teamByStarter.
+  teamByVersion?: { a: GymTeamMember[]; b: GymTeamMember[] }
+  leaderNameByVersion?: { a: string; b: string }
 }
 
 // Sources: https://bulbapedia.bulbagarden.net/wiki/Brock and the equivalent

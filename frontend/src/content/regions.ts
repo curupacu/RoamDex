@@ -48,11 +48,20 @@ import {
 } from './gen5/eliteFour'
 import { UPGRADES as UNOVA_UPGRADES } from './gen5/upgrades'
 import { STARTER_IDS as UNOVA_STARTER_IDS, STARTER_LEVEL as UNOVA_STARTER_LEVEL } from './gen5/starters'
+import { GYMS as GALAR_GYMS } from './gen8/gyms'
+import { GALAR_LOCATIONS } from './gen8/locations'
+import {
+  CHAMPION_DEFAULT_STARTER_ID as GALAR_CHAMPION_DEFAULT_STARTER_ID,
+  CHAMPION_TEAM_BY_STARTER as GALAR_CHAMPION_TEAM_BY_STARTER,
+  ELITE_FOUR as GALAR_ELITE_FOUR,
+} from './gen8/eliteFour'
+import { UPGRADES as GALAR_UPGRADES } from './gen8/upgrades'
+import { STARTER_IDS as GALAR_STARTER_IDS, STARTER_LEVEL as GALAR_STARTER_LEVEL } from './gen8/starters'
 import type { RegionId } from '../engine/save'
 
 // Order the regions unlock in — index N+1 unlocks the moment index N's
 // Champion falls (systems/rebirth/rebirth.ts's unlockNextRegion).
-export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'unova']
+export const REGION_ORDER: RegionId[] = ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'unova', 'galar']
 
 // Display-only placeholders for the region-select screen (referência
 // Pokelike: cards bloqueados "mais regiões a caminho") — not real RegionIds,
@@ -62,11 +71,11 @@ export interface UpcomingRegion {
   name: string
 }
 
-// Vazio por enquanto — Alola/Galar/Paldea têm rupturas estruturais maiores
+// Vazio por enquanto — Alola/Paldea ainda têm rupturas estruturais maiores
 // (docs/PESQUISA-GEN3-9-ESQUELETO.md: sem ginásio tradicional/sem Elite
-// Four fixa), nenhuma é "drop-in" como Unova foi (a única pendência dela,
-// o trio de Striaton, já tinha solução real no próprio jogo — ver
-// content/gen5/gyms.ts).
+// Four fixa) que precisam de pesquisa antes de virar conteúdo. Galar (2
+// ginásios version-exclusive) já entrou — ver content/gen8/gyms.ts's
+// teamByVersion + RegionSave.versionVariant.
 export const UPCOMING_REGIONS: UpcomingRegion[] = []
 
 // Everything a system/screen needs to run a region, bundled — replaces the
@@ -168,5 +177,18 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
     upgrades: UNOVA_UPGRADES,
     starterIds: UNOVA_STARTER_IDS,
     starterLevel: UNOVA_STARTER_LEVEL,
+  },
+  galar: {
+    id: 'galar',
+    name: 'Galar',
+    dataUrl: '/data/gen8.json',
+    locations: GALAR_LOCATIONS,
+    gyms: GALAR_GYMS,
+    eliteFour: GALAR_ELITE_FOUR,
+    championTeamByStarter: GALAR_CHAMPION_TEAM_BY_STARTER,
+    defaultStarterId: GALAR_CHAMPION_DEFAULT_STARTER_ID,
+    upgrades: GALAR_UPGRADES,
+    starterIds: GALAR_STARTER_IDS,
+    starterLevel: GALAR_STARTER_LEVEL,
   },
 }

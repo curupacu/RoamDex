@@ -61,6 +61,7 @@ describe('save', () => {
           championBeaten: false,
           upgradeEarnings: {},
           pokeballs: {},
+          versionVariant: expect.stringMatching(/^[ab]$/),
         },
       },
       regionsUnlocked: ['kanto'],

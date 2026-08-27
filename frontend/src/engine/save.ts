@@ -1,5 +1,5 @@
 export const SAVE_KEY = 'pokeidle-save'
-export const CURRENT_SAVE_VERSION = 13
+export const CURRENT_SAVE_VERSION = 14
 
 export interface SaveDataV1 {
   version: 1
@@ -155,7 +155,7 @@ export interface SaveDataV9 {
 // only content/regions.ts knows what a RegionId actually contains — engine/
 // stays content-agnostic, same rule that already kept 'pallet-town' a plain
 // string literal instead of an import.
-export type RegionId = 'kanto' | 'johto' | 'hoenn' | 'sinnoh' | 'kalos' | 'unova'
+export type RegionId = 'kanto' | 'johto' | 'hoenn' | 'sinnoh' | 'kalos' | 'unova' | 'galar'
 
 // Everything that resets on THAT region's rebirth. One run's worth of
 // progress — a player with two unlocked regions has two of these, entirely
@@ -181,6 +181,13 @@ export interface RegionSave {
   // Compradas na Loja de Doces ou achadas no loot pós-vitória (Sprint do
   // sistema de Pokébolas). Reseta no rebirth, mesma lógica de `upgrades`.
   pokeballs: Record<string, number>
+  // Sorteado uma vez quando o save-slot da região é criado (emptyRegionSave)
+  // e nunca muda depois — nem no rebirth (é identidade do "cartucho", não
+  // progresso de run). Só Galar usa isso por enquanto (2 pares de ginásio
+  // version-exclusive, Bea/Allister e Gordie/Melony — ver content/gen1/
+  // gyms.ts's GymDefinition.teamByVersion e systems/gyms/gymProgress.ts's
+  // resolveGym); toda outra região ignora o campo.
+  versionVariant: 'a' | 'b'
 }
 
 export interface SaveDataV10 {
@@ -216,7 +223,11 @@ export interface SaveDataV13 extends Omit<SaveDataV12, 'version'> {
   version: 13
 }
 
-export type SaveData = SaveDataV13
+export interface SaveDataV14 extends Omit<SaveDataV13, 'version'> {
+  version: 14
+}
+
+export type SaveData = SaveDataV14
 
 // Unversioned data predates the save-version field. Treated as version 0
 // so it still migrates instead of wiping the player's progress.
@@ -312,6 +323,9 @@ const migrations: Record<number, Migration> = {
       championBeaten: v9.championBeaten,
       upgradeEarnings: {},
       pokeballs: {},
+      // Placeholder só pra satisfazer o tipo — o step 13 (v13->v14) sorteia
+      // de verdade pra toda região na cadeia de migração real.
+      versionVariant: 'a',
     }
     return {
       version: 10,
@@ -353,6 +367,20 @@ const migrations: Record<number, Migration> = {
     ) as Partial<Record<RegionId, RegionSave>>
     return { ...v12, version: 13, regions }
   },
+  // Galar's 2 version-exclusive gym pairs (Bea/Allister, Gordie/Melony) —
+  // an existing save never chose one, so sorteia agora (see RegionSave's
+  // versionVariant comment for why it's per-region-slot and rebirth-safe,
+  // not re-rolled anywhere else after this).
+  13: (old): SaveDataV14 => {
+    const v13 = old as SaveDataV13
+    const regions = Object.fromEntries(
+      Object.entries(v13.regions).map(([id, region]) => [
+        id,
+        { ...region, versionVariant: Math.random() < 0.5 ? 'a' : 'b' },
+      ]),
+    ) as Partial<Record<RegionId, RegionSave>>
+    return { ...v13, version: 14, regions }
+  },
 }
 
 function detectVersion(raw: unknown): number {
@@ -380,6 +408,9 @@ export function emptyRegionSave(regionId: RegionId, startLocationId: string): Re
     championBeaten: false,
     upgradeEarnings: {},
     pokeballs: {},
+    // Sorteado uma única vez aqui, na criação do save-slot — ver RegionSave's
+    // versionVariant comment.
+    versionVariant: Math.random() < 0.5 ? 'a' : 'b',
   }
 }
 

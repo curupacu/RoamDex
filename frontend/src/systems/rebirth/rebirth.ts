@@ -98,6 +98,9 @@ export function performRebirth(region: RegionDefinition, save: SaveData, gen1: S
     championBeaten: false,
     upgradeEarnings: {},
     pokeballs: {},
+    // Identidade do "cartucho" (Galar's Bea/Allister, Gordie/Melony) —
+    // sobrevive ao rebirth, não é reprogress, ver RegionSave's comentário.
+    versionVariant: before.versionVariant,
   }
 
   return withRegion({ ...save, insignias: save.insignias + insigniasEarned(before), hasRebirthed: true }, resetRegion)
