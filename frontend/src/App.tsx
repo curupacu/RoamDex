@@ -31,7 +31,7 @@ import { buyRareCandy, buyXpBoost, xpMultiplierFromBuffs } from './systems/econo
 import { frenzyMultiplier, isFrenzyActive, triggerFrenzy } from './systems/economy/goldenEncounter'
 import { GOLDEN_VISIBLE_MS, rollGoldenIntervalMs } from './content/goldenEncounter'
 import { bonusBreakdown, economyMultiplier, upgradeCostMultiplier, type TeamMember } from './systems/economy/typeBonuses'
-import { buyUpgrade, contributionsByKind, globalMultiplierBonus, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
+import { buyUpgrade, contributionsByKind, globalMultiplierBonus, ownedCount, totalCps, totalXpPerSecond } from './systems/economy/upgrades'
 import { recordManyUpgradeEarnings } from './systems/economy/upgradeEarnings'
 import { battleXpForVictory } from './content/battle'
 import { detectEvolutions, gainMemberXp, gainTeamXp, xpForNextLevel } from './systems/team/leveling'
@@ -58,6 +58,7 @@ import { SaveBackupScreen } from './ui/screens/SaveBackupScreen'
 import { BattleScreen, type BattleEncounter } from './ui/screens/BattleScreen'
 import { CandyShopScreen } from './ui/screens/CandyShopScreen'
 import { LocationNav } from './ui/components/LocationNav'
+import { HelperRing } from './ui/components/HelperRing'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { LoginScreen } from './ui/screens/LoginScreen'
 import { TypeBadge } from './ui/components/TypeBadge'
@@ -934,6 +935,7 @@ function App() {
                 </p>
               )}
               <button className="click-area" onClick={handleClick} disabled={!clickerEntry}>
+                <HelperRing count={ownedCount(regionSave, 'volunteer-helper')} />
                 {clickerEntry && <img className="click-ball" src={`/items/${equippedBallId}.png`} alt={equippedBallId} />}
                 {candyPops.map((pop) => (
                   <span key={pop.id} className="candy-pop" style={{ '--pop-x': `${pop.x}px` } as CSSProperties}>
