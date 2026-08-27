@@ -17,8 +17,8 @@ interface HelperRingProps {
 // externo (mesma ideia do Cookie Clicker quando os cursores lotam o
 // primeiro anel); MAX_ICONS limita quantos <img> renderizar de verdade —
 // só decorativo, não precisa desenhar todos os 100+ possuídos.
-const RING_CAPACITY = 12
-const MAX_ICONS = 60
+const RING_CAPACITY = 8
+const MAX_ICONS = 56
 
 export function HelperRing({ count }: HelperRingProps) {
   if (count <= 0) return null

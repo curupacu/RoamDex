@@ -929,7 +929,7 @@ function App() {
               </div>
               {isFrenzyActive(regionSave, Date.now()) && <p className="frenzy-banner">🔥 Frenzia! Clique e doces/s x7</p>}
               {clickerEntry && clickerMember && (
-                <p>
+                <p className="clicker-active-name">
                   {clickerEntry.name} Nv.{clickerMember.level} ({Math.floor(clickerMember.xp)}/
                   {xpForNextLevel(clickerMember.level)} XP)
                 </p>

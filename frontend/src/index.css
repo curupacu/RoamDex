@@ -1372,7 +1372,11 @@ button:disabled {
    elemento juntos ao redor do mesmo ponto — "baixo" (a barriga do sprite
    parado) sempre acaba apontando pro centro, não importa o ângulo, sem
    precisar de nenhum flip extra. --layer empurra o raio pra fora a cada
-   anel cheio (RING_CAPACITY no componente). */
+   anel cheio (RING_CAPACITY no componente) — o incremento (34px) precisa
+   ser maior que o próprio ícone (26px no máximo) pra os anéis não se
+   misturarem visualmente uns nos outros (feedback: "o jeito que eles
+   estão espalhados tá ruim" — anterior tinha só 22px de incremento com
+   12 por anel, ficava apertado e confuso). */
 .helper-ring {
   position: absolute;
   inset: 0;
@@ -1384,11 +1388,11 @@ button:disabled {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(16px, 6vw, 26px);
-  height: clamp(16px, 6vw, 26px);
-  margin: calc(clamp(16px, 6vw, 26px) / -2) 0 0 calc(clamp(16px, 6vw, 26px) / -2);
+  width: clamp(14px, 5vw, 22px);
+  height: clamp(14px, 5vw, 22px);
+  margin: calc(clamp(14px, 5vw, 22px) / -2) 0 0 calc(clamp(14px, 5vw, 22px) / -2);
   image-rendering: pixelated;
-  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(46px, 15vw, 96px) + var(--layer) * 22px)));
+  transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px)));
   animation: helper-belly-flop 2.6s ease-in-out infinite;
   animation-delay: var(--delay);
 }
@@ -1397,11 +1401,24 @@ button:disabled {
   0%,
   78%,
   100% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(46px, 15vw, 96px) + var(--layer) * 22px))) scale(1);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px))) scale(1);
   }
   88% {
-    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(46px, 15vw, 96px) + var(--layer) * 22px - 10px))) scale(1.2);
+    transform: rotate(var(--angle)) translateY(calc(-1 * (clamp(50px, 16vw, 100px) + var(--layer) * 34px - 10px))) scale(1.2);
   }
+}
+
+/* Feedback: o anel (dentro de .click-area, que pinta DEPOIS destes
+   elementos no fluxo normal de .click-stage) tava aparecendo por cima do
+   texto do Pokémon ativo. z-index só resolve entre irmãos quando os dois
+   participam de uma ordem explícita — position:relative + z-index tira
+   esses três elementos do "auto" e garante que ficam sempre acima do
+   anel, sem precisar mexer no empilhamento do próprio .click-area. */
+.candy-counter,
+.frenzy-banner,
+.clicker-active-name {
+  position: relative;
+  z-index: 2;
 }
 
 .click-area:not(:disabled):active .click-ball {
