@@ -91,6 +91,8 @@ export const UPGRADES: UpgradeDefinition[] = [
   { id: 'collection-post', name: 'Posto de Coleta', kind: 'cps', baseCost: 180, effect: 3, unlockAt: 100, flavor: 'Uma cesta que nunca fica vazia por muito tempo.' },
   { id: 'candy-conveyor', name: 'Esteira de Doces', kind: 'cps', baseCost: 2_000, effect: 24, unlockAt: 1_500, flavor: 'Doce entra, doce sai, ninguém pergunta como.' },
   { id: 'candy-factory', name: 'Fábrica de Doces', kind: 'cps', baseCost: 22_000, effect: 140, unlockAt: 15_000, flavor: 'A fumacinha da chaminé é 90% açúcar.' },
+  { id: 'silph-lab', name: 'Laboratório Silph', kind: 'cps', baseCost: 240_000, effect: 560, unlockAt: 165_000, flavor: 'Tecnologia de ponta, só que pra fazer doce.' },
+  { id: 'power-plant', name: 'Usina Elétrica', kind: 'cps', baseCost: 2_600_000, effect: 2_240, unlockAt: 1_800_000, flavor: 'O zumbido nunca para, nem de noite.' },
   // Idle XP complement (roadmap section 7) — "pra ninguém travar por odiar
   // batalhar", since the battle system itself isn't built until Sprint 13+.
   { id: 'training-regimen', name: 'Treinamento', kind: 'xp', baseCost: 250, effect: 0.5, unlockAt: 200, flavor: 'Não rende doce. Rende resultado.' },
@@ -154,8 +156,9 @@ export const UPGRADES: UpgradeDefinition[] = [
   // --- Padrão 5 (cadeia de upgrade POR PRÉDIO, pedido do dono do
   // projeto — referência: Cookie Clicker de verdade, onde cada prédio
   // tem sua própria fileira de upgrades, tipo "Faísca +1%" -> "Raio +2%").
-  // Cada um dos 4 prédios de CPS ilimitados (Ajudante Voluntário, Posto de
-  // Coleta, Esteira de Doces, Fábrica de Doces) ganha 2 tiers, cada um
+  // Cada um dos 6 prédios de CPS ilimitados (Ajudante Voluntário, Posto de
+  // Coleta, Esteira de Doces, Fábrica de Doces, Laboratório Silph, Usina
+  // Elétrica) ganha 2 tiers, cada um
   // amplificando só a PRODUÇÃO DAQUELE PRÉDIO (buildingBoostMultiplier),
   // desbloqueados por QUANTIDADE POSSUÍDA daquele prédio (não por doces
   // acumuladas — unlockAt fica em 0, o gate real é requiresBuildingOwned).
@@ -257,6 +260,54 @@ export const UPGRADES: UpgradeDefinition[] = [
     requiresBuildingOwned: { buildingId: 'candy-factory', count: 25 },
     effect: 0.08, // +8% na produção da Fábrica de Doces
     flavor: 'A esteira roda sozinha; o vidro é só decoração.',
+  },
+  {
+    id: 'silph-network',
+    name: 'Rede Silph',
+    kind: 'buildingBoost',
+    boostsBuilding: 'silph-lab',
+    baseCost: 4_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'silph-lab', count: 10 },
+    effect: 0.05, // +5% na produção do Laboratório Silph
+    flavor: 'Cada filial manda um pouco de doce pra matriz.',
+  },
+  {
+    id: 'silph-patent',
+    name: 'Patente Exclusiva',
+    kind: 'buildingBoost',
+    boostsBuilding: 'silph-lab',
+    baseCost: 43_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'silph-lab', count: 25 },
+    effect: 0.08, // +8% na produção do Laboratório Silph
+    flavor: 'Ninguém mais tem permissão de copiar essa fórmula.',
+  },
+  {
+    id: 'plant-turbine',
+    name: 'Turbina Extra',
+    kind: 'buildingBoost',
+    boostsBuilding: 'power-plant',
+    baseCost: 44_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'power-plant', count: 10 },
+    effect: 0.05, // +5% na produção da Usina Elétrica
+    flavor: 'Mais watts, mais doce — a conta simplesmente fecha.',
+  },
+  {
+    id: 'plant-overclock',
+    name: 'Sobrecarga Controlada',
+    kind: 'buildingBoost',
+    boostsBuilding: 'power-plant',
+    baseCost: 468_000_000,
+    unlockAt: 0,
+    maxPurchases: 1,
+    requiresBuildingOwned: { buildingId: 'power-plant', count: 25 },
+    effect: 0.08, // +8% na produção da Usina Elétrica
+    flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
   // --- Padrão 4 (multiplicador global por marco) — desbloqueado por
