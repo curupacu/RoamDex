@@ -1403,10 +1403,12 @@ button:disabled {
   top: 50%;
   left: 50%;
   image-rendering: pixelated;
-  animation: helper-belly-flop 2.6s ease-in-out infinite;
+  animation: helper-belly-flop 3.2s ease-in-out infinite;
   animation-delay: var(--delay);
 }
 
+/* Feedback: a "barrigada" original (scale até 1.25) tava exagerada — bem
+   mais sutil agora (1.08), praticamente um respirar. */
 @keyframes helper-belly-flop {
   0%,
   78%,
@@ -1414,7 +1416,7 @@ button:disabled {
     scale: 1;
   }
   88% {
-    scale: 1.25;
+    scale: 1.08;
   }
 }
 

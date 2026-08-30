@@ -122,13 +122,8 @@ function UpgradeRow({
         earnedLabel={earnedLabel}
       >
         <button className={`upgrade-row upgrade-row--${def.kind}`} onClick={() => onBuy(def.id)} disabled={soldOut || !affordable}>
-          {/* Feedback: com o anel de Magikarp (ui/components/HelperRing.tsx)
-              já circulando a bola pra cada cópia de "Ajudante Voluntário",
-              o ícone quadrado deste aqui na lista virou redundante — some
-              só o <img>, mantendo o resto da linha (nome/custo/pop) igual
-              às outras. */}
           <span className="upgrade-icon">
-            {def.id !== 'volunteer-helper' && <UpgradeIcon id={def.id} alt="" />}
+            <UpgradeIcon id={def.id} alt="" />
             {pops.map((pop) => (
               <span key={pop.id} className="upgrade-pop">
                 +{formatBigNumber(amount)}
