@@ -213,6 +213,33 @@ export const UPGRADES: UpgradeDefinition[] = [
     flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
+  // --- Cadeia "Treinamento" (XP) — decisão 0053, mesmo formato de
+  // content/gen1/upgrades.ts. ---
+  { id: 'training-drills', name: 'Repetição Cronometrada', kind: 'xp', baseCost: 2_000, effect: 2, unlockAt: 8_000, maxPurchases: 1, flavor: 'Fazer de novo, de novo, e de novo — até virar reflexo.' },
+  { id: 'training-simulator', name: 'Simulador de Combate', kind: 'xp', baseCost: 10_000, effect: 6, unlockAt: 40_000, maxPurchases: 1, flavor: 'Nenhum Pokémon se machuca, mas todos aprendem igual.' },
+  {
+    id: 'training-academy',
+    name: 'Escola Itinerante',
+    kind: 'xp',
+    baseCost: 45_000,
+    unlockAt: 120_000,
+    maxPurchases: 1,
+    scalesWith: 'rosterSize',
+    effect: 1, // +1 XP/s por Pokémon capturado no roster
+    flavor: 'Cada Pokémon do time vira professor do próximo, por um tempinho.',
+  },
+  {
+    id: 'training-psychic-bond',
+    name: 'Vínculo Psíquico',
+    kind: 'xp',
+    baseCost: 60_000,
+    unlockAt: 120_000,
+    maxPurchases: 1,
+    requiresSynergy: { upgradeId: 'training-academy', count: 1, teamType: 'psychic' },
+    effect: 3, // +3 XP/s, permanente
+    flavor: 'Um Pokémon Psíquico no time sente o que os outros ainda não aprenderam.',
+  },
+
   // --- Padrão 4 (multiplicador global por marco) — mesmo formato,
   // gatilho pelos 11 certificados de Alola. ---
   {
