@@ -48,6 +48,11 @@ export function AdminScreen({
       <div className="pokemon-detail">
         <h3>Doces</h3>
         <button onClick={() => onAddCandies(100_000)}>+ 100.000 doces</button>
+        {/* Pra testar comportamento com MUITAS cópias de um upgrade (ex:
+            o anel de Magikarp do Ajudante Voluntário além do teto de
+            ícones renderizados) sem esperar o custo composto (1.15^owned)
+            comer horas de farm manual. */}
+        <button onClick={() => onAddCandies(1_000_000_000_000_000)}>+ 1 quatrilhão de doces (teste)</button>
       </div>
 
       <div className="pokemon-detail">
