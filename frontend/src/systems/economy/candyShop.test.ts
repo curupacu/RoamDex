@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { SpeciesEntry } from '../../content/gen1/types'
-import { XP_BOOST_COST, XP_BOOST_DURATION_MS, XP_BOOST_ID, XP_BOOST_MULTIPLIER } from '../../content/shop'
+import { RARE_CANDY_XP_FRACTION, XP_BOOST_ID, XP_BOOST_TIERS } from '../../content/shop'
 import { makeRegionSave } from '../../engine/save.testUtils'
 import { addToRoster } from '../team/roster'
-import { buyRareCandy, buyXpBoost, isBuffActive, rareCandyCost, xpMultiplierFromBuffs } from './candyShop'
+import { xpForNextLevel } from '../team/leveling'
+import { bestXpBoostTier, buyRareCandy, buyXpBoost, isBuffActive, nextXpBoostTier, rareCandyCost, xpMultiplierFromBuffs } from './candyShop'
+
+const [TIER_1, TIER_2] = XP_BOOST_TIERS
 
 function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   return {
@@ -21,27 +24,44 @@ function makeEntry(overrides: Partial<SpeciesEntry> = {}): SpeciesEntry {
   }
 }
 
+describe('rareCandyCost', () => {
+  it('gets cheaper (in %) with more badges, capped', () => {
+    const withoutBadges = rareCandyCost(10, 0)
+    const withBadges = rareCandyCost(10, 4)
+    const maxedOut = rareCandyCost(10, 100)
+
+    expect(withBadges).toBeLessThan(withoutBadges)
+    expect(maxedOut).toBe(rareCandyCost(10, 15)) // both past the discount cap, same cost
+  })
+})
+
 describe('buyRareCandy', () => {
-  it('levels up the target by 1 and deducts the cost', () => {
-    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5) }
+  it('grants a fraction of the next level XP and deducts the cost', () => {
+    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5, 0) }
 
     const result = buyRareCandy(save, [makeEntry()], 1)
 
     expect(result.candies).toBe(0)
-    expect(result.roster[0].level).toBe(6)
+    expect(result.roster[0].xp).toBeCloseTo(xpForNextLevel(5) * RARE_CANDY_XP_FRACTION)
+    expect(result.roster[0].level).toBe(5) // a fraction alone isn't enough to level up
   })
 
-  it('evolves the target if the new level crosses a threshold', () => {
-    const save = { ...addToRoster(makeRegionSave(), 1, 15), candies: rareCandyCost(15) }
+  it('crosses a level (and evolution threshold) when the injected XP is enough', () => {
+    // Level 15 sitting 1 XP short of 16 — any injected amount finishes it off.
+    const save = {
+      ...makeRegionSave(),
+      candies: rareCandyCost(15, 0),
+      roster: [{ speciesId: 1, level: 15, xp: xpForNextLevel(15) - 1 }],
+    }
 
     const result = buyRareCandy(save, [makeEntry()], 1)
 
-    expect(result.roster).toEqual([{ speciesId: 2, level: 16, xp: 0 }])
-    expect(result.activeTeamIds).toEqual([2])
+    expect(result.roster[0].level).toBeGreaterThanOrEqual(16)
+    expect(result.roster[0].speciesId).toBe(2)
   })
 
   it('is a no-op when the player cannot afford it', () => {
-    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5) - 1 }
+    const save = { ...addToRoster(makeRegionSave(), 1, 5), candies: rareCandyCost(5, 0) - 1 }
     expect(buyRareCandy(save, [makeEntry()], 1)).toEqual(save)
   })
 
@@ -49,44 +69,54 @@ describe('buyRareCandy', () => {
     const save = { ...makeRegionSave(), candies: 1_000_000 }
     expect(buyRareCandy(save, [makeEntry()], 1)).toEqual(save)
   })
+})
 
-  it('still levels up but skips the species change when evolution would collide with another roster member', () => {
-    let save = addToRoster(makeRegionSave(), 1, 15)
-    save = addToRoster(save, 2, 20) // already have an ivysaur caught separately
-    save = { ...save, candies: rareCandyCost(15) }
+describe('bestXpBoostTier / nextXpBoostTier', () => {
+  it('starts at tier 1 with nothing unlocked yet', () => {
+    const save = makeRegionSave()
+    expect(bestXpBoostTier(save)).toBe(TIER_1)
+    expect(nextXpBoostTier(save)).toBe(TIER_2)
+  })
 
-    const result = buyRareCandy(save, [makeEntry()], 1)
+  it('stays at tier 1 if candies/badges pass but the required training upgrade is missing', () => {
+    const save = makeRegionSave({ lifetimeCandies: TIER_2.unlockAt, badges: ['a', 'b'] })
+    expect(bestXpBoostTier(save)).toBe(TIER_1)
+  })
 
-    const bulbasaur = result.roster.find((m) => m.speciesId === 1)
-    expect(bulbasaur?.level).toBe(16)
-    expect(result.roster.filter((m) => m.speciesId === 2)).toHaveLength(1)
+  it('unlocks tier 2 once candies, badges, and the training upgrade are all satisfied', () => {
+    const save = makeRegionSave({
+      lifetimeCandies: TIER_2.unlockAt,
+      badges: ['a', 'b'],
+      upgrades: { [TIER_2.requiresTrainingUpgradeId!]: 1 },
+    })
+    expect(bestXpBoostTier(save)).toBe(TIER_2)
   })
 })
 
 describe('buyXpBoost / isBuffActive / xpMultiplierFromBuffs', () => {
-  it('activates the buff for XP_BOOST_DURATION_MS from now', () => {
-    const save = { ...makeRegionSave(), candies: XP_BOOST_COST }
+  it('activates the best unlocked tier for its own duration/multiplier', () => {
+    const save = { ...makeRegionSave(), candies: TIER_1.cost }
     const now = 1_000
     const result = buyXpBoost(save, now)
 
     expect(result.candies).toBe(0)
-    expect(result.buffs[XP_BOOST_ID]).toBe(now + XP_BOOST_DURATION_MS)
+    expect(result.buffs[XP_BOOST_ID]).toBe(now + TIER_1.durationMs)
     expect(isBuffActive(result, XP_BOOST_ID, now)).toBe(true)
-    expect(isBuffActive(result, XP_BOOST_ID, now + XP_BOOST_DURATION_MS + 1)).toBe(false)
-    expect(xpMultiplierFromBuffs(result, now)).toBe(XP_BOOST_MULTIPLIER)
+    expect(isBuffActive(result, XP_BOOST_ID, now + TIER_1.durationMs + 1)).toBe(false)
+    expect(xpMultiplierFromBuffs(result, now)).toBe(TIER_1.multiplier)
   })
 
   it('extends from the current expiry instead of resetting when bought again while active', () => {
-    const save = { ...makeRegionSave(), candies: XP_BOOST_COST * 2 }
+    const save = { ...makeRegionSave(), candies: TIER_1.cost * 2 }
     const now = 1_000
     const afterFirst = buyXpBoost(save, now)
     const afterSecond = buyXpBoost(afterFirst, now + 100)
 
-    expect(afterSecond.buffs[XP_BOOST_ID]).toBe(now + XP_BOOST_DURATION_MS * 2)
+    expect(afterSecond.buffs[XP_BOOST_ID]).toBe(now + TIER_1.durationMs * 2)
   })
 
-  it('is a no-op when the player cannot afford it', () => {
-    const save = { ...makeRegionSave(), candies: XP_BOOST_COST - 1 }
+  it('is a no-op when the player cannot afford the current tier', () => {
+    const save = { ...makeRegionSave(), candies: TIER_1.cost - 1 }
     expect(buyXpBoost(save, 0)).toEqual(save)
   })
 

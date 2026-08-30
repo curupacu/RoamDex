@@ -310,6 +310,59 @@ export const UPGRADES: UpgradeDefinition[] = [
     flavor: 'Passa do limite de propósito; ainda não explodiu.',
   },
 
+  // --- Cadeia "Treinamento" (XP) — decisão 0053. Mesmo formato da cadeia
+  // "Treinador Lendário" acima (decisão 0026): 2 tiers de compra única com
+  // efeito flat crescente, um 3º que muda de natureza (scalesWith:
+  // 'rosterSize' — Treinamento passa a escalar com quantos Pokémon você
+  // capturou, não só um número fixo) e um 4º de sinergia (Padrão 3,
+  // decisão 0035) que ativa o bônus de XP do time do tipo Psíquico — a
+  // mesma tabela mestra de tipos já reservava esse bônus, só não tinha
+  // upgrade nenhum ligado a ele até agora. training-regimen (Sprint 6)
+  // continua sendo o "prédio" da cadeia, papel equivalente a
+  // volunteer-helper no eixo de CPS. ---
+  {
+    id: 'training-drills',
+    name: 'Repetição Cronometrada',
+    kind: 'xp',
+    baseCost: 2_000,
+    effect: 2,
+    unlockAt: 8_000,
+    maxPurchases: 1,
+    flavor: 'Fazer de novo, de novo, e de novo — até virar reflexo.',
+  },
+  {
+    id: 'training-simulator',
+    name: 'Simulador de Combate',
+    kind: 'xp',
+    baseCost: 10_000,
+    effect: 6,
+    unlockAt: 40_000,
+    maxPurchases: 1,
+    flavor: 'Nenhum Pokémon se machuca, mas todos aprendem igual.',
+  },
+  {
+    id: 'training-academy',
+    name: 'Escola Itinerante',
+    kind: 'xp',
+    baseCost: 45_000,
+    unlockAt: 120_000,
+    maxPurchases: 1,
+    scalesWith: 'rosterSize',
+    effect: 1, // +1 XP/s por Pokémon capturado no roster
+    flavor: 'Cada Pokémon do time vira professor do próximo, por um tempinho.',
+  },
+  {
+    id: 'training-psychic-bond',
+    name: 'Vínculo Psíquico',
+    kind: 'xp',
+    baseCost: 60_000,
+    unlockAt: 120_000, // mesmo unlockAt da Escola Itinerante — só falta a sinergia
+    maxPurchases: 1,
+    requiresSynergy: { upgradeId: 'training-academy', count: 1, teamType: 'psychic' },
+    effect: 3, // +3 XP/s, permanente
+    flavor: 'Um Pokémon Psíquico no time sente o que os outros ainda não aprenderam.',
+  },
+
   // --- Padrão 4 (multiplicador global por marco) — desbloqueado por
   // insígnias de ginásio (save.badges.length), não por doces. Efeito
   // soma com qualquer outro 'globalMultiplier' já comprado

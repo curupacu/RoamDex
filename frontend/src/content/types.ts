@@ -83,6 +83,9 @@ export const LIVE_BONUS_KINDS: EconomicBonusKind[] = [
   'wildSpawnRate',
   'rareWildChance',
   'captureChance',
+  // Decisão 0053: Psíquico dava esse bônus na tabela mestra desde sempre,
+  // mas nada o multiplicava de fato até a reformulação de XP/treino.
+  'xpGain',
 ]
 
 export const BONUS_KIND_LABELS: Record<EconomicBonusKind, string> = {

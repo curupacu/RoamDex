@@ -224,7 +224,8 @@ function App() {
       })
     }
 
-    const xpMultiplier = xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+    const xpMultiplier =
+      xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current) * economyMultiplier(teamRef.current, 'xpGain')
     const xpPerSecond = totalXpPerSecond(regionDef, region) * xpMultiplier
     if (xpPerSecond > 0) {
       const xpGain = (xpPerSecond * progress.elapsedMs) / 1000
@@ -322,7 +323,8 @@ function App() {
           })
         }
 
-        const xpMultiplier = xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current)
+        const xpMultiplier =
+          xpMultiplierFromBuffs(region, Date.now()) * xpGainMultiplierBonus(saveRef.current) * economyMultiplier(teamRef.current, 'xpGain')
         const xpPerSecond = totalXpPerSecond(regionDef, region) * xpMultiplier
         if (xpPerSecond > 0) {
           const xpGain = (xpPerSecond * deltaMs) / 1000
@@ -571,7 +573,7 @@ function App() {
     // already relies on (React 18 StrictMode double-invokes setSave updaters
     // in dev, so a side effect INSIDE the updater would double-queue there).
     if (regionSave) {
-      const xpMultiplier = xpGainMultiplierBonus(save)
+      const xpMultiplier = xpGainMultiplierBonus(save) * economyMultiplier(teamRef.current, 'xpGain')
       const { team: teamXp, activeBonus } = battleXpForVictory(enemyLevel)
       const withTeamXp = gainTeamXp(regionSave, gen1Ref.current ?? [], teamXp * xpMultiplier)
       const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, activeBonus * xpMultiplier)
@@ -579,7 +581,7 @@ function App() {
     }
 
     setSave((current) => {
-      const xpMultiplier = xpGainMultiplierBonus(current)
+      const xpMultiplier = xpGainMultiplierBonus(current) * economyMultiplier(teamRef.current, 'xpGain')
       const { team, activeBonus } = battleXpForVictory(enemyLevel)
       const withTeamXp = gainTeamXp(currentRegion(current), gen1Ref.current ?? [], team * xpMultiplier)
       const withMemberXp = gainMemberXp(withTeamXp, gen1Ref.current ?? [], activeSpeciesId, activeBonus * xpMultiplier)
@@ -895,6 +897,7 @@ function App() {
       {view === 'shop' && (
         <CandyShopScreen
           gen1={gen1}
+          regionDef={activeRegionDef}
           region={regionSave}
           now={Date.now()}
           onBuyRareCandy={handleBuyRareCandy}
